@@ -4,5 +4,5 @@
     <string name="app_name">CollabRoute</string>
     <string name="hello_world">DIO CANE!</string>
     <string name="action_settings">Impostazioni</string>
-
+    <string name="splash_description">Route your favourite trip with your friends collaboratively!</string>
 </resources>
