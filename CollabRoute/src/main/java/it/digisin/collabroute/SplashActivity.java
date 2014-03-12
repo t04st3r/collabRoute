@@ -115,7 +115,7 @@ public class SplashActivity extends Activity {
     }
 
     private void goAhead(){
-        final Intent intent = new Intent(this, MainActivity.class);
+        final Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();
     }

@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">CollabRoute</string>
     <string name="hello_world">DIO CANE!</string>
     <string name="action_settings">Impostazioni</string>
     <string name="splash_description">Route your favourite trip with your friends collaboratively!</string>
+    <string name="login_mail">Email Address:</string>
+    <string name="login_password">Password:</string>
+    <string name="login_button">LOG IN</string>
+    <string name="signIn_text">New User?</string>
+    <string name="signIn_button">SIGN IN</string>
+    <string name="recovery_button">RECOVER</string>
+    <string name="recovery_text">Forgot your Password?</string>
 </resources>
