@@ -67,8 +67,9 @@ public class LoginActivity extends Activity {
                     User.setPassword(passwd);
                 }
                 String text;
-                if (logIn == null) {
-                    logIn = new UserLoginHandler(User, SERVER_ADDRESS, SERVER_PORT);
+                new UserLoginHandler(User, SERVER_ADDRESS, SERVER_PORT, getApplicationContext()).execute();
+               /* if (logIn == null) {
+                    logIn = new UserLoginHandler(User, SERVER_ADDRESS, SERVER_PORT, getApplicationContext());
                 }
                 if (logIn.logIn()) {
                     text = "Successfully connected!";
@@ -76,8 +77,8 @@ public class LoginActivity extends Activity {
                 else{
                     text = "Error on logging in";
                 }
-                Toast.makeText(context, text, duration).show();
-
+                //Toast.makeText(context, text, duration).show();
+             */
             }
         });
     }
