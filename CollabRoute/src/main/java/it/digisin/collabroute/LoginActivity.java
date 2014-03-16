@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.util.JsonReader;
@@ -17,7 +16,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.InputStreamReader;
-import java.net.URL;
 
 
 public class LoginActivity extends Activity {
@@ -54,31 +52,25 @@ public class LoginActivity extends Activity {
         final Editable passEdit = passField.getText();
         final Button loginButton = (Button) findViewById(R.id.buttonLogin);
         final Context context = getApplicationContext();
-        final int duration = Toast.LENGTH_SHORT;
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String mail = mailEdit.toString();
                 String passwd = passEdit.toString();
-                if (User == null) {
-                    User = new UserHandler(mail, passwd);
+                EmailValidator validator = new EmailValidator();
+                if (mail.equals("") || passwd.equals("") || !validator.validate(mail)) {
+                    Toast.makeText(context, "Email or Password missing or incorrect", Toast.LENGTH_SHORT).show();
                 } else {
-                    User.setEMail(mail);
-                    User.setPassword(passwd);
+
+                    if (User == null) {
+                        User = new UserHandler(mail, passwd);
+                    } else {
+                        User.setEMail(mail);
+                        User.setPassword(passwd);
+                    }
+                    String text;
+                    new UserLoginHandler(User, SERVER_ADDRESS, SERVER_PORT, getApplicationContext()).execute(); //extend AsyncTask and run with a separate thread
                 }
-                String text;
-                new UserLoginHandler(User, SERVER_ADDRESS, SERVER_PORT, getApplicationContext()).execute();
-               /* if (logIn == null) {
-                    logIn = new UserLoginHandler(User, SERVER_ADDRESS, SERVER_PORT, getApplicationContext());
-                }
-                if (logIn.logIn()) {
-                    text = "Successfully connected!";
-                }
-                else{
-                    text = "Error on logging in";
-                }
-                //Toast.makeText(context, text, duration).show();
-             */
             }
         });
     }

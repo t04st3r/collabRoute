@@ -101,8 +101,7 @@ public class UserLoginHandler extends AsyncTask{
                    return true;
                 }
             };
-            HttpsURLConnection urlConnection =
-                    (HttpsURLConnection)url.openConnection();
+            HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
             InputStream in = urlConnection.getInputStream();

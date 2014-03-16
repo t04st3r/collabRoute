@@ -23,7 +23,7 @@ public class UserHandler {
                 sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
             this.password = sb.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e);
         }
     }
 
