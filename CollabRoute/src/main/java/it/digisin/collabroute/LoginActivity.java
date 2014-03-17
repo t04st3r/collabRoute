@@ -16,6 +16,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
+
+import static it.digisin.collabroute.UserLoginHandler.*;
 
 
 public class LoginActivity extends Activity {
@@ -61,15 +66,63 @@ public class LoginActivity extends Activity {
                 if (mail.equals("") || passwd.equals("") || !validator.validate(mail)) {
                     Toast.makeText(context, "Email or Password missing or incorrect", Toast.LENGTH_SHORT).show();
                 } else {
-
                     if (User == null) {
                         User = new UserHandler(mail, passwd);
                     } else {
                         User.setEMail(mail);
                         User.setPassword(passwd);
                     }
-                    String text;
-                    new UserLoginHandler(User, SERVER_ADDRESS, SERVER_PORT, getApplicationContext()).execute(); //extend AsyncTask and run with a separate thread
+                     UserLoginHandler login = new UserLoginHandler(User, SERVER_ADDRESS, SERVER_PORT, getApplicationContext()); //extend AsyncTask and run with a separate thread
+                     login.execute(); //start the thread
+                     Object result = null;
+                    try {
+                         result = login.get();
+                    } catch (InterruptedException e) {
+                        System.err.println(e);
+                    } catch (ExecutionException e) {
+                        System.err.println(e);
+                    }
+                    if(result != null) {
+                        if (result instanceof Integer) {
+                            int resultInt = ((Integer) result).intValue();
+                            switch (resultInt) {
+                                case AUTH_FAILED:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(AUTH_FAILED), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CONN_REFUSED:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CONN_BAD_URL:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CONN_GENERIC_IO_ERROR:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CONN_GENERIC_ERROR:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CONN_TIMEDOUT:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case AUTH_DB_ERROR:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(AUTH_DB_ERROR), Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        } else {
+                            //TODO should go to another activity once sucessfully logged in
+                            JsonToMap json = new JsonToMap((String) result);
+                            HashMap resultMap = json.getMap();
+                            Iterator<String> it = resultMap.keySet().iterator();
+                            while (it.hasNext()) {
+                                String key = it.next();
+                                String value = (String)resultMap.get(key);
+                                System.err.println(key+" : "+value);
+
+                            }
+
+
+                        }
+                    }
                 }
             }
         });
