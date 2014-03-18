@@ -1,28 +1,35 @@
 package it.digisin.collabroute;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import android.util.JsonReader;
+
+import org.json.JSONObject;
+
+import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+
 /**
  * Created by raffaele on 17/03/14.
  */
 public class JsonToMap {
 
-    private String json;
+    private String jsonString;
 
-    public JsonToMap(String json) {
-        this.json = json;
+    public JsonToMap(String jsonString) {
+        this.jsonString = jsonString;
     }
 
-    HashMap<String,String> getMap(){
-        Map<String,String> map;
-        ObjectMapper mapper = new ObjectMapper();
-         try {
-            //convert JSON string to Map
-            map = mapper.readValue(json,
-                    new TypeReference<HashMap<String,String>>(){});
-         return (HashMap)map;
+    HashMap<String, String> getMap() {
+        try {
+            Map<String, String> map = new HashMap<String, String>();
+            JSONObject json = new JSONObject(this.jsonString);
+            Iterator keys = json.keys();
+            while (keys.hasNext()) {
+                String key = (String) keys.next();
+                map.put(key, json.getString(key));
+            }
+            return (HashMap) map;
         } catch (Exception e) {
             System.err.println(e);
             return null;

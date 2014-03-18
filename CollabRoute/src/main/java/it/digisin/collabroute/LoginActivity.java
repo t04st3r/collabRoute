@@ -14,13 +14,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
-import static it.digisin.collabroute.UserLoginHandler.*;
 
 
 public class LoginActivity extends Activity {
@@ -86,26 +84,26 @@ public class LoginActivity extends Activity {
                         if (result instanceof Integer) {
                             int resultInt = ((Integer) result).intValue();
                             switch (resultInt) {
-                                case AUTH_FAILED:
-                                    Toast.makeText(context, UserLoginHandler.errors.get(AUTH_FAILED), Toast.LENGTH_SHORT).show();
+                                case UserLoginHandler.AUTH_FAILED:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
                                     break;
-                                case CONN_REFUSED:
-                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                                case UserLoginHandler.CONN_REFUSED:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
                                     break;
-                                case CONN_BAD_URL:
-                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                                case UserLoginHandler.CONN_BAD_URL:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
                                     break;
-                                case CONN_GENERIC_IO_ERROR:
-                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                                case UserLoginHandler.CONN_GENERIC_IO_ERROR:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
                                     break;
-                                case CONN_GENERIC_ERROR:
-                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                                case UserLoginHandler.CONN_GENERIC_ERROR:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
                                     break;
-                                case CONN_TIMEDOUT:
-                                    Toast.makeText(context, UserLoginHandler.errors.get(CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                                case UserLoginHandler.CONN_TIMEDOUT:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                                     break;
-                                case AUTH_DB_ERROR:
-                                    Toast.makeText(context, UserLoginHandler.errors.get(AUTH_DB_ERROR), Toast.LENGTH_SHORT).show();
+                                case UserLoginHandler.AUTH_DB_ERROR:
+                                    Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.AUTH_DB_ERROR), Toast.LENGTH_SHORT).show();
                                     break;
                             }
                         } else {
