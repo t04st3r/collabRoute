@@ -107,7 +107,7 @@ public class LoginActivity extends Activity {
                                     break;
                             }
                         } else {
-                            //TODO should go to another activity once sucessfully logged in
+                            //TODO should go to another activity once sucessfully logged in and update User data
                             JsonToMap json = new JsonToMap((String) result);
                             HashMap resultMap = json.getMap();
                             Iterator<String> it = resultMap.keySet().iterator();
@@ -145,5 +145,4 @@ public class LoginActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

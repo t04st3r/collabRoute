@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">CollabRoute</string>
     <string name="hello_world">DIO CANE!</string>
-    <string name="action_settings">Impostazioni</string>
+    <string name="action_settings">Settings</string>
     <string name="splash_description">Route your favourite trip with your friends collaboratively!</string>
     <string name="login_mail">Email Address:</string>
     <string name="login_password">Password:</string>
@@ -11,4 +12,16 @@
     <string name="signIn_button">SIGN IN</string>
     <string name="recovery_button">RECOVER</string>
     <string name="recovery_text">Forgot your Password?</string>
+    <string name="title_activity_registration">RegistrationActivity</string>
+    <string name="registration_username">Pick an Username:</string>
+    <string name="registration_email">Insert your Email Address:</string>
+    <string name="registration_passwd">Choose a Password:</string>
+    <string name="registration_vericode">Verification Code:</string>
+    <string name="registration_description">An Email has been sent to %1$s containing
+                                            the verification code, copy and paste the code
+                                            in the verification code field to complete your
+                                            registration</string>
+    <string name="registration_checkmail">CHECK EMAIL</string>
+    <string name="registration_button">COMPLETE REGISTRATION</string>
+
 </resources>
