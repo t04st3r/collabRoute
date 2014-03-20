@@ -2,6 +2,7 @@ package it.digisin.collabroute;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.Menu;
@@ -11,12 +12,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
 
 public class RegistrationActivity extends Activity {
+
+
+
 
 
     @Override
@@ -30,11 +37,14 @@ public class RegistrationActivity extends Activity {
         final Editable passEdit = passField.getText();
         final EditText userField = (EditText) findViewById(R.id.userReg);
         final Editable userEdit = userField.getText();
+        final EditText codeField = (EditText) findViewById(R.id.veriCode);
+        final Editable codeEdit = codeField.getText();
+        codeField.setKeyListener(null); //disable
         final Button signInButton = (Button) findViewById(R.id.buttonReg);
         final Button checkMailButton = (Button) findViewById(R.id.buttonCheckMail);
         final Button completeReg = (Button) findViewById(R.id.buttonCompleteReg);
-
-        setSignInButton(signInButton, mailEdit, passEdit, userEdit);
+        final Resources res = getResources();
+        setSignInButton(signInButton, mailEdit, passEdit, userEdit, res);
 
     }
 
@@ -59,7 +69,7 @@ public class RegistrationActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setSignInButton(Button signInButton, final Editable mailEdit, final Editable passEdit, final Editable userEdit) {
+    public void setSignInButton(Button signInButton, final Editable mailEdit, final Editable passEdit, final Editable userEdit, final Resources res) {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,15 +122,18 @@ public class RegistrationActivity extends Activity {
                                 break;
                         }
                     } else {
-                        JsonToMap json = new JsonToMap((String) result);
-                        HashMap resultMap = json.getMap();
-                        Iterator<String> it = resultMap.keySet().iterator();
-                        while (it.hasNext()) {
-                            String key = it.next();
-                            String value = (String) resultMap.get(key);
-                            System.err.println(key + " : " + value);
+                        try {
 
+                            String successText = String.format(res.getString(R.string.registration_email_sent), newbie.getName());
+                            Toast.makeText(context, successText, Toast.LENGTH_LONG).show();
+                            JSONObject response = new JSONObject((String) result);
+                            String codeString = (String) response.getString("code");
+                            int code = Integer.parseInt(codeString);
+
+                        } catch (JSONException e) {
+                            System.err.println(e);
                         }
+
                     }
 
                 }

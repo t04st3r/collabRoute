@@ -17,7 +17,7 @@
     <string name="registration_email">Insert your Email Address:</string>
     <string name="registration_passwd">Choose a Password:</string>
     <string name="registration_vericode">Verification Code:</string>
-    <string name="registration_description">An Email has been sent to %1$s containing
+    <string name="registration_email_sent">An Email has been sent to %1$s containing
                                             the verification code, copy and paste the code
                                             in the verification code field to complete your
                                             registration</string>

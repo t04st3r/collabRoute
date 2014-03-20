@@ -96,9 +96,6 @@ public class UserRegistrationHandler extends ConnectionHandler {
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
             urlConnection.setRequestMethod("POST");
-            urlConnection.setDoInput(true);
-            urlConnection.setDoOutput(true);
-            urlConnection.setUseCaches(false);
             String urlParam = "name="+newbie.getName()+"&mail="+newbie.getEMail()+"&pass="+newbie.getPassword();
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
             printout.writeBytes(urlParam);
@@ -108,13 +105,9 @@ public class UserRegistrationHandler extends ConnectionHandler {
             String jsonToString = inputToString(in);
             JSONObject jsonResponse = new JSONObject(jsonToString);
             String result = jsonResponse.getString("result");
-            System.err.println(result);
-            return result;
-
-
-            /*
+            System.err.println("response: "+result);
             Response resultEnum = Response.valueOf(result);
-
+            in.close();
             switch (resultEnum) {
                 case OK:
                     return jsonToString;
@@ -125,7 +118,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
                 default:
                     return DB_ERROR;
             }
-        */} catch (SocketTimeoutException e) {
+        } catch (SocketTimeoutException e) {
             System.err.println(e);
             return CONN_TIMEDOUT;
         } catch (ConnectException e) {
