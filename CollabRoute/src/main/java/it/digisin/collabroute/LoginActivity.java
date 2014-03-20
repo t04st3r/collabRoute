@@ -24,12 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 public class LoginActivity extends Activity {
 
-    public static final String TAG_LOG = LoginActivity.class.getName();
-    public static String SERVER_ADDRESS;
-    public static int SERVER_PORT;
     private UserHandler User = null;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

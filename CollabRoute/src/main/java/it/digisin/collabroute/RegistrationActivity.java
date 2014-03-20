@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
@@ -18,28 +19,29 @@ import java.util.concurrent.ExecutionException;
 public class RegistrationActivity extends Activity {
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
         final EditText mailField = (EditText) findViewById(R.id.emailReg);
-        final Editable mailEdit =  mailField.getText();
+        final Editable mailEdit = mailField.getText();
         final EditText passField = (EditText) findViewById(R.id.passReg);
         final Editable passEdit = passField.getText();
         final EditText userField = (EditText) findViewById(R.id.userReg);
-        final Editable userEdit = passField.getText();
-        final Button signInButton = (Button) findViewById(R.id.buttonSignIn);
+        final Editable userEdit = userField.getText();
+        final Button signInButton = (Button) findViewById(R.id.buttonReg);
         final Button checkMailButton = (Button) findViewById(R.id.buttonCheckMail);
         final Button completeReg = (Button) findViewById(R.id.buttonCompleteReg);
+
+        setSignInButton(signInButton, mailEdit, passEdit, userEdit);
 
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.registration, menu);
         return true;
@@ -57,7 +59,7 @@ public class RegistrationActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setSignInButton(Button signInButton, final Editable mailEdit, final Editable passEdit, final Editable userEdit){
+    public void setSignInButton(Button signInButton, final Editable mailEdit, final Editable passEdit, final Editable userEdit) {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,11 +68,12 @@ public class RegistrationActivity extends Activity {
                 String user = userEdit.toString();
                 Context context = getApplication();
                 EmailValidator validator = new EmailValidator();
-                if (mail.equals("") || passwd.equals("") || user.equals("")|| !validator.validate(mail)) {
+                if (mail.equals("") || passwd.equals("") || user.equals("") || !validator.validate(mail)) {
                     Toast.makeText(context, "Email, Username or Password missing or incorrect", Toast.LENGTH_SHORT).show();
                 } else {
-
-                    UserRegistrationHandler registration = new UserRegistrationHandler(getApplicationContext()); //extend AsyncTask and run with a separate thread
+                    UserHandler newbie = new UserHandler(mail, passwd);
+                    newbie.setName(user);
+                    UserRegistrationHandler registration = new UserRegistrationHandler(getApplicationContext(), newbie); //extend AsyncTask and run with a separate thread
                     registration.execute(); //start the thread
                     Object result = null;
                     try {
@@ -80,9 +83,46 @@ public class RegistrationActivity extends Activity {
                     } catch (ExecutionException e) {
                         System.err.println(e);
                     }
-                    if(result != null) {
-                        //TODO handle the code confirmation process and get back to the login Activity
+                    if (result instanceof Integer) {
+                        int resultInt = ((Integer) result).intValue();
+                        switch (resultInt) {
+                            case UserRegistrationHandler.EMAIL_EXISTS_ERROR:
+                                Toast.makeText(context, UserRegistrationHandler.errors.get(UserRegistrationHandler.EMAIL_EXISTS_ERROR), Toast.LENGTH_SHORT).show();
+                                break;
+                            case UserRegistrationHandler.EMAIL_SEND_ERROR:
+                                Toast.makeText(context, UserRegistrationHandler.errors.get(UserRegistrationHandler.EMAIL_SEND_ERROR), Toast.LENGTH_SHORT).show();
+                                break;
+                            case UserRegistrationHandler.CONN_REFUSED:
+                                Toast.makeText(context, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                                break;
+                            case UserRegistrationHandler.CONN_BAD_URL:
+                                Toast.makeText(context, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                                break;
+                            case UserRegistrationHandler.CONN_GENERIC_IO_ERROR:
+                                Toast.makeText(context, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                                break;
+                            case UserRegistrationHandler.CONN_GENERIC_ERROR:
+                                Toast.makeText(context, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                                break;
+                            case UserRegistrationHandler.CONN_TIMEDOUT:
+                                Toast.makeText(context, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                                break;
+                            case UserRegistrationHandler.DB_ERROR:
+                                Toast.makeText(context, UserRegistrationHandler.errors.get(UserRegistrationHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    } else {
+                        JsonToMap json = new JsonToMap((String) result);
+                        HashMap resultMap = json.getMap();
+                        Iterator<String> it = resultMap.keySet().iterator();
+                        while (it.hasNext()) {
+                            String key = it.next();
+                            String value = (String) resultMap.get(key);
+                            System.err.println(key + " : " + value);
+
+                        }
                     }
+
                 }
             }
         });
