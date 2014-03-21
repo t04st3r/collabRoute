@@ -58,7 +58,7 @@ public class UserLoginHandler extends ConnectionHandler{
     }
 
    @Override
-    protected Object doInBackground(Object[] params) {
+    protected Object doInBackground(String... params) {
        try {
 
            String urlString = "https://" + serverUrl + ":" + serverPort + "/auth/" + user.getEMail() + "/" + user.getPassword();

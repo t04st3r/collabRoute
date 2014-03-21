@@ -23,5 +23,8 @@
                                             registration</string>
     <string name="registration_checkmail">CHECK EMAIL</string>
     <string name="registration_button">COMPLETE REGISTRATION</string>
+    <string name="registration_user_mail_name_error">Email, Username or Password missing or incorrect</string>
+    <string name="registration_wrong_code">Wrong Verification Code</string>
+    <string name="numeric_exception">Only numeric values allowed</string>
 
 </resources>

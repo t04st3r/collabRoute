@@ -12,7 +12,7 @@ import javax.net.ssl.SSLContext;
 /**
  * Created by raffaele on 19/03/14.
  */
-public abstract class ConnectionHandler extends AsyncTask {
+public abstract class ConnectionHandler extends AsyncTask <String, Integer, Object> {
 
 
     protected static String serverUrl;
@@ -35,7 +35,7 @@ public abstract class ConnectionHandler extends AsyncTask {
         }
     }
 
-    abstract protected Object doInBackground(Object[] params);
+    protected abstract Object doInBackground(String... param);
 
     //parse in a string data from an InputStream
     public String inputToString(InputStream input) throws Exception {
