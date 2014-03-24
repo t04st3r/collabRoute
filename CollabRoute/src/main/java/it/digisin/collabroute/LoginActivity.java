@@ -16,14 +16,12 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.concurrent.ExecutionException;
-
 
 public class LoginActivity extends Activity {
 
     private static UserHandler User = null;
+
+    private enum ResponseMSG {OK, AUTH_FAILED, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
 
     EditText mailField;
     EditText passField;
@@ -91,51 +89,47 @@ public class LoginActivity extends Activity {
             User.setEMail(mail);
             User.setPassword(passwd);
         }
-        UserLoginHandler login = new UserLoginHandler(User, LoginActivity.this); //extend AsyncTask and run with a separate thread
+        UserLoginHandler login = new UserLoginHandler(LoginActivity.this, User, this); //extend AsyncTask and run with a separate thread
         login.execute(); //start the thread
-        Object result = null;
+
+    }
+
+    void checkCredentials(JSONObject response) {
         try {
-            result = login.get();
-        } catch (InterruptedException e) {
-            System.err.println(e);
-        } catch (ExecutionException e) {
-            System.err.println(e);
-        }
-        if (result instanceof Integer) {
-            int resultInt = ((Integer) result).intValue();
-            switch (resultInt) {
-                case UserLoginHandler.AUTH_FAILED:
+            String resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case AUTH_FAILED:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
                     return;
-                case UserLoginHandler.CONN_REFUSED:
+                case CONN_REFUSED:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
                     return;
-                case UserLoginHandler.CONN_BAD_URL:
+                case CONN_BAD_URL:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
                     return;
-                case UserLoginHandler.CONN_GENERIC_IO_ERROR:
+                case CONN_GENERIC_IO_ERROR:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
                     return;
-                case UserLoginHandler.CONN_GENERIC_ERROR:
+                case CONN_GENERIC_ERROR:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
                     return;
-                case UserLoginHandler.CONN_TIMEDOUT:
+                case CONN_TIMEDOUT:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                     return;
-                case UserLoginHandler.AUTH_DB_ERROR:
+                case DATABASE_ERROR:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.AUTH_DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
             }
-        }
 
-        //TODO should go to another activity once sucessfully logged in and update User data
 
-        try {
-            JSONObject response = new JSONObject((String) result);
+            //TODO should go to another activity once sucessfully logged in and update User data
+
             User.setName(response.getString("name"));
             User.setToken(response.getString("token"));
             User.setId(response.getInt("id"));
             System.err.println(User.getId() + " " + User.getName() + " " + User.getToken());
+
         } catch (JSONException e) {
             System.err.println(e);
         }

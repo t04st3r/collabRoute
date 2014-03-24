@@ -5,7 +5,6 @@ import android.content.Context;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +14,6 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
@@ -64,7 +62,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
             errors.put(CONN_TIMEDOUT, "Connection Timed Out");
             errors.put(CONN_REFUSED, "Connection Refused");
             errors.put(CONN_BAD_URL, "Bad Url");
-            errors.put(CONN_GENERIC_IO_ERROR, "I/O Error");
+            errors.put(CONN_GENERIC_IO_ERROR, "I believe your phone is not connected");
             errors.put(CONN_GENERIC_ERROR, "Generic Connection Error");
             errors.put(EMAIL_SEND_ERROR, "Confirmation Email Forward Failure");
             errors.put(EMAIL_EXISTS_ERROR, "Email Address already registered, use another one");

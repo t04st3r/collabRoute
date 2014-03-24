@@ -33,15 +33,21 @@ public class UserLoginHandler extends ConnectionHandler{
     protected static final int AUTH_DB_ERROR = 0;
 
     public static UserHandler user;
+
     public static Map<Integer,String> errors = null;
 
+    private JSONObject error;
+
+    public LoginActivity login;
 
     public enum Response { OK,  AUTH_FAILED,  DATABASE_ERROR;}
 
-    public UserLoginHandler(UserHandler user, Context activity) {
+    public UserLoginHandler(Context activity, UserHandler user, LoginActivity login) {
         super(activity);
         this.user = user;
+        this.login = login;
         loadErrorMap();
+        error = new JSONObject();
     }
 
     private void loadErrorMap(){
@@ -57,9 +63,32 @@ public class UserLoginHandler extends ConnectionHandler{
         }
     }
 
-   @Override
-    protected Object doInBackground(String... params) {
-       try {
+    @Override
+    protected void onPreExecute() {
+        dialog.setMessage("Sending request, hold on please");
+        dialog.show();
+    }
+
+    @Override
+    protected void onPostExecute(Object result) {
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+        }
+        JSONObject jsonResult = (JSONObject) result;
+        login.checkCredentials(jsonResult);
+    }
+
+
+    @Override
+    protected JSONObject doInBackground(String... params) {
+        try{
+            return doLoginData();
+        }catch(JSONException e){System.err.println(e);}
+        return null;
+    }
+
+    JSONObject doLoginData() throws JSONException{
+        try {
 
            String urlString = "https://" + serverUrl + ":" + serverPort + "/auth/" + user.getEMail() + "/" + user.getPassword();
            URL url = new URL(urlString);
@@ -84,41 +113,35 @@ public class UserLoginHandler extends ConnectionHandler{
            urlConnection.setSSLSocketFactory(context.getSocketFactory());
            urlConnection.setHostnameVerifier(allowEveryHost);
            InputStream in = urlConnection.getInputStream();
-           //System.err.println(inputToString(in)); Used for debug purposes
+           //System.err.println(inputToString(in)); debug
            String jsonToString = inputToString(in);
            in.close();
            JSONObject jsonResponse = new JSONObject(jsonToString);
-           String result = jsonResponse.getString("result");
-           Response resultEnum = Response.valueOf(result);
-           switch (resultEnum) {
-               case OK:
-                   return jsonToString;
-               case DATABASE_ERROR:
-                   return AUTH_DB_ERROR;
-               default:
-                   return AUTH_FAILED;
-           }
+           return jsonResponse;
        } catch (SocketTimeoutException e) {
            System.err.println(e);
-           return CONN_TIMEDOUT;
+           error.put("result", "CONN_TIMEDOUT");
+           return error;
        } catch (ConnectException e) {
            System.err.println(e);
-           return CONN_REFUSED;
+           error.put("result", "CONN_REFUSED");
+           return error;
        } catch (MalformedURLException e) {
            System.err.println(e);
-           return CONN_BAD_URL;
+           error.put("result", "CONN_BAD_URL");
+           return error;
        } catch (IOException e) {
            System.err.println(e);
-           return CONN_GENERIC_IO_ERROR;
+           error.put("result", "CONN_GENERIC_IO_ERROR");
+           return error;
        } catch (IllegalArgumentException e) {
            System.err.println(e);
-           return CONN_GENERIC_ERROR;
-       } catch (JSONException e) {
-           System.err.println(e);
-           return CONN_GENERIC_ERROR;
+           error.put("result", "CONN_GENERIC_ERROR");
+           return error;
        } catch (Exception e) {
            System.err.println(e);
-           return CONN_GENERIC_ERROR;
+           error.put("result", "CONN_GENERIC_ERROR");
+           return error;
        }
     }
 }
