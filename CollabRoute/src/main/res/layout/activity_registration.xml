@@ -130,12 +130,11 @@
 
     <Button
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
         android:text="@string/registration_button"
         android:id="@+id/buttonCompleteReg"
-        android:layout_marginTop="30dp"
-        android:layout_weight="0.5"
-        android:enabled="false" />
+        android:layout_marginTop="20dp"
+        android:enabled="false"
+        android:layout_height="wrap_content" />
 
     </LinearLayout>
 

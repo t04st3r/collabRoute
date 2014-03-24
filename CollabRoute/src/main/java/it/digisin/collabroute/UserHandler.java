@@ -12,7 +12,7 @@ public class UserHandler {
     private String name;
     private int id;
 
-    public UserHandler(String eMail, String password) {
+    private UserHandler(String eMail, String password) {
         this.eMail = eMail;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -25,6 +25,10 @@ public class UserHandler {
         } catch (Exception e) {
             System.err.println(e);
         }
+    }
+    public static UserHandler create(final String eMail, final String password){
+        final UserHandler user = new UserHandler(eMail, password);
+        return user;
     }
 
     public String getEMail() {

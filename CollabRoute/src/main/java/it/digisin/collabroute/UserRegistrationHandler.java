@@ -1,8 +1,11 @@
 package it.digisin.collabroute;
 
+
 import android.content.Context;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +15,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
@@ -36,44 +40,82 @@ public class UserRegistrationHandler extends ConnectionHandler {
     protected static final int CONN_GENERIC_ERROR = 6;
     protected static final int EMAIL_NOT_FOUND = 7;
 
-    public static Map<Integer,String> errors = null;
+    public static Map<Integer, String> errors = null;
+
+    private JSONObject error;
 
     public enum Response {OK, EMAIL_SEND_ERROR, DATABASE_ERROR, EMAIL_EXISTS_ERROR, EMAIL_NOT_FOUND;}
 
+    public RegistrationActivity registration;
 
-    public UserRegistrationHandler(Context activity, UserHandler newbie) {
+    public UserRegistrationHandler(Context activity, UserHandler newbie, RegistrationActivity registration) {
         super(activity);
         this.newbie = newbie;
-        if(errors == null) {
+        this.registration = registration;
+        if (errors == null) {
             loadErrorMap();
         }
+        error = new JSONObject();
     }
 
-    private void loadErrorMap(){
-        if(errors == null) {
+    private void loadErrorMap() {
+        if (errors == null) {
             errors = new HashMap<Integer, String>();
             errors.put(CONN_TIMEDOUT, "Connection Timed Out");
             errors.put(CONN_REFUSED, "Connection Refused");
             errors.put(CONN_BAD_URL, "Bad Url");
             errors.put(CONN_GENERIC_IO_ERROR, "I/O Error");
             errors.put(CONN_GENERIC_ERROR, "Generic Connection Error");
-            errors.put(EMAIL_SEND_ERROR , "Confirmation Email Forward Failure");
-            errors.put(EMAIL_EXISTS_ERROR , "Email Address already registered, use another one");
-            errors.put(DB_ERROR , "Database Error");
-            errors.put(EMAIL_NOT_FOUND , "Mail not found while confirm registration");
-            errors.put(OK , "Welcome on board ");
+            errors.put(EMAIL_SEND_ERROR, "Confirmation Email Forward Failure");
+            errors.put(EMAIL_EXISTS_ERROR, "Email Address already registered, use another one");
+            errors.put(DB_ERROR, "Database Error");
+            errors.put(EMAIL_NOT_FOUND, "Mail not found while confirm registration");
+            errors.put(OK, "Welcome on board!");
         }
     }
 
     @Override
-    protected Object doInBackground(String... params) {
-        if(params[0] == "registration"){
-            return sendRegistrationData();
+    protected JSONObject doInBackground(String... params) {
+        if (params[0].equals("registration")) {
+            try {
+                return sendRegistrationData();
+            } catch (JSONException e) {
+                System.err.println(e);
+                return null;
+            }
         }
-        return sendConfirmation();
+        try {
+            return sendConfirmation();
+        } catch (JSONException e) {
+            System.err.println(e);
+            return null;
+        }
     }
 
-    protected Object sendRegistrationData(){
+    @Override
+    protected void onPreExecute() {
+        dialog.setMessage("Sending request, hold on please");
+        dialog.show();
+    }
+
+    @Override
+    protected void onPostExecute(Object result) {
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+        }
+        JSONObject jsonResult = (JSONObject) result;
+        try {
+            String type = jsonResult.getString("type");
+            if(type.equals("request"))
+                registration.checkResponse(result);
+            else
+                registration.checkConfirmation(result);
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+    }
+
+    protected JSONObject sendRegistrationData() throws JSONException {
         try {
             String urlString = "https://" + serverUrl + ":" + serverPort + "/add/user/";
             URL url = new URL(urlString);
@@ -98,53 +140,44 @@ public class UserRegistrationHandler extends ConnectionHandler {
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
             urlConnection.setRequestMethod("POST");
-            String urlParam = "name="+newbie.getName()+"&mail="+newbie.getEMail()+"&pass="+newbie.getPassword();
+            String urlParam = "name=" + newbie.getName() + "&mail=" + newbie.getEMail() + "&pass=" + newbie.getPassword();
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
             printout.writeBytes(urlParam);
             printout.flush();
             printout.close();
             InputStream in = urlConnection.getInputStream();
             String jsonToString = inputToString(in);
-            JSONObject jsonResponse = new JSONObject(jsonToString);
-            String result = jsonResponse.getString("result");
-            System.err.println("response: "+result);
-            Response resultEnum = Response.valueOf(result);
             in.close();
-            switch (resultEnum) {
-                case OK:
-                    return jsonToString;
-                case EMAIL_EXISTS_ERROR:
-                    return EMAIL_EXISTS_ERROR;
-                case EMAIL_SEND_ERROR:
-                    return EMAIL_SEND_ERROR;
-                default:
-                    return DB_ERROR;
-            }
+            JSONObject jsonResponse = new JSONObject(jsonToString);
+            return jsonResponse;
         } catch (SocketTimeoutException e) {
             System.err.println(e);
-            return CONN_TIMEDOUT;
+            error.put("type", "request").put("result", "CONN_TIMEDOUT");
+            return error;
         } catch (ConnectException e) {
             System.err.println(e);
-            return CONN_REFUSED;
+            error.put("type", "request").put("result", "CONN_REFUSED");
+            return error;
         } catch (MalformedURLException e) {
             System.err.println(e);
-            return CONN_BAD_URL;
+            error.put("type", "request").put("result", "CONN_BAD_URL");
+            return error;
         } catch (IOException e) {
             System.err.println(e);
-            return CONN_GENERIC_IO_ERROR;
+            error.put("type", "request").put("result", "CONN_GENERIC_IO_ERROR");
+            return error;
         } catch (IllegalArgumentException e) {
             System.err.println(e);
-            return CONN_GENERIC_ERROR;
-        } catch (JSONException e) {
-            System.err.println(e);
-            return CONN_GENERIC_ERROR;
+            error.put("type", "request").put("result", "CONN_GENERIC_ERROR");
+            return error;
         } catch (Exception e) {
             System.err.println(e);
-            return CONN_GENERIC_ERROR;
+            error.put("type", "request").put("result", "CONN_GENERIC_ERROR");
+            return error;
         }
     }
 
-    protected Integer sendConfirmation(){
+    protected JSONObject sendConfirmation() throws JSONException{
         try {
             String urlString = "https://" + serverUrl + ":" + serverPort + "/confirm/user/";
             URL url = new URL(urlString);
@@ -169,7 +202,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
             urlConnection.setRequestMethod("POST");
-            String urlParam = "mail="+newbie.getEMail();
+            String urlParam = "mail=" + newbie.getEMail();
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
             printout.writeBytes(urlParam);
             printout.flush();
@@ -178,38 +211,31 @@ public class UserRegistrationHandler extends ConnectionHandler {
             String jsonToString = inputToString(in);
             in.close();
             JSONObject jsonResponse = new JSONObject(jsonToString);
-            String result = jsonResponse.getString("result");
-            System.err.println("response: "+result);
-            Response resultEnum = Response.valueOf(result);
-            switch (resultEnum) {
-                case OK:
-                    return OK;
-                case EMAIL_NOT_FOUND:
-                    return EMAIL_NOT_FOUND;
-                default:
-                    return DB_ERROR;
-            }
+            return jsonResponse;
         } catch (SocketTimeoutException e) {
             System.err.println(e);
-            return CONN_TIMEDOUT;
+            error.put("type", "confirm").put("result", "CONN_TIMEDOUT");
+            return error;
         } catch (ConnectException e) {
             System.err.println(e);
-            return CONN_REFUSED;
+            error.put("type", "confirm").put("result", "CONN_REFUSED");
+            return error;
         } catch (MalformedURLException e) {
             System.err.println(e);
-            return CONN_BAD_URL;
+            error.put("type", "confirm").put("result", "CONN_BAD_URL");
+            return error;
         } catch (IOException e) {
             System.err.println(e);
-            return CONN_GENERIC_IO_ERROR;
+            error.put("type", "confirm").put("result", "CONN_GENERIC_IO_ERROR");
+            return error;
         } catch (IllegalArgumentException e) {
             System.err.println(e);
-            return CONN_GENERIC_ERROR;
-        } catch (JSONException e) {
-            System.err.println(e);
-            return CONN_GENERIC_ERROR;
+            error.put("type", "confirm").put("result", "CONN_GENERIC_ERROR");
+            return error;
         } catch (Exception e) {
             System.err.println(e);
-            return CONN_GENERIC_ERROR;
+            error.put("type", "confirm").put("result", "CONN_GENERIC_ERROR");
+            return error;
         }
     }
 }

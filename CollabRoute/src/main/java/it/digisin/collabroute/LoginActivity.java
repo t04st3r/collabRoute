@@ -2,21 +2,20 @@ package it.digisin.collabroute;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.util.JsonReader;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
@@ -24,22 +23,35 @@ import java.util.concurrent.ExecutionException;
 
 public class LoginActivity extends Activity {
 
-    private UserHandler User = null;
+    private static UserHandler User = null;
+
+    EditText mailField;
+    EditText passField;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final EditText mailField = (EditText) findViewById(R.id.emailLogin);
-        final Editable mailEdit = mailField.getText();
-        final EditText passField = (EditText) findViewById(R.id.passwordLogin);
-        final Editable passEdit = passField.getText();
+        mailField = (EditText) findViewById(R.id.emailLogin);
+        passField = (EditText) findViewById(R.id.passwordLogin);
+
         final Button loginButton = (Button) findViewById(R.id.buttonLogin);
         final Button registrationButton = (Button) findViewById(R.id.buttonSignIn);
 
-        setLoginButton(loginButton, mailEdit, passEdit);
-        setRegistrationButton(registrationButton);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doLogin();
+            }
+        });
+
+        registrationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToRegistration();
+            }
+        });
     }
 
     @Override
@@ -62,86 +74,76 @@ public class LoginActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setLoginButton(Button loginButton, final Editable mailEdit, final Editable passEdit) {
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String mail = mailEdit.toString();
-                String passwd = passEdit.toString();
-                Context context = getApplication();
-                EmailValidator validator = new EmailValidator();
-                if (mail.equals("") || passwd.equals("") || !validator.validate(mail)) {
-                    Toast.makeText(context, "Email or Password missing or incorrect", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (User == null) {
-                        User = new UserHandler(mail, passwd);
-                    } else {
-                        User.setEMail(mail);
-                        User.setPassword(passwd);
-                    }
-                    UserLoginHandler login = new UserLoginHandler(User, getApplicationContext()); //extend AsyncTask and run with a separate thread
-                    login.execute(); //start the thread
-                    Object result = null;
-                    try {
-                        result = login.get();
-                    } catch (InterruptedException e) {
-                        System.err.println(e);
-                    } catch (ExecutionException e) {
-                        System.err.println(e);
-                    }
-                    if (result instanceof Integer) {
-                        int resultInt = ((Integer) result).intValue();
-                        switch (resultInt) {
-                            case UserLoginHandler.AUTH_FAILED:
-                                Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
-                                break;
-                            case UserLoginHandler.CONN_REFUSED:
-                                Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
-                                break;
-                            case UserLoginHandler.CONN_BAD_URL:
-                                Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
-                                break;
-                            case UserLoginHandler.CONN_GENERIC_IO_ERROR:
-                                Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
-                                break;
-                            case UserLoginHandler.CONN_GENERIC_ERROR:
-                                Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
-                                break;
-                            case UserLoginHandler.CONN_TIMEDOUT:
-                                Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
-                                break;
-                            case UserLoginHandler.AUTH_DB_ERROR:
-                                Toast.makeText(context, UserLoginHandler.errors.get(UserLoginHandler.AUTH_DB_ERROR), Toast.LENGTH_SHORT).show();
-                                break;
-                        }
-                    } else {
-                        //TODO should go to another activity once sucessfully logged in and update User data
-                        JsonToMap json = new JsonToMap((String) result);
-                        HashMap resultMap = json.getMap();
-                        Iterator<String> it = resultMap.keySet().iterator();
-                        while (it.hasNext()) {
-                            String key = it.next();
-                            String value = (String) resultMap.get(key);
-                            System.err.println(key + " : " + value);
+    public void doLogin() {
 
-                        }
-                    }
-                }
+        final Editable mailEdit = mailField.getText();
+        final Editable passEdit = passField.getText();
+        String mail = mailEdit.toString();
+        String passwd = passEdit.toString();
+
+        if (TextUtils.isEmpty(mailEdit) || TextUtils.isEmpty(passEdit) || !EmailValidator.validate(mail)) {
+            Toast.makeText(LoginActivity.this, "Email or Password missing or incorrect", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (User == null) {
+            User = UserHandler.create(mail, passwd);
+        } else {
+            User.setEMail(mail);
+            User.setPassword(passwd);
+        }
+        UserLoginHandler login = new UserLoginHandler(User, LoginActivity.this); //extend AsyncTask and run with a separate thread
+        login.execute(); //start the thread
+        Object result = null;
+        try {
+            result = login.get();
+        } catch (InterruptedException e) {
+            System.err.println(e);
+        } catch (ExecutionException e) {
+            System.err.println(e);
+        }
+        if (result instanceof Integer) {
+            int resultInt = ((Integer) result).intValue();
+            switch (resultInt) {
+                case UserLoginHandler.AUTH_FAILED:
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
+                    return;
+                case UserLoginHandler.CONN_REFUSED:
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case UserLoginHandler.CONN_BAD_URL:
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case UserLoginHandler.CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case UserLoginHandler.CONN_GENERIC_ERROR:
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case UserLoginHandler.CONN_TIMEDOUT:
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case UserLoginHandler.AUTH_DB_ERROR:
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.AUTH_DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
             }
-        });
+        }
+
+        //TODO should go to another activity once sucessfully logged in and update User data
+
+        try {
+            JSONObject response = new JSONObject((String) result);
+            User.setName(response.getString("name"));
+            User.setToken(response.getString("token"));
+            User.setId(response.getInt("id"));
+            System.err.println(User.getId() + " " + User.getName() + " " + User.getToken());
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
     }
 
 
-
-    public void setRegistrationButton(Button signInButton) {
-
-        signInButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent registrationIntent = new Intent(getApplication(), RegistrationActivity.class);
-                startActivity(registrationIntent);
-            }
-        });
+    public void goToRegistration() {
+        Intent registrationIntent = new Intent(getApplication(), RegistrationActivity.class);
+        startActivity(registrationIntent);
     }
 }

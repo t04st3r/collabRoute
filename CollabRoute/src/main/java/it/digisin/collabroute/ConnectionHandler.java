@@ -1,5 +1,6 @@
 package it.digisin.collabroute;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.JsonReader;
@@ -12,16 +13,18 @@ import javax.net.ssl.SSLContext;
 /**
  * Created by raffaele on 19/03/14.
  */
-public abstract class ConnectionHandler extends AsyncTask <String, Integer, Object> {
+public abstract class ConnectionHandler extends AsyncTask <String, Void, Object> {
 
 
     protected static String serverUrl;
     protected static int serverPort;
     protected Context activity;
     protected static SSLContext context = null;
+    ProgressDialog dialog;
 
     protected ConnectionHandler(Context activity) {
        this.activity = activity;
+       this.dialog = new ProgressDialog(activity);
 
         if(serverUrl == null){
             //load JSON configuration file
@@ -68,4 +71,6 @@ public abstract class ConnectionHandler extends AsyncTask <String, Integer, Obje
             System.err.println(e);
         }
     }
+
+
 }
