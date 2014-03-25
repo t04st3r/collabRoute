@@ -196,7 +196,7 @@ public class RegistrationActivity extends Activity {
                     Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
             }
-            String successText = String.format(this.getString(R.string.registration_email_sent), newbie.getName());
+            String successText = String.format(this.getString(R.string.registration_email_sent), newbie.getEMail());
             Toast.makeText(RegistrationActivity.this, successText, Toast.LENGTH_LONG).show();
             String codeString = ((JSONObject) result).getString("code");
             int code = Integer.parseInt(codeString);

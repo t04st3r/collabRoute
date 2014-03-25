@@ -17,7 +17,7 @@
     <string name="registration_email">Insert your Email Address:</string>
     <string name="registration_passwd">Choose a Password:</string>
     <string name="registration_vericode">Verification Code:</string>
-    <string name="registration_email_sent">An Email has been sent to %1$s containing
+    <string name="registration_email_sent">An email has been sent to: \n\n <b>%1$s</b> \n\ncontaining
                                             the verification code, copy and paste the code
                                             in the verification code field to complete your
                                             registration</string>
@@ -27,4 +27,10 @@
     <string name="registration_wrong_code">Wrong Verification Code</string>
     <string name="numeric_exception">Only numeric values allowed</string>
     <string name="registration_mail_not_configured">Your email application seems to be not configured</string>
+    <string name="dialog_confirm_title">User not confirmed yet</string>
+    <string name="dialog_confirm_account">Your account seems to be not verified</string>
+    <string name="dialog_button_confirm">Send</string>
+    <string name="dialog_button_checkMail">Check Email</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="codeHint">Type your code here</string>
 </resources>
