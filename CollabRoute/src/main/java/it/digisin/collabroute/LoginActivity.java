@@ -39,9 +39,6 @@ public class LoginActivity extends Activity {
         mailField = (EditText) findViewById(R.id.emailLogin);
         passField = (EditText) findViewById(R.id.passwordLogin);
 
-        mailField.setText("raffaele.tosti@gmail.com");
-        passField.setText("h4ckth3syst3m");
-
         final Button loginButton = (Button) findViewById(R.id.buttonLogin);
         final Button registrationButton = (Button) findViewById(R.id.buttonSignIn);
 
@@ -127,7 +124,7 @@ public class LoginActivity extends Activity {
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                     return;
                 case DATABASE_ERROR:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.AUTH_DB_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case USER_NOT_CONFIRMED:
                     String codeFromJson = response.getString("code");
@@ -223,13 +220,16 @@ public class LoginActivity extends Activity {
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                     return;
                 case DATABASE_ERROR:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.AUTH_DB_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case EMAIL_NOT_FOUND:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.EMAIL_NOT_FOUND), Toast.LENGTH_SHORT).show();
                     return;
                 case OK:
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.OK), Toast.LENGTH_SHORT).show();
+                    User.setId(Integer.parseInt(response.getString("id")));
+                    User.setEMail(response.getString("mail"));
+                    User.setName(response.getString("name"));
                     mailField.setText(User.getEMail());
             }
         } catch (JSONException e) {

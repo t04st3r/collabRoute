@@ -25,8 +25,8 @@ import javax.net.ssl.SSLSession;
 public class UserRegistrationHandler extends ConnectionHandler {
 
     UserHandler newbie;
-    /*Connection Errors */
 
+    /*Connection Errors */
     protected static final int EMAIL_SEND_ERROR = -2;
     protected static final int EMAIL_EXISTS_ERROR = -1;
     protected static final int DB_ERROR = 0;
@@ -37,6 +37,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
     protected static final int CONN_GENERIC_IO_ERROR = 5;
     protected static final int CONN_GENERIC_ERROR = 6;
     protected static final int EMAIL_NOT_FOUND = 7;
+    protected static final int AUTH_FAILED = 8;
 
     public static Map<Integer, String> errors = null;
 
@@ -59,16 +60,17 @@ public class UserRegistrationHandler extends ConnectionHandler {
     private void loadErrorMap() {
         if (errors == null) {
             errors = new HashMap<Integer, String>();
-            errors.put(CONN_TIMEDOUT, "Connection Timed Out");
-            errors.put(CONN_REFUSED, "Connection Refused");
-            errors.put(CONN_BAD_URL, "Bad Url");
-            errors.put(CONN_GENERIC_IO_ERROR, "I believe your phone is not connected");
-            errors.put(CONN_GENERIC_ERROR, "Generic Connection Error");
-            errors.put(EMAIL_SEND_ERROR, "Confirmation Email Forward Failure");
-            errors.put(EMAIL_EXISTS_ERROR, "Email Address already registered, use another one");
-            errors.put(DB_ERROR, "Database Error");
-            errors.put(EMAIL_NOT_FOUND, "Mail not found while confirm registration");
-            errors.put(OK, "Welcome on board!");
+            errors.put(CONN_TIMEDOUT, registration.getString(R.string.error_connectionTimedOut));
+            errors.put(CONN_REFUSED, registration.getString(R.string.error_connectionRefused));
+            errors.put(CONN_BAD_URL,registration.getString(R.string.error_connectionBadUrl));
+            errors.put(CONN_GENERIC_IO_ERROR, registration.getString(R.string.error_connectionIOError));
+            errors.put(CONN_GENERIC_ERROR, registration.getString(R.string.error_connectionError));
+            errors.put(EMAIL_SEND_ERROR, registration.getString(R.string.error_mailForward));
+            errors.put(EMAIL_EXISTS_ERROR,registration.getString(R.string.error_mailExists));
+            errors.put(DB_ERROR, registration.getString(R.string.error_databaseError));
+            errors.put(EMAIL_NOT_FOUND, registration.getString(R.string.error_mailNotFound));
+            errors.put(OK, String.format(registration.getString(R.string.login_success), newbie.getName()));
+            errors.put(AUTH_FAILED,registration.getString(R.string.error_authError));
         }
     }
 

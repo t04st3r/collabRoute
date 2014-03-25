@@ -31,10 +31,11 @@ public class UserLoginHandler extends ConnectionHandler {
     protected static final int CONN_BAD_URL = 4;
     protected static final int CONN_GENERIC_IO_ERROR = 5;
     protected static final int CONN_GENERIC_ERROR = 6;
-    protected static final int CONFIRM_MAIL_ERROR = 7;
+    protected static final int EMAIL_SEND_ERROR = 7;
     protected static final int EMAIL_NOT_FOUND = 8;
+    protected static final int EMAIL_EXISTS_ERROR = 9;
     protected static final int AUTH_FAILED = -1;
-    protected static final int AUTH_DB_ERROR = 0;
+    protected static final int DB_ERROR = 0;
     protected static final int OK = 1;
 
     public static UserHandler user;
@@ -58,16 +59,17 @@ public class UserLoginHandler extends ConnectionHandler {
     private void loadErrorMap() {
         if (errors == null) {
             errors = new HashMap<Integer, String>();
-            errors.put(CONN_TIMEDOUT, "Connection Timed Out");
-            errors.put(CONN_REFUSED, "Connection Refused");
-            errors.put(CONN_BAD_URL, "Bad Url");
-            errors.put(CONN_GENERIC_IO_ERROR, "I/O Error");
-            errors.put(CONN_GENERIC_ERROR, "Generic Connection Error");
-            errors.put(AUTH_FAILED, "Authentication Failed");
-            errors.put(AUTH_DB_ERROR, "Database Error");
-            errors.put(CONFIRM_MAIL_ERROR, "Error on sending confirm mail, please try again later");
-            errors.put(EMAIL_NOT_FOUND, "Mail not found while confirm registration");
-            errors.put(OK, "Welcome on board!");
+            errors.put(CONN_TIMEDOUT, login.getString(R.string.error_connectionTimedOut));
+            errors.put(CONN_REFUSED, login.getString(R.string.error_connectionRefused));
+            errors.put(CONN_BAD_URL,login.getString(R.string.error_connectionBadUrl));
+            errors.put(CONN_GENERIC_IO_ERROR, login.getString(R.string.error_connectionIOError));
+            errors.put(CONN_GENERIC_ERROR, login.getString(R.string.error_connectionError));
+            errors.put(EMAIL_SEND_ERROR, login.getString(R.string.error_mailForward));
+            errors.put(EMAIL_EXISTS_ERROR,login.getString(R.string.error_mailExists));
+            errors.put(DB_ERROR, login.getString(R.string.error_databaseError));
+            errors.put(EMAIL_NOT_FOUND, login.getString(R.string.error_mailNotFound));
+            errors.put(OK, String.format(login.getString(R.string.login_success), user.getName()));
+            errors.put(AUTH_FAILED,login.getString(R.string.error_authError));
         }
     }
 
