@@ -62,6 +62,13 @@ public class RegistrationActivity extends Activity {
                 completeRegistration();
             }
         });
+
+        mailCheck.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                checkMail();
+            }
+        });
     }
 
 
@@ -222,5 +229,13 @@ public class RegistrationActivity extends Activity {
         final Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, RESULT_OK);
         finish();
+    }
+    public void checkMail() {
+        final Intent intent = getPackageManager().getLaunchIntentForPackage("com.android.email");
+        if(intent != null) {
+            startActivity(intent);
+        }else{
+            Toast.makeText(RegistrationActivity.this, this.getString(R.string.registration_mail_not_configured), Toast.LENGTH_SHORT).show();
+        }
     }
 }
