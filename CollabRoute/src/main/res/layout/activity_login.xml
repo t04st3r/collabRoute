@@ -27,7 +27,8 @@
         android:layout_marginTop="10dp"
         android:textColor="#000000"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" />
+        android:layout_marginRight="10dp"
+        android:hint="@string/mailHint" />
 
     <TextView
         android:text="@string/login_password"
@@ -50,7 +51,8 @@
         android:layout_marginTop="10dp"
         android:textColor="#000000"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" />
+        android:layout_marginRight="10dp"
+        android:hint="@string/passlHint" />
 
     <Button
         android:layout_width="wrap_content"

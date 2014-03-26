@@ -16,13 +16,13 @@
     <string name="registration_username">Pick an Username:</string>
     <string name="registration_email">Insert your Email Address:</string>
     <string name="registration_passwd">Choose a Password:</string>
-    <string name="registration_vericode">Verification Code:</string>
+    <string name="registration_vericode">Verification Code</string>
     <string name="registration_email_sent">An email has been sent to: \n\n <b>%1$s</b> \n\ncontaining
                                             the verification code, copy and paste the code
                                             in the verification code field to complete your
                                             registration</string>
     <string name="registration_checkmail">CHECK EMAIL</string>
-    <string name="registration_button">COMPLETE REGISTRATION</string>
+    <string name="registration_button">REGISTER</string>
     <string name="registration_user_mail_name_error">Email, Username or Password missing or incorrect</string>
     <string name="registration_wrong_code">Wrong Verification Code</string>
     <string name="numeric_exception">Only numeric values allowed</string>
@@ -44,5 +44,10 @@
     <string name="error_databaseError">Database error</string>
     <string name="login_success">Welcome on board %1$s!</string>
     <string name="error_authError">Wrong email address \nor password</string>
+    <string name="mailHint">Type your email address here</string>
+    <string name="passlHint">Type your password here</string>
+    <string name="userHint">Type your username here</string>
+    <string name="title_travel_list">travels</string>
+    <string name="title_travel_detail">travel Detail</string>
 
 </resources>

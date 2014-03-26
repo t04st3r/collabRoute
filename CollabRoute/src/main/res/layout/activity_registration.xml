@@ -105,17 +105,16 @@
 
    </LinearLayout>
 
-    <TextView
-        android:text="@string/registration_vericode"
-        android:layout_width="wrap_content"
+  <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:editable="false"
-        android:textSize="15dp"
-        android:textIsSelectable="false"
-        android:layout_marginLeft="10dp" />
+      android:layout_marginTop="30dp">
+
 
     <EditText
+        android:hint="@string/registration_vericode"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
@@ -129,12 +128,15 @@
         android:layout_gravity="left|top" />
 
     <Button
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:text="@string/registration_button"
         android:id="@+id/buttonCompleteReg"
-        android:layout_marginTop="20dp"
         android:enabled="false"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp" />
 
     </LinearLayout>
+</LinearLayout>
+
 

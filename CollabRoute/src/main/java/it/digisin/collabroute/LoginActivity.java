@@ -133,14 +133,14 @@ public class LoginActivity extends Activity {
                     confirmDialog.show();
                     return;
             }
-
-
-            //TODO should go to another activity once sucessfully logged in and update User data
-
             User.setName(response.getString("name"));
             User.setToken(response.getString("token"));
             User.setId(response.getInt("id"));
-            System.err.println(User.getId() + " " + User.getName() + " " + User.getToken());
+            System.err.println(User.getId() + " " + User.getName() + " " + User.getToken()); //debug
+            Intent homeIntent = new Intent(getApplication(), travelListActivity.class);
+            startActivity(homeIntent);
+            finish(); //TODO Pass userHandler Object to next activity before finish
+
 
         } catch (JSONException e) {
             System.err.println(e);
