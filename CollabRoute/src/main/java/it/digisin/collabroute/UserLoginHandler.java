@@ -68,7 +68,7 @@ public class UserLoginHandler extends ConnectionHandler {
             errors.put(EMAIL_EXISTS_ERROR,login.getString(R.string.error_mailExists));
             errors.put(DB_ERROR, login.getString(R.string.error_databaseError));
             errors.put(EMAIL_NOT_FOUND, login.getString(R.string.error_mailNotFound));
-            errors.put(OK, String.format(login.getString(R.string.login_success), user.getName()));
+            errors.put(OK, login.getString(R.string.login_success));
             errors.put(AUTH_FAILED,login.getString(R.string.error_authError));
         }
     }

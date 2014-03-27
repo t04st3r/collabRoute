@@ -23,14 +23,8 @@ public class TravelContent {
      */
     public static Map<String, TravelItem> ITEM_MAP = new HashMap<String, TravelItem>();
 
-    static {
-        // Add 3 sample items.
-        addItem(new TravelItem("fava", "di lesso"));
-        addItem(new TravelItem("scamorza", "è un evergreen"));
-        addItem(new TravelItem("fastidio", "e prurito"));
-    }
 
-    private static void addItem(TravelItem item) {
+    public static void addItem(TravelItem item) {
         ITEMS.add(item);
         ITEM_MAP.put(item.id, item);
     }

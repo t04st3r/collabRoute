@@ -3,7 +3,11 @@
 
     <string name="app_name">CollabRoute</string>
     <string name="hello_world">DIO CANE!</string>
-    <string name="action_settings">Settings</string>
+    <string name="ok_button">Ok</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="logout_title">Back to login</string>
+    <string name="logout_message">This will log you out, are you sure?</string>
+    <string name="action_settings">Account Settings</string>
     <string name="splash_description">Route your favourite trip with your friends collaboratively!</string>
     <string name="login_mail">Email Address:</string>
     <string name="login_password">Password:</string>
@@ -49,5 +53,9 @@
     <string name="userHint">Type your username here</string>
     <string name="title_travel_list">travels</string>
     <string name="title_travel_detail">travel Detail</string>
-
+    <string name="home_title">Welcome %1$s</string>
+    <string name="home_myTravel">My travels:</string>
+    <string name="home_createNew">Create new travel</string>
+    <string name="home_joinTravel">Join travel</string>
+    <string name="home_logout">Log out</string>
 </resources>

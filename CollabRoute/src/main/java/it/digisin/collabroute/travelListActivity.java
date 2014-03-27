@@ -1,9 +1,16 @@
 package it.digisin.collabroute;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
+import it.digisin.collabroute.travel.TravelContent;
 
 
 /**
@@ -30,12 +37,13 @@ public class travelListActivity extends FragmentActivity
      * device.
      */
     private boolean mTwoPane;
+    private  Dialog logoutDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel_list);
-
+        TravelContent.addItem(new TravelContent.TravelItem("1" , "prova"));
         if (findViewById(R.id.travel_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -78,5 +86,67 @@ public class travelListActivity extends FragmentActivity
             detailIntent.putExtra(travelDetailFragment.ARG_ITEM_ID, id);
             startActivity(detailIntent);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.travel_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            createLogOutDialog();
+            logoutDialog.show();
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    public void createLogOutDialog(){
+        if(logoutDialog == null){
+            logoutDialog = new Dialog(this);
+            logoutDialog.setContentView(R.layout.logout_dialog);
+            logoutDialog.setTitle(R.string.logout_title);
+            final Button ok = (Button) logoutDialog.findViewById(R.id.Okbutton);
+            final Button cancel = (Button) logoutDialog.findViewById(R.id.Cancelbutton);
+
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    logOut();
+                }
+            });
+
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    logoutDialog.dismiss();
+                }
+            });
+        }
+    }
+
+    public void logOut(){
+        final Intent intent = new Intent(this, LoginActivity.class);
+        logoutDialog.dismiss();
+        startActivityForResult(intent, RESULT_OK);
+        finish();
     }
 }

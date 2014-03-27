@@ -69,7 +69,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
             errors.put(EMAIL_EXISTS_ERROR,registration.getString(R.string.error_mailExists));
             errors.put(DB_ERROR, registration.getString(R.string.error_databaseError));
             errors.put(EMAIL_NOT_FOUND, registration.getString(R.string.error_mailNotFound));
-            errors.put(OK, String.format(registration.getString(R.string.login_success), newbie.getName()));
+            errors.put(OK, registration.getString(R.string.login_success));
             errors.put(AUTH_FAILED,registration.getString(R.string.error_authError));
         }
     }

@@ -141,7 +141,7 @@ public class RegistrationActivity extends Activity {
                     Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case OK:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.OK), Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegistrationActivity.this, String.format(UserRegistrationHandler.errors.get(UserRegistrationHandler.OK), newbie.getName()), Toast.LENGTH_LONG).show();
             }
             comeBack();
         } catch (JSONException e) {

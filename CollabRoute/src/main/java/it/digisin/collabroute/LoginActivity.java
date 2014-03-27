@@ -42,6 +42,8 @@ public class LoginActivity extends Activity {
         final Button loginButton = (Button) findViewById(R.id.buttonLogin);
         final Button registrationButton = (Button) findViewById(R.id.buttonSignIn);
 
+        mailField.setText("dummy@dummy.dummy");
+        passField.setText("dummy");
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,10 +228,10 @@ public class LoginActivity extends Activity {
                     Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.EMAIL_NOT_FOUND), Toast.LENGTH_SHORT).show();
                     return;
                 case OK:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.OK), Toast.LENGTH_SHORT).show();
                     User.setId(Integer.parseInt(response.getString("id")));
                     User.setEMail(response.getString("mail"));
                     User.setName(response.getString("name"));
+                    Toast.makeText(LoginActivity.this, String.format(UserLoginHandler.errors.get(UserLoginHandler.OK), User.getName()), Toast.LENGTH_SHORT).show();
                     mailField.setText(User.getEMail());
             }
         } catch (JSONException e) {
@@ -237,4 +239,3 @@ public class LoginActivity extends Activity {
         }
     }
 }
-
