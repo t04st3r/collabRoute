@@ -160,7 +160,9 @@ public class RegistrationActivity extends Activity {
             Toast.makeText(RegistrationActivity.this, this.getString(R.string.registration_user_mail_name_error), Toast.LENGTH_SHORT).show();
             return;
         }
-        newbie = UserHandler.create(mailString, passString);
+        newbie = new UserHandler();
+        newbie.setEMail(mailString);
+        newbie.setPassword(passString);
         newbie.setName(userString);
         connection = new UserRegistrationHandler(RegistrationActivity.this, newbie, this);
         connection.execute("registration"); //start the thread

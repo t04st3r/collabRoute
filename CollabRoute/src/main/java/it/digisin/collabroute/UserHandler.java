@@ -1,35 +1,20 @@
 package it.digisin.collabroute;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.security.MessageDigest;
 
 /**
  * Created by raffaele on 12/03/14.
  */
-public class UserHandler {
+public class UserHandler implements Parcelable{ //useful for passing UserHandler obj through Activities
+
     private String eMail;
     private String password;
     private String token;
     private String name;
     private int id;
-
-    private UserHandler(String eMail, String password) {
-        this.eMail = eMail;
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(password.getBytes());
-            byte[] bytes = md.digest();
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < bytes.length; i++)
-                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-            this.password = sb.toString();
-        } catch (Exception e) {
-            System.err.println(e);
-        }
-    }
-    public static UserHandler create(final String eMail, final String password){
-        final UserHandler user = new UserHandler(eMail, password);
-        return user;
-    }
 
     public String getEMail() {
         return eMail;
@@ -79,5 +64,38 @@ public class UserHandler {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public static final Parcelable.Creator<UserHandler> CREATOR = new Creator<UserHandler>(){
+
+        @Override
+        public UserHandler createFromParcel(Parcel source) {
+            UserHandler user = new UserHandler();
+            user.eMail = source.readString();
+            user.password = source.readString();
+            user.name = source.readString();
+            user.token = source.readString();
+            user.id  = source.readInt();
+        return user;
+        }
+
+        @Override
+        public UserHandler[] newArray(int size) {
+            return new UserHandler[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(eMail);
+        parcel.writeString(password);
+        parcel.writeString(name);
+        parcel.writeString(token);
+        parcel.writeInt(id);
     }
 }

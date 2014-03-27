@@ -22,6 +22,7 @@ import org.json.JSONObject;
 public class LoginActivity extends Activity {
 
     private static UserHandler User = null;
+    public final static String PARCELABLE_KEY = "it.digisin.collabroute.parcelable";
 
     private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
 
@@ -92,7 +93,7 @@ public class LoginActivity extends Activity {
             return;
         }
         if (User == null) {
-            User = UserHandler.create(mail, passwd);
+            User = new UserHandler();
         } else {
             User.setEMail(mail);
             User.setPassword(passwd);
@@ -140,8 +141,11 @@ public class LoginActivity extends Activity {
             User.setId(response.getInt("id"));
             System.err.println(User.getId() + " " + User.getName() + " " + User.getToken()); //debug
             Intent homeIntent = new Intent(getApplication(), travelListActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(PARCELABLE_KEY , User);
+            homeIntent.putExtras(bundle);
             startActivity(homeIntent);
-            finish(); //TODO Pass userHandler Object to next activity before finish
+            finish();
 
 
         } catch (JSONException e) {

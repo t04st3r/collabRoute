@@ -38,11 +38,14 @@ public class travelListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
     private  Dialog logoutDialog;
+    private static UserHandler user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        user = getIntent().getParcelableExtra(LoginActivity.PARCELABLE_KEY);
         setContentView(R.layout.activity_travel_list);
+        System.err.println("USER PASSED: name: "+user.getName()+" id: "+user.getId()+" pass: "+user.getPassword()+" token: "+user.getToken()+" Email: "+user.getEMail()); //debug
         TravelContent.addItem(new TravelContent.TravelItem("1" , "prova"));
         if (findViewById(R.id.travel_detail_container) != null) {
             // The detail container view will be present only in the
