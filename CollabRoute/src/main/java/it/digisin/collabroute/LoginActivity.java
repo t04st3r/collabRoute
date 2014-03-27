@@ -18,6 +18,10 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import it.digisin.collabroute.connection.EmailValidator;
+import it.digisin.collabroute.connection.UserLoginHandler;
+import it.digisin.collabroute.model.UserHandler;
+
 
 public class LoginActivity extends Activity {
 
@@ -103,7 +107,7 @@ public class LoginActivity extends Activity {
 
     }
 
-    void checkCredentials(JSONObject response) {
+    public void checkCredentials(JSONObject response) {
         try {
             String resultString = response.getString("result");
             ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);

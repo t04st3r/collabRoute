@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import it.digisin.collabroute.model.UserHandler;
 import it.digisin.collabroute.travel.TravelContent;
 
 

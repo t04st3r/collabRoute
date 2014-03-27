@@ -13,7 +13,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.concurrent.ExecutionException;
+
+import it.digisin.collabroute.connection.EmailValidator;
+import it.digisin.collabroute.connection.UserRegistrationHandler;
+import it.digisin.collabroute.model.UserHandler;
 
 
 public class RegistrationActivity extends Activity {
