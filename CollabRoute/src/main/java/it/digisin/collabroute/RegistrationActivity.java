@@ -14,6 +14,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import it.digisin.collabroute.connection.ConnectionHandler;
 import it.digisin.collabroute.connection.EmailValidator;
 import it.digisin.collabroute.connection.UserRegistrationHandler;
 import it.digisin.collabroute.model.UserHandler;
@@ -113,7 +114,7 @@ public class RegistrationActivity extends Activity {
             Toast.makeText(RegistrationActivity.this, this.getString(R.string.registration_wrong_code), Toast.LENGTH_SHORT).show();
             return;
         }
-        connection = new UserRegistrationHandler(RegistrationActivity.this, newbie, this);
+        connection = new UserRegistrationHandler(this, newbie);
         connection.execute("confirm"); //run AsyncTask thread
     }
 
@@ -123,28 +124,28 @@ public class RegistrationActivity extends Activity {
             ResponseMSG response = ResponseMSG.valueOf(resultString);
             switch (response) {
                 case EMAIL_NOT_FOUND:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.EMAIL_NOT_FOUND), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.EMAIL_NOT_FOUND), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_REFUSED:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_BAD_URL:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_GENERIC_IO_ERROR:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_GENERIC_ERROR:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_TIMEDOUT:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                     return;
                 case DATABASE_ERROR:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case OK:
-                    Toast.makeText(RegistrationActivity.this, String.format(UserRegistrationHandler.errors.get(UserRegistrationHandler.OK), newbie.getName()), Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegistrationActivity.this, String.format(ConnectionHandler.errors.get(UserRegistrationHandler.OK), newbie.getName()), Toast.LENGTH_LONG).show();
             }
             comeBack();
         } catch (JSONException e) {
@@ -167,7 +168,7 @@ public class RegistrationActivity extends Activity {
         newbie.setEMail(mailString);
         newbie.setPassword(passString);
         newbie.setName(userString);
-        connection = new UserRegistrationHandler(RegistrationActivity.this, newbie, this);
+        connection = new UserRegistrationHandler(this, newbie);
         connection.execute("registration"); //start the thread
     }
 
@@ -177,28 +178,28 @@ public class RegistrationActivity extends Activity {
             ResponseMSG response = ResponseMSG.valueOf(resultString);
             switch (response) {
                 case EMAIL_EXISTS_ERROR:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.EMAIL_EXISTS_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.EMAIL_EXISTS_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case EMAIL_SEND_ERROR:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.EMAIL_SEND_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.EMAIL_SEND_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_REFUSED:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_BAD_URL:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_GENERIC_IO_ERROR:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_GENERIC_ERROR:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_TIMEDOUT:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                     return;
                 case DATABASE_ERROR:
-                    Toast.makeText(RegistrationActivity.this, UserRegistrationHandler.errors.get(UserRegistrationHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, ConnectionHandler.errors.get(UserRegistrationHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
             }
             String successText = String.format(this.getString(R.string.registration_email_sent), newbie.getEMail());

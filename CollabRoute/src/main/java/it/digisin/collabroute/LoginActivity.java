@@ -18,6 +18,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import it.digisin.collabroute.connection.ConnectionHandler;
 import it.digisin.collabroute.connection.EmailValidator;
 import it.digisin.collabroute.connection.UserLoginHandler;
 import it.digisin.collabroute.model.UserHandler;
@@ -96,13 +97,11 @@ public class LoginActivity extends Activity {
             Toast.makeText(LoginActivity.this, "Email or Password missing or incorrect", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (User == null) {
+        if (User == null)
             User = new UserHandler();
-        } else {
-            User.setEMail(mail);
-            User.setPassword(passwd);
-        }
-        UserLoginHandler login = new UserLoginHandler(LoginActivity.this, User, this); //extend AsyncTask and run with a separate thread
+         User.setEMail(mail);
+         User.setPassword(passwd);
+        UserLoginHandler login = new UserLoginHandler(this, User); //extend AsyncTask and run with a separate thread
         login.execute("login"); //start the thread
 
     }
@@ -113,25 +112,25 @@ public class LoginActivity extends Activity {
             ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
             switch (responseEnum) {
                 case AUTH_FAILED:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_REFUSED:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_BAD_URL:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_GENERIC_IO_ERROR:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_GENERIC_ERROR:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_TIMEDOUT:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                     return;
                 case DATABASE_ERROR:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case USER_NOT_CONFIRMED:
                     String codeFromJson = response.getString("code");
@@ -144,11 +143,12 @@ public class LoginActivity extends Activity {
             User.setToken(response.getString("token"));
             User.setId(response.getInt("id"));
             System.err.println(User.getId() + " " + User.getName() + " " + User.getToken()); //debug
-            Intent homeIntent = new Intent(getApplication(), travelListActivity.class);
+           Intent homeIntent = new Intent(getApplication(), travelListActivity.class);
             Bundle bundle = new Bundle();
             bundle.putParcelable(PARCELABLE_KEY , User);
             homeIntent.putExtras(bundle);
             startActivity(homeIntent);
+            Toast.makeText(this, String.format(ConnectionHandler.errors.get(UserLoginHandler.OK), User.getName()), Toast.LENGTH_LONG).show();
             finish();
 
 
@@ -196,7 +196,7 @@ public class LoginActivity extends Activity {
             return;
         }
         confirmDialog.dismiss();
-        UserLoginHandler login = new UserLoginHandler(LoginActivity.this, User, this);
+        UserLoginHandler login = new UserLoginHandler(this, User);
          login.execute("confirm");//extend AsyncTask and run with a separate thread
     }
 
@@ -215,31 +215,31 @@ public class LoginActivity extends Activity {
             ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
             switch (responseEnum) {
                 case CONN_REFUSED:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_BAD_URL:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_GENERIC_IO_ERROR:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_GENERIC_ERROR:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_TIMEDOUT:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                     return;
                 case DATABASE_ERROR:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case EMAIL_NOT_FOUND:
-                    Toast.makeText(LoginActivity.this, UserLoginHandler.errors.get(UserLoginHandler.EMAIL_NOT_FOUND), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(UserLoginHandler.EMAIL_NOT_FOUND), Toast.LENGTH_SHORT).show();
                     return;
                 case OK:
                     User.setId(Integer.parseInt(response.getString("id")));
                     User.setEMail(response.getString("mail"));
                     User.setName(response.getString("name"));
-                    Toast.makeText(LoginActivity.this, String.format(UserLoginHandler.errors.get(UserLoginHandler.OK), User.getName()), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, String.format(ConnectionHandler.errors.get(ConnectionHandler.OK), User.getName()), Toast.LENGTH_SHORT).show();
                     mailField.setText(User.getEMail());
             }
         } catch (JSONException e) {

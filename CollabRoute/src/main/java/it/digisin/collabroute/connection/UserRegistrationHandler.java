@@ -1,8 +1,6 @@
 package it.digisin.collabroute.connection;
 
 
-import android.content.Context;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.DataOutputStream;
@@ -12,13 +10,9 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
-
-import it.digisin.collabroute.R;
 import it.digisin.collabroute.RegistrationActivity;
 import it.digisin.collabroute.model.UserHandler;
 
@@ -30,52 +24,15 @@ public class UserRegistrationHandler extends ConnectionHandler {
 
     UserHandler newbie;
 
-    /*Connection Errors */
-    protected static final int EMAIL_SEND_ERROR = -2;
-    protected static final int EMAIL_EXISTS_ERROR = -1;
-    protected static final int DB_ERROR = 0;
-    protected static final int OK = 1;
-    protected static final int CONN_TIMEDOUT = 2;
-    protected static final int CONN_REFUSED = 3;
-    protected static final int CONN_BAD_URL = 4;
-    protected static final int CONN_GENERIC_IO_ERROR = 5;
-    protected static final int CONN_GENERIC_ERROR = 6;
-    protected static final int EMAIL_NOT_FOUND = 7;
-    protected static final int AUTH_FAILED = 8;
-
-    public static Map<Integer, String> errors = null;
 
     private JSONObject error;
 
     public enum Response {OK, EMAIL_SEND_ERROR, DATABASE_ERROR, EMAIL_EXISTS_ERROR, EMAIL_NOT_FOUND;}
 
-    public RegistrationActivity registration;
-
-    public UserRegistrationHandler(Context activity, UserHandler newbie, RegistrationActivity registration) {
+    public UserRegistrationHandler(RegistrationActivity activity, UserHandler newbie) {
         super(activity);
         this.newbie = newbie;
-        this.registration = registration;
-        if (errors == null) {
-            loadErrorMap();
-        }
         error = new JSONObject();
-    }
-
-    private void loadErrorMap() {
-        if (errors == null) {
-            errors = new HashMap<Integer, String>();
-            errors.put(CONN_TIMEDOUT, registration.getString(R.string.error_connectionTimedOut));
-            errors.put(CONN_REFUSED, registration.getString(R.string.error_connectionRefused));
-            errors.put(CONN_BAD_URL,registration.getString(R.string.error_connectionBadUrl));
-            errors.put(CONN_GENERIC_IO_ERROR, registration.getString(R.string.error_connectionIOError));
-            errors.put(CONN_GENERIC_ERROR, registration.getString(R.string.error_connectionError));
-            errors.put(EMAIL_SEND_ERROR, registration.getString(R.string.error_mailForward));
-            errors.put(EMAIL_EXISTS_ERROR,registration.getString(R.string.error_mailExists));
-            errors.put(DB_ERROR, registration.getString(R.string.error_databaseError));
-            errors.put(EMAIL_NOT_FOUND, registration.getString(R.string.error_mailNotFound));
-            errors.put(OK, registration.getString(R.string.login_success));
-            errors.put(AUTH_FAILED,registration.getString(R.string.error_authError));
-        }
     }
 
     @Override
@@ -104,6 +61,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
 
     @Override
     protected void onPostExecute(Object result) {
+
         if (dialog.isShowing()) {
             dialog.dismiss();
         }
@@ -111,9 +69,9 @@ public class UserRegistrationHandler extends ConnectionHandler {
         try {
             String type = jsonResult.getString("type");
             if(type.equals("request"))
-                registration.checkResponse(result);
+                ((RegistrationActivity)activity).checkResponse(result);
             else
-                registration.checkConfirmation(result);
+                ((RegistrationActivity)activity).checkConfirmation(result);
         } catch (JSONException e) {
             System.err.println(e);
         }

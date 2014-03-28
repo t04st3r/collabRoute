@@ -1,8 +1,6 @@
 package it.digisin.collabroute.connection;
 
 
-import android.content.Context;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,15 +11,11 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
 import it.digisin.collabroute.LoginActivity;
-import it.digisin.collabroute.R;
 import it.digisin.collabroute.model.UserHandler;
 
 /**
@@ -29,53 +23,20 @@ import it.digisin.collabroute.model.UserHandler;
  */
 public class UserLoginHandler extends ConnectionHandler {
 
-    /*Connection Errors */
-    public static final int CONN_TIMEDOUT = 2;
-    public static final int CONN_REFUSED = 3;
-    public static final int CONN_BAD_URL = 4;
-    public static final int CONN_GENERIC_IO_ERROR = 5;
-    public static final int CONN_GENERIC_ERROR = 6;
-    public static final int EMAIL_SEND_ERROR = 7;
-    public static final int EMAIL_NOT_FOUND = 8;
-    public static final int EMAIL_EXISTS_ERROR = 9;
-    public static final int AUTH_FAILED = -1;
-    public static final int DB_ERROR = 0;
-    public static final int OK = 1;
+
 
     public static UserHandler user;
 
-    public static Map<Integer, String> errors = null;
-
     private JSONObject error;
-
-    public LoginActivity login;
 
     public enum Response {OK, AUTH_FAILED, DATABASE_ERROR;}
 
-    public UserLoginHandler(Context activity, UserHandler user, LoginActivity login) {
+    public UserLoginHandler(LoginActivity activity, UserHandler user) {
         super(activity);
         this.user = user;
-        this.login = login;
-        loadErrorMap();
         error = new JSONObject();
     }
 
-    private void loadErrorMap() {
-        if (errors == null) {
-            errors = new HashMap<Integer, String>();
-            errors.put(CONN_TIMEDOUT, login.getString(R.string.error_connectionTimedOut));
-            errors.put(CONN_REFUSED, login.getString(R.string.error_connectionRefused));
-            errors.put(CONN_BAD_URL,login.getString(R.string.error_connectionBadUrl));
-            errors.put(CONN_GENERIC_IO_ERROR, login.getString(R.string.error_connectionIOError));
-            errors.put(CONN_GENERIC_ERROR, login.getString(R.string.error_connectionError));
-            errors.put(EMAIL_SEND_ERROR, login.getString(R.string.error_mailForward));
-            errors.put(EMAIL_EXISTS_ERROR,login.getString(R.string.error_mailExists));
-            errors.put(DB_ERROR, login.getString(R.string.error_databaseError));
-            errors.put(EMAIL_NOT_FOUND, login.getString(R.string.error_mailNotFound));
-            errors.put(OK, login.getString(R.string.login_success));
-            errors.put(AUTH_FAILED,login.getString(R.string.error_authError));
-        }
-    }
 
     @Override
     protected void onPreExecute() {
@@ -85,17 +46,17 @@ public class UserLoginHandler extends ConnectionHandler {
 
     @Override
     protected void onPostExecute(Object result) {
-        if (dialog.isShowing()) {
+        if(dialog.isShowing()){
             dialog.dismiss();
         }
         try {
             JSONObject jsonResult = (JSONObject) result;
             String responseType = jsonResult.getString("type");
             if(responseType.equals("login")){
-                login.checkCredentials(jsonResult);
+                ((LoginActivity)activity).checkCredentials(jsonResult);
                 return;
             }
-            login.confirmationResponse(jsonResult);
+            ((LoginActivity)activity).confirmationResponse(jsonResult);
         } catch (JSONException e) {
             System.err.println(e);
         }

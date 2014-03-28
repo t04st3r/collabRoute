@@ -8,17 +8,12 @@ import java.security.MessageDigest;
 /**
  * Created by raffaele on 12/03/14.
  */
-public class UserHandler implements Parcelable{ //useful for passing UserHandler obj through Activities
+public class UserHandler extends User implements Parcelable{ //useful for passing UserHandler obj through Activities
 
-    private String eMail;
+
     private String password;
     private String token;
-    private String name;
-    private int id;
 
-    public String getEMail() {
-        return eMail;
-    }
 
     public String getPassword() {
         return password;
@@ -28,17 +23,6 @@ public class UserHandler implements Parcelable{ //useful for passing UserHandler
         return token;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setEMail(String eMail) {
-        this.eMail = eMail;
-    }
 
     public void setPassword(String password) {
         if (password != null) {
@@ -58,13 +42,6 @@ public class UserHandler implements Parcelable{ //useful for passing UserHandler
         this.token = token;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public static final Parcelable.Creator<UserHandler> CREATOR = new Creator<UserHandler>(){
 

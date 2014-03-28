@@ -1,5 +1,6 @@
 package it.digisin.collabroute.connection;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -8,6 +9,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.net.ssl.SSLContext;
 
 import it.digisin.collabroute.R;
@@ -18,30 +22,65 @@ import it.digisin.collabroute.ServerCertificateLoader;
  */
 public abstract class ConnectionHandler extends AsyncTask <String, Void, Object> {
 
+    /*Connection Errors */
+    public static final int CONN_TIMEDOUT = 2;
+    public static final int CONN_REFUSED = 3;
+    public static final int CONN_BAD_URL = 4;
+    public static final int CONN_GENERIC_IO_ERROR = 5;
+    public static final int CONN_GENERIC_ERROR = 6;
+    public static final int EMAIL_SEND_ERROR = 7;
+    public static final int EMAIL_NOT_FOUND = 8;
+    public static final int EMAIL_EXISTS_ERROR = 9;
+    public static final int AUTH_FAILED = -1;
+    public static final int DB_ERROR = 0;
+    public static final int OK = 1;
 
     protected static String serverUrl;
     protected static int serverPort;
-    protected Context activity;
+    protected Activity activity;
     protected static SSLContext context = null;
-    ProgressDialog dialog;
+    public static ProgressDialog dialog;
 
-    protected ConnectionHandler(Context activity) {
+    public static Map<Integer, String> errors = null;
+
+    protected ConnectionHandler(Activity activity) {
        this.activity = activity;
        this.dialog = new ProgressDialog(activity);
 
+        /*initialize socket */
         if(serverUrl == null){
             //load JSON configuration file
             loadConfiguration();
         }
-
-        if (context == null) {
+        /*initialize SSL context */
+        if(context == null) {
             //load the 2048 bit SSL server certificate
             ServerCertificateLoader loader = new ServerCertificateLoader(activity);
             context = loader.load();
         }
+        /*initialize errors */
+        if(errors == null){
+               loadErrorMap();
+        }
     }
 
-    protected abstract Object doInBackground(String... param);
+    private void loadErrorMap() {
+            errors = new HashMap<Integer, String>();
+            errors.put(CONN_TIMEDOUT, activity.getString(R.string.error_connectionTimedOut));
+            errors.put(CONN_REFUSED, activity.getString(R.string.error_connectionRefused));
+            errors.put(CONN_BAD_URL,activity.getString(R.string.error_connectionBadUrl));
+            errors.put(CONN_GENERIC_IO_ERROR, activity.getString(R.string.error_connectionIOError));
+            errors.put(CONN_GENERIC_ERROR, activity.getString(R.string.error_connectionError));
+            errors.put(EMAIL_SEND_ERROR, activity.getString(R.string.error_mailForward));
+            errors.put(EMAIL_EXISTS_ERROR,activity.getString(R.string.error_mailExists));
+            errors.put(DB_ERROR, activity.getString(R.string.error_databaseError));
+            errors.put(EMAIL_NOT_FOUND, activity.getString(R.string.error_mailNotFound));
+            errors.put(OK, activity.getString(R.string.login_success));
+            errors.put(AUTH_FAILED,activity.getString(R.string.error_authError));
+        }
+
+
+    protected abstract Object doInBackground(String... param); //implement in subclasses
 
     //parse in a string data from an InputStream
     public String inputToString(InputStream input) throws Exception {

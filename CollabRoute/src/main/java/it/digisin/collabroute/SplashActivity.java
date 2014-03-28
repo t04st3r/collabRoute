@@ -12,6 +12,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import it.digisin.collabroute.connection.ConnectionHandler;
+
 
 /**
  * Created by raffaele on 10/03/14.
@@ -69,6 +71,12 @@ public class SplashActivity extends Activity {
 
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        ConnectionHandler connect = new ConnectionHandler(this) { //instantiation useful just to load all the static attributes
+            @Override
+            protected Object doInBackground(String... param) {
+                return null;
+            }
+        };
         setContentView(R.layout.activity_splash);
         if(savedInstanceState != null){
             this.mStartTime = savedInstanceState.getLong(START_TIME_KEY);

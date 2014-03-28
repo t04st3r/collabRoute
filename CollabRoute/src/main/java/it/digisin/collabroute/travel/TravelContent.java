@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.digisin.collabroute.model.Travel;
+
 /**
  * Helper class for providing sample content for user interfaces created by
  * Android template wizards.
@@ -34,16 +36,18 @@ public class TravelContent {
      */
     public static class TravelItem {
         public String id;
-        public String content;
+        public Travel travel;
 
-        public TravelItem(String id, String content) {
+        public TravelItem(String id, Travel travel) {
             this.id = id;
-            this.content = content;
+            this.travel = travel;
         }
 
         @Override
         public String toString() {
-            return content;
+            if(travel != null)
+            return travel.getName();
+            return "NULL";
         }
     }
 }
