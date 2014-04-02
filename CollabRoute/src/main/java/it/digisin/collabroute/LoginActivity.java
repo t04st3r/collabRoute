@@ -148,7 +148,7 @@ public class LoginActivity extends Activity {
             bundle.putParcelable(PARCELABLE_KEY , User);
             homeIntent.putExtras(bundle);
             startActivity(homeIntent);
-            Toast.makeText(this, String.format(ConnectionHandler.errors.get(UserLoginHandler.OK), User.getName()), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, String.format(ConnectionHandler.errors.get(UserLoginHandler.OK), User.getName()), Toast.LENGTH_SHORT).show();
             finish();
 
 

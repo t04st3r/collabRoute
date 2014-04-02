@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 
+import it.digisin.collabroute.travel.CustomArrayAdapterTravelList;
 import it.digisin.collabroute.travel.TravelContent;
 
 /**
@@ -15,7 +16,7 @@ import it.digisin.collabroute.travel.TravelContent;
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
  * currently being viewed in a {@link travelDetailFragment}.
- * <p>
+ * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
@@ -32,6 +33,7 @@ public class travelListFragment extends ListFragment {
      * clicks.
      */
     private Callbacks mCallbacks = sTravelCallbacks;
+    public static ArrayAdapter adapter;
 
     /**
      * The current activated item position. Only used on tablets.
@@ -43,6 +45,7 @@ public class travelListFragment extends ListFragment {
      * implement. This mechanism allows activities to be notified of item
      * selections.
      */
+
     public interface Callbacks {
         /**
          * Callback for when an item has been selected.
@@ -70,16 +73,14 @@ public class travelListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        adapter = new CustomArrayAdapterTravelList(
+                getActivity(),R.layout.listview_row,TravelContent.ITEMS);
+        setListAdapter(adapter);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<TravelContent.TravelItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                TravelContent.ITEMS));
     }
 
-    @Override
+
+   @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -119,7 +120,7 @@ public class travelListFragment extends ListFragment {
         mCallbacks.onItemSelected(TravelContent.ITEMS.get(position).id);
     }
 
-    @Override
+     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mActivatedPosition != ListView.INVALID_POSITION) {
@@ -132,6 +133,8 @@ public class travelListFragment extends ListFragment {
      * Turns on activate-on-click mode. When this mode is on, list items will be
      * given the 'activated' state when touched.
      */
+
+
     public void setActivateOnItemClick(boolean activateOnItemClick) {
         // When setting CHOICE_MODE_SINGLE, ListView will automatically
         // give items the 'activated' state when touched.

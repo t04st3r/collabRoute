@@ -54,7 +54,7 @@ public class travelDetailFragment extends Fragment {
 
         // Show the Travel content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.travel_detail)).setText(mItem.travel.getName());
+            ((TextView) rootView.findViewById(R.id.travel_detail)).setText(mItem.name);
         }
 
         return rootView;

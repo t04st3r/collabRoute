@@ -9,7 +9,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import it.digisin.collabroute.connection.ConnectionHandler;
+import it.digisin.collabroute.connection.TravelListHandler;
+import it.digisin.collabroute.model.Travel;
+import it.digisin.collabroute.model.User;
 import it.digisin.collabroute.model.UserHandler;
 import it.digisin.collabroute.travel.TravelContent;
 
@@ -21,11 +30,11 @@ import it.digisin.collabroute.travel.TravelContent;
  * lead to a {@link travelDetailActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
- * <p>
+ * <p/>
  * The activity makes heavy use of fragments. The list of items is a
  * {@link travelListFragment} and the item details
  * (if present) is a {@link travelDetailFragment}.
- * <p>
+ * <p/>
  * This activity also implements the required
  * {@link travelListFragment.Callbacks} interface
  * to listen for item selections.
@@ -38,16 +47,18 @@ public class travelListActivity extends FragmentActivity
      * device.
      */
     private boolean mTwoPane;
-    private  Dialog logoutDialog;
+    private Dialog logoutDialog;
     private static UserHandler user;
+
+    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         user = getIntent().getParcelableExtra(LoginActivity.PARCELABLE_KEY);
         setContentView(R.layout.activity_travel_list);
-        System.err.println("USER PASSED: name: "+user.getName()+" id: "+user.getId()+" pass: "+user.getPassword()+" token: "+user.getToken()+" Email: "+user.getEMail()); //debug
-        TravelContent.addItem(new TravelContent.TravelItem("1" , null));
+        TravelListHandler list = new TravelListHandler(this, user);
+        list.execute("list");
         if (findViewById(R.id.travel_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -64,6 +75,7 @@ public class travelListActivity extends FragmentActivity
 
         // TODO: If exposing deep links into your app, handle intents here.
     }
+
 
     /**
      * Callback method from {@link travelListFragment.Callbacks}
@@ -113,7 +125,7 @@ public class travelListActivity extends FragmentActivity
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             createLogOutDialog();
             logoutDialog.show();
@@ -123,8 +135,8 @@ public class travelListActivity extends FragmentActivity
         return super.onKeyDown(keyCode, event);
     }
 
-    public void createLogOutDialog(){
-        if(logoutDialog == null){
+    public void createLogOutDialog() {
+        if (logoutDialog == null) {
             logoutDialog = new Dialog(this);
             logoutDialog.setContentView(R.layout.logout_dialog);
             logoutDialog.setTitle(R.string.logout_title);
@@ -147,10 +159,89 @@ public class travelListActivity extends FragmentActivity
         }
     }
 
-    public void logOut(){
+    public void logOut() {
         final Intent intent = new Intent(this, LoginActivity.class);
-        logoutDialog.dismiss();
+        if (logoutDialog != null) {
+            logoutDialog.dismiss();
+        }
         startActivityForResult(intent, RESULT_OK);
+        TravelContent.cleanList();
         finish();
+    }
+
+    public void fillTravelList(JSONObject response) {
+        try {
+            String resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case CONN_REFUSED:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case AUTH_FAILED:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
+                    logOut();
+                    return;
+                case OK:
+                    //System.err.println(response.toString()); debug
+                    fillIt(response);
+            }
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+    }
+
+    private void fillIt(JSONObject response) {
+        JSONArray arrayTravels = null;
+        try {
+            arrayTravels = response.getJSONArray("array");
+            if (arrayTravels.length() == 0) {
+                Toast.makeText(travelListActivity.this, this.getString(R.string.home_emptyList), Toast.LENGTH_LONG).show();
+                return;
+            }
+            int length = arrayTravels.length(); //I feel dumb calling length() method on each iteration :P
+            for (int i = 0; i < length; i++) {
+                JSONObject item = arrayTravels.getJSONObject(i);
+                Travel travel = new Travel();
+                travel.setId(Integer.parseInt(item.getString("id")));
+                travel.setName(item.getString("name"));
+                travel.setDescription(item.getString("description"));
+                JSONArray users = item.getJSONArray("user");
+                if (!item.has("id_admin")) //if there isn't, the current user is the administrator
+                    travel.setAdmin(user);
+                else {
+                    User admin = new User();
+                    admin.setId(Integer.parseInt(item.getString("id_admin")));
+                    admin.setName(item.getString("adm_name"));
+                    travel.setAdmin(admin);
+                }
+                int userLength = users.length(); //same here
+                for (int j = 0; j < userLength; j++) {
+                    JSONObject jsonUser = users.getJSONObject(j);
+                    User user = new User();
+                    user.setName(jsonUser.getString("user_name"));
+                    user.setId(Integer.parseInt(jsonUser.getString("user_id")));
+                    travel.insertUser(user);
+                }
+                TravelContent.addItem(new TravelContent.TravelItem(String.valueOf(travel.getId()), travel.getName(), travel.getDescription(), (travel.getAdmin()).getName()));
+            }
+            travelListFragment.adapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

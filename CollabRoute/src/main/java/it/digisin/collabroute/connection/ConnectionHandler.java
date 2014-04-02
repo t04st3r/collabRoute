@@ -34,6 +34,7 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
     public static final int AUTH_FAILED = -1;
     public static final int DB_ERROR = 0;
     public static final int OK = 1;
+    public static final int WRONG_TOKEN = 10;
 
     protected static String serverUrl;
     protected static int serverPort;
@@ -77,6 +78,7 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
             errors.put(EMAIL_NOT_FOUND, activity.getString(R.string.error_mailNotFound));
             errors.put(OK, activity.getString(R.string.login_success));
             errors.put(AUTH_FAILED,activity.getString(R.string.error_authError));
+            errors.put(WRONG_TOKEN, activity.getString(R.string.error_wrongToken));
         }
 
 

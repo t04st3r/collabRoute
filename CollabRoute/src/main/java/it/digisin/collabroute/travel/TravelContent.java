@@ -10,8 +10,7 @@ import it.digisin.collabroute.model.Travel;
 /**
  * Helper class for providing sample content for user interfaces created by
  * Android template wizards.
- * <p>
- *
+ * <p/>
  */
 public class TravelContent {
 
@@ -31,23 +30,33 @@ public class TravelContent {
         ITEM_MAP.put(item.id, item);
     }
 
+    public static void cleanList(){
+        if(ITEM_MAP != null)
+            ITEM_MAP.clear();
+        if(ITEMS != null)
+            ITEMS.clear();
+    }
     /**
      * A Travel item representing a piece of content.
      */
     public static class TravelItem {
         public String id;
-        public Travel travel;
+        public String name;
+        public String description;
+        public String adminName;
 
-        public TravelItem(String id, Travel travel) {
+        public TravelItem(String id, String name, String description, String adminName) {
             this.id = id;
-            this.travel = travel;
+            this.name = name;
+            this.description = description;
+            this.adminName = adminName;
+
         }
 
         @Override
         public String toString() {
-            if(travel != null)
-            return travel.getName();
-            return "NULL";
+            return name;
+
         }
     }
 }

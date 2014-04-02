@@ -48,6 +48,7 @@
     <string name="error_databaseError">Database error</string>
     <string name="login_success">Welcome on board %1$s!</string>
     <string name="error_authError">Wrong email address \nor password</string>
+    <string name="error_wrongToken">It seems that you have some authentication issues\nlog in back please</string>
     <string name="mailHint">Type your email address here</string>
     <string name="passlHint">Type your password here</string>
     <string name="userHint">Type your username here</string>
@@ -58,4 +59,5 @@
     <string name="home_createNew">Create new travel</string>
     <string name="home_joinTravel">Join travel</string>
     <string name="home_logout">Log out</string>
+    <string name="home_emptyList">It seems that you are not member of any travel\nclick on the icon to create a new one!</string>
 </resources>
