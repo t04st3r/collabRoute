@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+import android.widget.TextView;
+import java.util.Arrays;
+
+import it.digisin.collabroute.model.Travel;
 
 
 /**
@@ -18,10 +22,35 @@ import android.view.MenuItem;
  */
 public class travelDetailActivity extends FragmentActivity {
 
+
+    TextView travelDescription;
+    TextView travelAdministrator;
+    TextView travelUsers;
+    TextView travelMP;
+    Travel travel;
+    String id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel_detail);
+        id = getIntent().getStringExtra(travelDetailFragment.ARG_ITEM_ID);
+
+       travelDescription = (TextView) findViewById(R.id.travelDetailActDescription);
+        travelAdministrator = (TextView) findViewById(R.id.travelDetailActAdmin);
+        travelUsers = (TextView) findViewById(R.id.travelDetailActUser);
+        travelMP = (TextView) findViewById(R.id.travelDetailActRoutes);
+        travel = travelListActivity.travels.get(id);
+        travelDescription.setText(travel.getDescription());
+        travelAdministrator.setText(travel.getAdmin().getName());
+        String users;
+        if((users = travel.getUsersName()) != null){
+            travelUsers.setText(users);
+        }else{
+           travelUsers.setText(getString(R.string.travel_users_emptyArray));
+        }
+
+
 
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);

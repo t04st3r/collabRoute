@@ -143,11 +143,11 @@ public class LoginActivity extends Activity {
             User.setToken(response.getString("token"));
             User.setId(response.getInt("id"));
             System.err.println(User.getId() + " " + User.getName() + " " + User.getToken()); //debug
-           Intent homeIntent = new Intent(getApplication(), travelListActivity.class);
+           Intent travelListIntent = new Intent(getApplication(), travelListActivity.class);
             Bundle bundle = new Bundle();
             bundle.putParcelable(PARCELABLE_KEY , User);
-            homeIntent.putExtras(bundle);
-            startActivity(homeIntent);
+            travelListIntent.putExtras(bundle);
+            startActivity(travelListIntent);
             Toast.makeText(this, String.format(ConnectionHandler.errors.get(UserLoginHandler.OK), User.getName()), Toast.LENGTH_SHORT).show();
             finish();
 

@@ -15,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 import it.digisin.collabroute.connection.ConnectionHandler;
 import it.digisin.collabroute.connection.TravelListHandler;
 import it.digisin.collabroute.model.Travel;
@@ -48,7 +50,8 @@ public class travelListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
     private Dialog logoutDialog;
-    private static UserHandler user;
+    public static UserHandler user;
+    public static HashMap<String, Travel> travels;
 
     private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
 
@@ -57,8 +60,10 @@ public class travelListActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         user = getIntent().getParcelableExtra(LoginActivity.PARCELABLE_KEY);
         setContentView(R.layout.activity_travel_list);
-        TravelListHandler list = new TravelListHandler(this, user);
-        list.execute("list");
+        if(travels == null) {
+            TravelListHandler list = new TravelListHandler(this, user);
+            list.execute("list");
+        }
         if (findViewById(R.id.travel_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -166,6 +171,7 @@ public class travelListActivity extends FragmentActivity
         }
         startActivityForResult(intent, RESULT_OK);
         TravelContent.cleanList();
+        travels = null;
         finish();
     }
 
@@ -207,6 +213,7 @@ public class travelListActivity extends FragmentActivity
 
     private void fillIt(JSONObject response) {
         JSONArray arrayTravels = null;
+        travels = new HashMap<String, Travel>();
         try {
             arrayTravels = response.getJSONArray("array");
             if (arrayTravels.length() == 0) {
@@ -237,7 +244,9 @@ public class travelListActivity extends FragmentActivity
                     user.setId(Integer.parseInt(jsonUser.getString("user_id")));
                     travel.insertUser(user);
                 }
-                TravelContent.addItem(new TravelContent.TravelItem(String.valueOf(travel.getId()), travel.getName(), travel.getDescription(), (travel.getAdmin()).getName()));
+
+                TravelContent.addItem(new TravelContent.TravelItem(String.valueOf(travel.getId()), travel.getName(), travel.getDescription()));
+                travels.put(String.valueOf(travel.getId()) , travel);
             }
             travelListFragment.adapter.notifyDataSetChanged();
         } catch (JSONException e) {

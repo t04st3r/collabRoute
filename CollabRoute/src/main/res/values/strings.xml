@@ -60,4 +60,9 @@
     <string name="home_joinTravel">Join travel</string>
     <string name="home_logout">Log out</string>
     <string name="home_emptyList">It seems that you are not member of any travel\nclick on the icon to create a new one!</string>
+    <string name="travel_description_label">Description:</string>
+    <string name="travel_admin_label">Travel creator:</string>
+    <string name="travel_user_label">Users:</string>
+    <string name="travel_mp_label">Meeting points:</string>
+    <string name="travel_users_emptyArray">No other user added yet</string>
 </resources>

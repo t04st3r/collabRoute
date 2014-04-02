@@ -159,7 +159,7 @@ public class RegistrationActivity extends Activity {
         Editable user = userText.getText();
         String mailString = mail.toString();
         String passString = pass.toString();
-        String userString = user.toString();
+        String userString = user.toString().substring(0,1).toUpperCase()+user.toString().substring(1);
         if (TextUtils.isEmpty(mail) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(user) || !EmailValidator.validate(mailString)) {
             Toast.makeText(RegistrationActivity.this, this.getString(R.string.registration_user_mail_name_error), Toast.LENGTH_SHORT).show();
             return;
