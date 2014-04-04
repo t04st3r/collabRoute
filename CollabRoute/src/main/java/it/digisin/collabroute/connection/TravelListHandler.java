@@ -18,7 +18,9 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
 import it.digisin.collabroute.LoginActivity;
+import it.digisin.collabroute.model.Travel;
 import it.digisin.collabroute.model.UserHandler;
+import it.digisin.collabroute.travelDetailActivity;
 import it.digisin.collabroute.travelListActivity;
 
 /**
@@ -27,6 +29,7 @@ import it.digisin.collabroute.travelListActivity;
 public class TravelListHandler extends ConnectionHandler {
 
     public static UserHandler user;
+    public Travel travel;
     private JSONObject error;
 
     public enum Response {AUTH_FAILED, DATABASE_ERROR;}
@@ -34,41 +37,44 @@ public class TravelListHandler extends ConnectionHandler {
     public TravelListHandler(Activity activity, UserHandler user) {
         super(activity);
         this.user = user;
+        error = new JSONObject();
     }
 
-    @Override
-    protected void onPreExecute() {
-        dialog.setMessage("Getting travels list, hold on please");
-        dialog.show();
+    public TravelListHandler(Activity activity, Travel travel) {
+        super(activity);
+        this.travel = travel;
+
     }
+
 
     @Override
     protected void onPostExecute(Object result) {
-        if (dialog.isShowing()) {
-            dialog.dismiss();
-            ((travelListActivity)activity).fillTravelList((JSONObject)result);
-        }
-        try {
+         try {
             JSONObject jsonResult = (JSONObject) result;
-            String responseType = jsonResult.getString("type");
-            if (responseType.equals("login")) {
-                ((LoginActivity) activity).checkCredentials(jsonResult);
+            String resultType = jsonResult.getString("type");
+            if (resultType.equals("adm_mbr_list")) {
+                ((travelListActivity) activity).fillTravelList((JSONObject) result);
                 return;
             }
-            //((travelListActivity)activity).confirmationResponse(jsonResult);
+            if(resultType.equals("routes_list")){
+                ((travelDetailActivity) activity).routesResponse((JSONObject) result);
+                return;
+            }
         } catch (JSONException e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
     }
 
     @Override
     protected JSONObject doInBackground(String... param) {
-        if (param[0].equals("list"))
-            try {
+        try {
+            if (param[0].equals("list"))
                 return retrieveTravelList();
-            } catch (JSONException e) {
-                System.err.println(e);
-            }
+            if (param[0].equals("routes"))
+                return retrieveTravelRoutes();
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
         return null;
     }
 
@@ -94,40 +100,96 @@ public class TravelListHandler extends ConnectionHandler {
             };
 
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-            urlConnection.setRequestProperty("id" , String.valueOf(user.getId()));
-            urlConnection.setRequestProperty("token" , user.getToken());
+            urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
+            urlConnection.setRequestProperty("token", user.getToken());
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
             InputStream in = urlConnection.getInputStream();
-            //System.err.println(inputToString(in)); debug
             String jsonToString = inputToString(in);
             in.close();
-            JSONObject jsonResponse = new JSONObject(jsonToString);
-            return jsonResponse;
+            return new JSONObject(jsonToString);
         } catch (SocketTimeoutException e) {
             System.err.println(e);
-            error.put("result", "CONN_TIMEDOUT").put("type", "login");
+            error.put("result", "CONN_TIMEDOUT").put("type", "adm_mbr_list");
             return error;
         } catch (ConnectException e) {
             System.err.println(e);
-            error.put("result", "CONN_REFUSED").put("type", "login");
+            error.put("result", "CONN_REFUSED").put("type", "adm_mbr_list");
             return error;
         } catch (MalformedURLException e) {
             System.err.println(e);
-            error.put("result", "CONN_BAD_URL").put("type", "login");
+            error.put("result", "CONN_BAD_URL").put("type", "adm_mbr_list");
             return error;
         } catch (IOException e) {
             System.err.println(e);
-            error.put("result", "CONN_GENERIC_IO_ERROR").put("type", "login");
+            error.put("result", "CONN_GENERIC_IO_ERROR").put("type", "adm_mbr_list");
             return error;
         } catch (IllegalArgumentException e) {
             System.err.println(e);
-            error.put("result", "CONN_GENERIC_ERROR").put("type", "login");
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "adm_mbr_list");
             return error;
         } catch (Exception e) {
             System.err.println(e);
-            error.put("result", "CONN_GENERIC_ERROR").put("type", "login");
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "adm_mbr_list");
+            return error;
+        }
+    }
+
+    private JSONObject retrieveTravelRoutes() throws JSONException {
+        try {
+
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/routes/" + travel.getId();
+            URL url = new URL(urlString);
+
+            /** Create all-trusting host name verifier
+             * to avoid the following :
+             * java.security.cert.CertificateException: No name matching
+             * This is because Java by default verifies that the certificate CN (Common Name) is
+             * the same as host name in the URL. If they are not, the web service client fails.
+             **/
+
+            HostnameVerifier allowEveryHost = new HostnameVerifier() {
+
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
+
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
+            urlConnection.setRequestProperty("token", user.getToken());
+            urlConnection.setConnectTimeout(3000);
+            urlConnection.setSSLSocketFactory(context.getSocketFactory());
+            urlConnection.setHostnameVerifier(allowEveryHost);
+            InputStream in = urlConnection.getInputStream();
+            String jsonToString = inputToString(in);
+            in.close();
+            return new JSONObject(jsonToString);
+        } catch (SocketTimeoutException e) {
+            System.err.println(e);
+            error.put("result", "CONN_TIMEDOUT").put("type", "routes_list");
+            return error;
+        } catch (ConnectException e) {
+            System.err.println(e);
+            error.put("result", "CONN_REFUSED").put("type", "routes_list");
+            return error;
+        } catch (MalformedURLException e) {
+            System.err.println(e);
+            error.put("result", "CONN_BAD_URL").put("type", "routes_list");
+            return error;
+        } catch (IOException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_IO_ERROR").put("type", "routes_list");
+            return error;
+        } catch (IllegalArgumentException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "routes_list");
+            return error;
+        } catch (Exception e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "routes_list");
             return error;
         }
     }

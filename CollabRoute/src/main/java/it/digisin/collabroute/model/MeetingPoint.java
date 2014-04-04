@@ -6,7 +6,7 @@ package it.digisin.collabroute.model;
 public class MeetingPoint {
 
     private int id;
-    private String name;
+    private String address;
     private String longitude;
     private String latitude;
 
@@ -18,12 +18,12 @@ public class MeetingPoint {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getAddress() {
+        return address;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getLongitude() {

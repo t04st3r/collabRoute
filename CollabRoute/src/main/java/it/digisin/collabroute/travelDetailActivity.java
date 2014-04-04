@@ -6,9 +6,19 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Arrays;
 
+import it.digisin.collabroute.connection.ConnectionHandler;
+import it.digisin.collabroute.connection.TravelListHandler;
+import it.digisin.collabroute.model.MeetingPoint;
 import it.digisin.collabroute.model.Travel;
+import it.digisin.collabroute.travel.TravelContent;
 
 
 /**
@@ -16,7 +26,7 @@ import it.digisin.collabroute.model.Travel;
  * activity is only used on handset devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
  * in a {@link travelListActivity}.
- * <p>
+ * <p/>
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link travelDetailFragment}.
  */
@@ -30,26 +40,30 @@ public class travelDetailActivity extends FragmentActivity {
     Travel travel;
     String id;
 
+    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel_detail);
         id = getIntent().getStringExtra(travelDetailFragment.ARG_ITEM_ID);
-
-       travelDescription = (TextView) findViewById(R.id.travelDetailActDescription);
+        travelDescription = (TextView) findViewById(R.id.travelDetailActDescription);
         travelAdministrator = (TextView) findViewById(R.id.travelDetailActAdmin);
         travelUsers = (TextView) findViewById(R.id.travelDetailActUser);
         travelMP = (TextView) findViewById(R.id.travelDetailActRoutes);
         travel = travelListActivity.travels.get(id);
+        TravelListHandler route = new TravelListHandler(this, travel);
+        route.execute("routes");
         travelDescription.setText(travel.getDescription());
-        travelAdministrator.setText(travel.getAdmin().getName());
+        int adminId = travel.getAdmin().getId();
+        String adminString = (adminId == travelListActivity.user.getId()) ? "You" : travel.getAdmin().getName();
+        travelAdministrator.setText(adminString);
         String users;
-        if((users = travel.getUsersName()) != null){
+        if ((users = travel.getUsersName()) != null) {
             travelUsers.setText(users);
-        }else{
-           travelUsers.setText(getString(R.string.travel_users_emptyArray));
+        } else {
+            travelUsers.setText(getString(R.string.travel_users_emptyArray));
         }
-
 
 
         // Show the Up button in the action bar.
@@ -93,5 +107,72 @@ public class travelDetailActivity extends FragmentActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void routesResponse(JSONObject response) {
+        try {
+            String resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case CONN_REFUSED:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case AUTH_FAILED:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
+                    logOut();
+                    return;
+                case OK:
+                    //System.err.println(response.toString()); debug
+                    fillRoute(response.getJSONArray("array"));
+            }
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+    }
+
+    public void logOut() {
+        final Intent intent = new Intent(this, LoginActivity.class);
+        startActivityForResult(intent, RESULT_OK);
+        TravelContent.cleanList();
+        travelListActivity.travels = null;
+        finish();
+    }
+
+    private void fillRoute(JSONArray response) {
+        try {
+            int len;
+            String addresses = new String();
+            if ((len = response.length()) > 0) {
+                for (int i = 0; i < len; i++) {
+                    JSONObject route = response.getJSONObject(i);
+                    MeetingPoint mp = new MeetingPoint();
+                    mp.setId(route.getInt("id"));
+                    mp.setAddress(route.getString("address"));
+                    addresses += mp.getAddress()+"\n";
+                    mp.setLatitude(route.getString("latitude"));
+                    mp.setLongitude(route.getString("longitude"));
+                    travel.insertRoute(mp);
+                }
+                travelMP.setText(addresses);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

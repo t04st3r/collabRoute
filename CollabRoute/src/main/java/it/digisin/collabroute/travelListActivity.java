@@ -227,7 +227,6 @@ public class travelListActivity extends FragmentActivity
                 travel.setId(Integer.parseInt(item.getString("id")));
                 travel.setName(item.getString("name"));
                 travel.setDescription(item.getString("description"));
-                JSONArray users = item.getJSONArray("user");
                 if (!item.has("id_admin")) //if there isn't, the current user is the administrator
                     travel.setAdmin(user);
                 else {
@@ -236,13 +235,14 @@ public class travelListActivity extends FragmentActivity
                     admin.setName(item.getString("adm_name"));
                     travel.setAdmin(admin);
                 }
+                JSONArray users = item.getJSONArray("user");
                 int userLength = users.length(); //same here
                 for (int j = 0; j < userLength; j++) {
                     JSONObject jsonUser = users.getJSONObject(j);
-                    User user = new User();
-                    user.setName(jsonUser.getString("user_name"));
-                    user.setId(Integer.parseInt(jsonUser.getString("user_id")));
-                    travel.insertUser(user);
+                    User userFromArray = new User();
+                    userFromArray.setName(jsonUser.getString("user_name"));
+                    userFromArray.setId(Integer.parseInt(jsonUser.getString("user_id")));
+                    travel.insertUser(userFromArray);
                 }
 
                 TravelContent.addItem(new TravelContent.TravelItem(String.valueOf(travel.getId()), travel.getName(), travel.getDescription()));

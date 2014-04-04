@@ -12,8 +12,8 @@ public class Travel {
     private int id;
     private User admin;
     private String description;
-    private static HashMap<String, User> people;
-    private static HashMap<String, MeetingPoint> routes;
+    private HashMap<String, User> people;
+    private HashMap<String, MeetingPoint> routes;
 
     public String getName() {return name;}
 
@@ -33,20 +33,20 @@ public class Travel {
         return id;
     }
 
-    public static HashMap<String, User> getPeople() {
+    public HashMap<String, User> getPeople() {
         return people;
     }
 
-    public static void setPeople(HashMap<String, User> people) {
-        Travel.people = people;
+    public void setPeople(HashMap<String, User> people) {
+        this.people = people;
     }
 
-    public static HashMap<String, MeetingPoint> getRoutes() {
+    public HashMap<String, MeetingPoint> getRoutes() {
         return routes;
     }
 
-    public static void setRoutes(HashMap<String, MeetingPoint> routes) {
-        Travel.routes = routes;
+    public void setRoutes(HashMap<String, MeetingPoint> routes) {
+        this.routes = routes;
     }
 
     public void setId(int id) {
@@ -72,6 +72,7 @@ public class Travel {
         if(people != null){
             String users = new String();
             Iterator<String> iterator = people.keySet().iterator();
+            int index = 0;
             while(iterator.hasNext()){
                 String current = iterator.next();
                 users += people.get(current).getName()+" ";
@@ -80,5 +81,14 @@ public class Travel {
         }
         return null;
     }
+
+    public void insertRoute(MeetingPoint route){
+        if(routes == null){
+            routes = new HashMap<String, MeetingPoint>();
+        }
+        routes.put(String.valueOf(route.getId()), route);
+    }
+
+
     //TODO methods for remove or update user in the hashmap and methods for insert, remove, update routes hashmap
 }
