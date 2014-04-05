@@ -30,7 +30,7 @@ public class ServerCertificateLoader {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             Certificate ca;
             ca = cf.generateCertificate(inputStream);
-            System.err.println("ca=" + ((X509Certificate) ca).getSubjectDN()); //debug for CA certificate
+            //System.err.println("ca=" + ((X509Certificate) ca).getSubjectDN());
             inputStream.close();
 
             // Create a KeyStore containing our trusted CAs

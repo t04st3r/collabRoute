@@ -99,8 +99,8 @@ public class LoginActivity extends Activity {
         }
         if (User == null)
             User = new UserHandler();
-         User.setEMail(mail);
-         User.setPassword(passwd);
+        User.setEMail(mail);
+        User.setPassword(passwd);
         UserLoginHandler login = new UserLoginHandler(this, User); //extend AsyncTask and run with a separate thread
         login.execute("login"); //start the thread
 
@@ -138,20 +138,19 @@ public class LoginActivity extends Activity {
                     createConfirmDialog();
                     confirmDialog.show();
                     return;
+                case OK:
+                    User.setName(response.getString("name"));
+                    User.setToken(response.getString("token"));
+                    User.setId(response.getInt("id"));
+                    //System.err.println(User.getId() + " " + User.getName() + " " + User.getToken());
+                    Intent travelListIntent = new Intent(getApplication(), travelListActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(PARCELABLE_KEY, User);
+                    travelListIntent.putExtras(bundle);
+                    startActivity(travelListIntent);
+                    Toast.makeText(this, String.format(ConnectionHandler.errors.get(UserLoginHandler.OK), User.getName()), Toast.LENGTH_SHORT).show();
+                    finish();
             }
-            User.setName(response.getString("name"));
-            User.setToken(response.getString("token"));
-            User.setId(response.getInt("id"));
-            System.err.println(User.getId() + " " + User.getName() + " " + User.getToken()); //debug
-           Intent travelListIntent = new Intent(getApplication(), travelListActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(PARCELABLE_KEY , User);
-            travelListIntent.putExtras(bundle);
-            startActivity(travelListIntent);
-            Toast.makeText(this, String.format(ConnectionHandler.errors.get(UserLoginHandler.OK), User.getName()), Toast.LENGTH_SHORT).show();
-            finish();
-
-
         } catch (JSONException e) {
             System.err.println(e);
         }
@@ -197,7 +196,7 @@ public class LoginActivity extends Activity {
         }
         confirmDialog.dismiss();
         UserLoginHandler login = new UserLoginHandler(this, User);
-         login.execute("confirm");//extend AsyncTask and run with a separate thread
+        login.execute("confirm");//extend AsyncTask and run with a separate thread
     }
 
     public void checkMail() {

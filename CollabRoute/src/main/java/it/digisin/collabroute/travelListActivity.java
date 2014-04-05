@@ -58,7 +58,9 @@ public class travelListActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        user = getIntent().getParcelableExtra(LoginActivity.PARCELABLE_KEY);
+        if(user == null) {
+            user = getIntent().getParcelableExtra(LoginActivity.PARCELABLE_KEY);
+        }
         setContentView(R.layout.activity_travel_list);
         if(travels == null) {
             TravelListHandler list = new TravelListHandler(this, user);
@@ -171,6 +173,7 @@ public class travelListActivity extends FragmentActivity
         }
         startActivityForResult(intent, RESULT_OK);
         TravelContent.cleanList();
+        user = null;
         travels = null;
         finish();
     }

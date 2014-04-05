@@ -43,6 +43,7 @@ public class TravelListHandler extends ConnectionHandler {
     public TravelListHandler(Activity activity, Travel travel) {
         super(activity);
         this.travel = travel;
+        error = new JSONObject();
 
     }
 
@@ -98,7 +99,6 @@ public class TravelListHandler extends ConnectionHandler {
                     return true;
                 }
             };
-
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
             urlConnection.setRequestProperty("token", user.getToken());
@@ -138,8 +138,7 @@ public class TravelListHandler extends ConnectionHandler {
 
     private JSONObject retrieveTravelRoutes() throws JSONException {
         try {
-
-            String urlString = "https://" + serverUrl + ":" + serverPort + "/routes/" + travel.getId();
+           String urlString = "https://" + serverUrl + ":" + serverPort + "/routes/" + travel.getId();
             URL url = new URL(urlString);
 
             /** Create all-trusting host name verifier

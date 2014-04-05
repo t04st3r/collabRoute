@@ -65,4 +65,5 @@
     <string name="travel_user_label">Users:</string>
     <string name="travel_mp_label">Meeting points:</string>
     <string name="travel_users_emptyArray">No other user added yet</string>
+    <string name="travel_list_user_you">You</string>
 </resources>

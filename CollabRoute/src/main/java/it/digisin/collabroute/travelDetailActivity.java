@@ -56,15 +56,14 @@ public class travelDetailActivity extends FragmentActivity {
         route.execute("routes");
         travelDescription.setText(travel.getDescription());
         int adminId = travel.getAdmin().getId();
-        String adminString = (adminId == travelListActivity.user.getId()) ? "You" : travel.getAdmin().getName();
+        String adminString = (adminId == travelListActivity.user.getId()) ? getString(R.string.travel_list_user_you) : travel.getAdmin().getName();
         travelAdministrator.setText(adminString);
         String users;
         if ((users = travel.getUsersName()) != null) {
-            travelUsers.setText(users);
+            travelUsers.setText(getString(R.string.travel_list_user_you)+" "+users);
         } else {
             travelUsers.setText(getString(R.string.travel_users_emptyArray));
         }
-
 
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -137,7 +136,6 @@ public class travelDetailActivity extends FragmentActivity {
                     logOut();
                     return;
                 case OK:
-                    //System.err.println(response.toString()); debug
                     fillRoute(response.getJSONArray("array"));
             }
         } catch (JSONException e) {
@@ -149,6 +147,7 @@ public class travelDetailActivity extends FragmentActivity {
         final Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, RESULT_OK);
         TravelContent.cleanList();
+        travelListActivity.user = null;
         travelListActivity.travels = null;
         finish();
     }
