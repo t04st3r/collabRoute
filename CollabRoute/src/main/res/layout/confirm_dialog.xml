@@ -56,8 +56,6 @@
             android:enabled="true"
             android:layout_marginBottom="10dp"
             android:layout_marginRight="10dp" />
-
-
     </LinearLayout>
 
 </LinearLayout>

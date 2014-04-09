@@ -8,6 +8,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -16,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import it.digisin.collabroute.connection.ConnectionHandler;
 import it.digisin.collabroute.connection.TravelListHandler;
@@ -23,6 +26,8 @@ import it.digisin.collabroute.model.Travel;
 import it.digisin.collabroute.model.User;
 import it.digisin.collabroute.model.UserHandler;
 import it.digisin.collabroute.travel.TravelContent;
+
+import static android.R.layout.simple_dropdown_item_1line;
 
 
 /**
@@ -50,19 +55,21 @@ public class travelListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
     private Dialog logoutDialog;
+    private Dialog newTravelDialog;
     public static UserHandler user;
     public static HashMap<String, Travel> travels;
+    public static HashMap<String, User> users;
 
-    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
+    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(user == null) {
+        if (user == null) {
             user = getIntent().getParcelableExtra(LoginActivity.PARCELABLE_KEY);
         }
         setContentView(R.layout.activity_travel_list);
-        if(travels == null) {
+        if (travels == null) {
             TravelListHandler list = new TravelListHandler(this, user);
             list.execute("list");
         }
@@ -127,6 +134,11 @@ public class travelListActivity extends FragmentActivity
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        }
+        if (id == R.id.action_createTravel) {
+            createNewTravelDialog();
+            newTravelDialog.show();
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -206,7 +218,6 @@ public class travelListActivity extends FragmentActivity
                     logOut();
                     return;
                 case OK:
-                    //System.err.println(response.toString()); debug
                     fillIt(response);
             }
         } catch (JSONException e) {
@@ -215,7 +226,7 @@ public class travelListActivity extends FragmentActivity
     }
 
     private void fillIt(JSONObject response) {
-        JSONArray arrayTravels = null;
+        JSONArray arrayTravels;
         travels = new HashMap<String, Travel>();
         try {
             arrayTravels = response.getJSONArray("array");
@@ -247,13 +258,56 @@ public class travelListActivity extends FragmentActivity
                     userFromArray.setId(Integer.parseInt(jsonUser.getString("user_id")));
                     travel.insertUser(userFromArray);
                 }
-
                 TravelContent.addItem(new TravelContent.TravelItem(String.valueOf(travel.getId()), travel.getName(), travel.getDescription()));
-                travels.put(String.valueOf(travel.getId()) , travel);
+                travels.put(String.valueOf(travel.getId()), travel);
+            }
+            JSONArray usersList = response.getJSONArray("users");
+            length = usersList.length();
+            users = new HashMap<String, User>();
+            for (int i = 0; i < length; i++) {
+                JSONObject item = usersList.getJSONObject(i);
+                User userForList = new User();
+                userForList.setId(item.getInt("id"));
+                userForList.setName(item.getString("name"));
+                userForList.setEMail(item.getString("email"));
+                users.put(String.valueOf(userForList.getId()), userForList);
             }
             travelListFragment.adapter.notifyDataSetChanged();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void createNewTravelDialog() {
+        if (newTravelDialog == null) {
+            newTravelDialog = new Dialog(this);
+            newTravelDialog.setContentView(R.layout.new_travel_dialog);
+            newTravelDialog.setTitle(R.string.new_travel_dialog_title);
+            final Button addUser = (Button) findViewById(R.id.addUserButton);
+            final Button deleteUser = (Button) findViewById(R.id.deleteUserbutton);
+            final Button addTravel = (Button) findViewById(R.id.confirmTravelButton);
+            final Button cancelTravel = (Button) findViewById(R.id.deleteTravelButton);
+            final AutoCompleteTextView autoCompleteUsers = (AutoCompleteTextView)
+                    newTravelDialog.findViewById(R.id.autoCompleteTextViewUsers);
+            autoCompleteUsers.setThreshold(2);
+            ArrayAdapter<String> userAdapter = loadAutoCompleteAdapter();
+            if(userAdapter != null)
+                autoCompleteUsers.setAdapter(userAdapter);
+        }
+    }
+
+    private ArrayAdapter<String> loadAutoCompleteAdapter() {
+        if (users != null) {
+            int length = users.size();
+            final String[] usersItems = new String[length];
+            Iterator<String> iterator = users.keySet().iterator();
+            int index = 0;
+            while (iterator.hasNext()) {
+                String current = iterator.next();
+                usersItems[index++] = users.get(current).getName() + " " + users.get(current).getEMail();
+            }
+            return new ArrayAdapter<String>(this, simple_dropdown_item_1line, usersItems);
+        }
+        return null;
     }
 }

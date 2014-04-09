@@ -66,4 +66,12 @@
     <string name="travel_mp_label">Meeting points:</string>
     <string name="travel_users_emptyArray">No other user added yet</string>
     <string name="travel_list_user_you">You</string>
+    <string name="new__travel_name_hint">Insert travel name</string>
+    <string name="new_travel_description_hint">Insert your travel description</string>
+    <string name="new_travel_addUser_button">Add user</string>
+    <string name="new_travel_deleteUser_button">Delete user</string>
+    <string name="new_travel_confirm_travel_button">Done</string>
+    <string name="new_travel_cancel_travel_button">Cancel</string>
+    <string name="new_travel_auto_complete_field_hint">Insert username or email address</string>
+    <string name="new_travel_dialog_title">Create a new travel</string>
 </resources>
