@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -138,6 +139,7 @@ public class travelListActivity extends FragmentActivity
         if (id == R.id.action_createTravel) {
             createNewTravelDialog();
             newTravelDialog.show();
+            return true;
 
         }
         return super.onOptionsItemSelected(item);
@@ -186,6 +188,7 @@ public class travelListActivity extends FragmentActivity
         startActivityForResult(intent, RESULT_OK);
         TravelContent.cleanList();
         user = null;
+        users = null;
         travels = null;
         finish();
     }
@@ -283,16 +286,23 @@ public class travelListActivity extends FragmentActivity
             newTravelDialog = new Dialog(this);
             newTravelDialog.setContentView(R.layout.new_travel_dialog);
             newTravelDialog.setTitle(R.string.new_travel_dialog_title);
-            final Button addUser = (Button) findViewById(R.id.addUserButton);
-            final Button deleteUser = (Button) findViewById(R.id.deleteUserbutton);
-            final Button addTravel = (Button) findViewById(R.id.confirmTravelButton);
-            final Button cancelTravel = (Button) findViewById(R.id.deleteTravelButton);
+            final Button addUser = (Button) newTravelDialog.findViewById(R.id.addUserButton);
+            final Button deleteUser = (Button) newTravelDialog.findViewById(R.id.deleteUserbutton);
+            final Button addTravel = (Button) newTravelDialog.findViewById(R.id.confirmTravelButton);
+            final Button cancelTravel = (Button) newTravelDialog.findViewById(R.id.deleteTravelButton);
+            final ListView usersList = (ListView) newTravelDialog.findViewById(R.id.addedUsersListView);
             final AutoCompleteTextView autoCompleteUsers = (AutoCompleteTextView)
                     newTravelDialog.findViewById(R.id.autoCompleteTextViewUsers);
-            autoCompleteUsers.setThreshold(2);
+            autoCompleteUsers.setThreshold(1);
             ArrayAdapter<String> userAdapter = loadAutoCompleteAdapter();
-            if(userAdapter != null)
+            if (userAdapter != null)
                 autoCompleteUsers.setAdapter(userAdapter);
+            cancelTravel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                        newTravelDialog.dismiss();
+                }
+            });
         }
     }
 
