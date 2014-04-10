@@ -45,16 +45,16 @@
             android:layout_weight="1" />
     </LinearLayout>
 
-    <ScrollView
+   <!-- <ScrollView
         android:layout_width="match_parent"
         android:layout_height="226dp"
         android:id="@+id/scrollViewAddedUsers">
-
+        -->
         <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="226dp"
             android:id="@+id/addedUsersListView" />
-    </ScrollView>
+    <!-- </ScrollView> -->
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="horizontal"

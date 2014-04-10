@@ -8,8 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 
-import it.digisin.collabroute.travel.CustomArrayAdapterTravelList;
-import it.digisin.collabroute.travel.TravelContent;
+import it.digisin.collabroute.travels.CustomArrayAdapterTravelList;
+import it.digisin.collabroute.travels.TravelContent;
 
 /**
  * A list fragment representing a list of travels. This fragment
@@ -76,7 +76,6 @@ public class travelListFragment extends ListFragment {
         adapter = new CustomArrayAdapterTravelList(
                 getActivity(),R.layout.listview_row,TravelContent.ITEMS);
         setListAdapter(adapter);
-
     }
 
 

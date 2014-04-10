@@ -72,6 +72,9 @@
     <string name="new_travel_deleteUser_button">Delete user</string>
     <string name="new_travel_confirm_travel_button">Done</string>
     <string name="new_travel_cancel_travel_button">Cancel</string>
-    <string name="new_travel_auto_complete_field_hint">Insert username or email address</string>
+    <string name="new_travel_auto_complete_field_hint">Insert username\'s email address</string>
     <string name="new_travel_dialog_title">Create a new travel</string>
+    <string name="new_travel_dialog_email_error">Incorrect email address</string>
+    <string name="new_travel_dialog_user_not_found">User not found</string>
+    <string name="new_travel_dialog_user_error">You can\'t add yourself</string>
 </resources>

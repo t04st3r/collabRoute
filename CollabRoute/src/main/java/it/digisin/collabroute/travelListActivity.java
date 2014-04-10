@@ -22,11 +22,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import it.digisin.collabroute.connection.ConnectionHandler;
+import it.digisin.collabroute.connection.EmailValidator;
 import it.digisin.collabroute.connection.TravelListHandler;
 import it.digisin.collabroute.model.Travel;
 import it.digisin.collabroute.model.User;
 import it.digisin.collabroute.model.UserHandler;
-import it.digisin.collabroute.travel.TravelContent;
+import it.digisin.collabroute.travels.CustomArrayAdapterTravelList;
+import it.digisin.collabroute.travels.TravelContent;
+import it.digisin.collabroute.users.CustomArrayAdapterUserList;
+import it.digisin.collabroute.users.UserContent;
 
 import static android.R.layout.simple_dropdown_item_1line;
 
@@ -61,7 +65,7 @@ public class travelListActivity extends FragmentActivity
     public static HashMap<String, Travel> travels;
     public static HashMap<String, User> users;
 
-    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
+    private enum ResponseMSG {OK, AUTH_FAILED, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -303,6 +307,12 @@ public class travelListActivity extends FragmentActivity
                         newTravelDialog.dismiss();
                 }
             });
+            addUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    insertUser(autoCompleteUsers , usersList);
+                }
+            });
         }
     }
 
@@ -314,10 +324,45 @@ public class travelListActivity extends FragmentActivity
             int index = 0;
             while (iterator.hasNext()) {
                 String current = iterator.next();
-                usersItems[index++] = users.get(current).getName() + " " + users.get(current).getEMail();
+                usersItems[index++] = users.get(current).getEMail();
             }
             return new ArrayAdapter<String>(this, simple_dropdown_item_1line, usersItems);
         }
         return null;
+    }
+    private User getUser(String userMail) {
+        if (users != null) {
+            Iterator<String> iterator = users.keySet().iterator();
+            while (iterator.hasNext()) {
+                String current = iterator.next();
+                if (users.get(current).getEMail().equals(userMail)) {
+                    return users.get(current);
+                }
+            }
+        }
+        return null;
+    }
+    private void insertUser(AutoCompleteTextView textView , ListView userList){
+        String textToAdd = textView.getText().toString();
+        if(!EmailValidator.validate(textToAdd)){
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_email_error) , Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(textToAdd.equals(user.getEMail())){
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_error) , Toast.LENGTH_SHORT).show();
+            return;
+        }
+        User fromMap = getUser(textToAdd);
+        if(fromMap == null){
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_not_found) , Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        UserContent.addItem(new UserContent.UserItem(String.valueOf(fromMap.getId()), fromMap.getName(), fromMap.getEMail()));
+        CustomArrayAdapterUserList adapter = new CustomArrayAdapterUserList(
+                this, R.layout.userlistview_row, UserContent.ITEMS);
+        userList.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        System.err.println(fromMap.getId()+" "+fromMap.getName()+" "+fromMap.getEMail());
     }
 }

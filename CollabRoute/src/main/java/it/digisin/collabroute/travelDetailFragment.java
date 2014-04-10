@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-import it.digisin.collabroute.travel.TravelContent;
+import it.digisin.collabroute.travels.TravelContent;
 
 /**
  * A fragment representing a single travel detail screen.

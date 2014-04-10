@@ -12,13 +12,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-
 import it.digisin.collabroute.connection.ConnectionHandler;
 import it.digisin.collabroute.connection.TravelListHandler;
 import it.digisin.collabroute.model.MeetingPoint;
 import it.digisin.collabroute.model.Travel;
-import it.digisin.collabroute.travel.TravelContent;
+import it.digisin.collabroute.travels.TravelContent;
 
 
 /**

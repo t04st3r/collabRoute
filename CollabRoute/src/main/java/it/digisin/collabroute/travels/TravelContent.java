@@ -1,11 +1,9 @@
-package it.digisin.collabroute.travel;
+package it.digisin.collabroute.travels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import it.digisin.collabroute.model.Travel;
 
 /**
  * Helper class for providing sample content for user interfaces created by
