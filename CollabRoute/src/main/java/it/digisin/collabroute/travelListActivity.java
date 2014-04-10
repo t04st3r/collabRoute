@@ -11,7 +11,9 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -65,6 +67,9 @@ public class travelListActivity extends FragmentActivity
     public static HashMap<String, User> users;
     public static ArrayAdapter adapter;
     public static ListView usersList;
+    private AutoCompleteTextView autoCompleteUsers;
+    private EditText travelName;
+    private EditText travelDescription;
 
     private enum ResponseMSG {OK, AUTH_FAILED, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
@@ -157,7 +162,6 @@ public class travelListActivity extends FragmentActivity
             logoutDialog.show();
             return true;
         }
-
         return super.onKeyDown(keyCode, event);
     }
 
@@ -168,7 +172,6 @@ public class travelListActivity extends FragmentActivity
             logoutDialog.setTitle(R.string.logout_title);
             final Button ok = (Button) logoutDialog.findViewById(R.id.Okbutton);
             final Button cancel = (Button) logoutDialog.findViewById(R.id.Cancelbutton);
-
             ok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -291,15 +294,19 @@ public class travelListActivity extends FragmentActivity
             newTravelDialog = new Dialog(this);
             newTravelDialog.setContentView(R.layout.new_travel_dialog);
             newTravelDialog.setTitle(R.string.new_travel_dialog_title);
+            newTravelDialog.setCancelable(false);
+            newTravelDialog.setCanceledOnTouchOutside(false);
             final Button addUser = (Button) newTravelDialog.findViewById(R.id.addUserButton);
             final Button deleteUser = (Button) newTravelDialog.findViewById(R.id.deleteUserbutton);
             final Button addTravel = (Button) newTravelDialog.findViewById(R.id.confirmTravelButton);
             final Button cancelTravel = (Button) newTravelDialog.findViewById(R.id.deleteTravelButton);
+            travelName = (EditText) newTravelDialog.findViewById(R.id.newTravelName);
+            travelDescription = (EditText) newTravelDialog.findViewById(R.id.newTravelDescription);
             usersList = (ListView) newTravelDialog.findViewById(R.id.addedUsersListView);
             usersList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             adapter = new CustomArrayAdapterUserList(this, R.layout.userlistview_row, UserContent.ITEMS);
             usersList.setAdapter(adapter);
-            final AutoCompleteTextView autoCompleteUsers = (AutoCompleteTextView)
+            autoCompleteUsers = (AutoCompleteTextView)
                     newTravelDialog.findViewById(R.id.autoCompleteTextViewUsers);
             autoCompleteUsers.setThreshold(1);
             ArrayAdapter<String> userAdapter = loadAutoCompleteAdapter();
@@ -308,13 +315,13 @@ public class travelListActivity extends FragmentActivity
             cancelTravel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                        newTravelDialog.dismiss();
+                        cleanDialog();
                 }
             });
             addUser.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    insertUser(autoCompleteUsers);
+                    insertUser();
                 }
             });
             deleteUser.setOnClickListener(new View.OnClickListener() {
@@ -324,6 +331,13 @@ public class travelListActivity extends FragmentActivity
                 }
             });
         }
+    }
+    private void cleanDialog(){
+        newTravelDialog.dismiss();
+        UserContent.cleanList();
+        travelName.setText("");
+        travelDescription.setText("");
+        autoCompleteUsers.setText("");
     }
 
     private void deleteUser() {
@@ -366,8 +380,9 @@ public class travelListActivity extends FragmentActivity
         }
         return null;
     }
-    private void insertUser(AutoCompleteTextView textView){
-        String textToAdd = textView.getText().toString();
+    private void insertUser(){
+        String textToAdd = autoCompleteUsers.getText().toString();
+        autoCompleteUsers.setText("");
         if(!EmailValidator.validate(textToAdd)){
             Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_email_error) , Toast.LENGTH_SHORT).show();
             return;
