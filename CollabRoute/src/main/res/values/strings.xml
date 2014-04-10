@@ -77,4 +77,6 @@
     <string name="new_travel_dialog_email_error">Incorrect email address</string>
     <string name="new_travel_dialog_user_not_found">User not found</string>
     <string name="new_travel_dialog_user_error">You can\'t add yourself</string>
+    <string name="new_travel_dialog_user_list_empty_selected">Empty list or no user selected</string>
+    <string name="new_travel_dialog_user_list_already_added">User already in the list</string>
 </resources>

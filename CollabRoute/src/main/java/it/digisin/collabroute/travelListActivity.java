@@ -27,7 +27,6 @@ import it.digisin.collabroute.connection.TravelListHandler;
 import it.digisin.collabroute.model.Travel;
 import it.digisin.collabroute.model.User;
 import it.digisin.collabroute.model.UserHandler;
-import it.digisin.collabroute.travels.CustomArrayAdapterTravelList;
 import it.digisin.collabroute.travels.TravelContent;
 import it.digisin.collabroute.users.CustomArrayAdapterUserList;
 import it.digisin.collabroute.users.UserContent;
@@ -64,6 +63,8 @@ public class travelListActivity extends FragmentActivity
     public static UserHandler user;
     public static HashMap<String, Travel> travels;
     public static HashMap<String, User> users;
+    public static ArrayAdapter adapter;
+    public static ListView usersList;
 
     private enum ResponseMSG {OK, AUTH_FAILED, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
@@ -294,7 +295,10 @@ public class travelListActivity extends FragmentActivity
             final Button deleteUser = (Button) newTravelDialog.findViewById(R.id.deleteUserbutton);
             final Button addTravel = (Button) newTravelDialog.findViewById(R.id.confirmTravelButton);
             final Button cancelTravel = (Button) newTravelDialog.findViewById(R.id.deleteTravelButton);
-            final ListView usersList = (ListView) newTravelDialog.findViewById(R.id.addedUsersListView);
+            usersList = (ListView) newTravelDialog.findViewById(R.id.addedUsersListView);
+            usersList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            adapter = new CustomArrayAdapterUserList(this, R.layout.userlistview_row, UserContent.ITEMS);
+            usersList.setAdapter(adapter);
             final AutoCompleteTextView autoCompleteUsers = (AutoCompleteTextView)
                     newTravelDialog.findViewById(R.id.autoCompleteTextViewUsers);
             autoCompleteUsers.setThreshold(1);
@@ -310,10 +314,30 @@ public class travelListActivity extends FragmentActivity
             addUser.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    insertUser(autoCompleteUsers , usersList);
+                    insertUser(autoCompleteUsers);
+                }
+            });
+            deleteUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deleteUser();
                 }
             });
         }
+    }
+
+    private void deleteUser() {
+        UserContent.UserItem[] selected = UserContent.getSelected();
+        if(selected == null){
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_empty_selected) , Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int length = selected.length;
+        for(int i = 0; i < length; i++){
+            String id = selected[i].id;
+            UserContent.deleteItem(id);
+        }
+        adapter.notifyDataSetChanged();
     }
 
     private ArrayAdapter<String> loadAutoCompleteAdapter() {
@@ -342,7 +366,7 @@ public class travelListActivity extends FragmentActivity
         }
         return null;
     }
-    private void insertUser(AutoCompleteTextView textView , ListView userList){
+    private void insertUser(AutoCompleteTextView textView){
         String textToAdd = textView.getText().toString();
         if(!EmailValidator.validate(textToAdd)){
             Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_email_error) , Toast.LENGTH_SHORT).show();
@@ -357,12 +381,11 @@ public class travelListActivity extends FragmentActivity
             Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_not_found) , Toast.LENGTH_SHORT).show();
             return;
         }
-
-        UserContent.addItem(new UserContent.UserItem(String.valueOf(fromMap.getId()), fromMap.getName(), fromMap.getEMail()));
-        CustomArrayAdapterUserList adapter = new CustomArrayAdapterUserList(
-                this, R.layout.userlistview_row, UserContent.ITEMS);
-        userList.setAdapter(adapter);
+        if(UserContent.isInTheList(String.valueOf(fromMap.getId()))) {
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_already_added), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        UserContent.addItem(new UserContent.UserItem(String.valueOf(fromMap.getId()), fromMap.getName(), fromMap.getEMail() , false));
         adapter.notifyDataSetChanged();
-        System.err.println(fromMap.getId()+" "+fromMap.getName()+" "+fromMap.getEMail());
     }
 }

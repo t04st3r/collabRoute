@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -17,9 +19,11 @@ import it.digisin.collabroute.travels.TravelContent;
  * Created by raffaele on 10/04/14.
  */
 public class CustomArrayAdapterUserList extends ArrayAdapter<UserContent.UserItem> {
+    private final List<UserContent.UserItem> list;
 
     public CustomArrayAdapterUserList(Context context, int textViewResourceId, List<UserContent.UserItem> objects) {
         super(context, textViewResourceId, objects);
+        list = objects;
     }
 
     @Override
@@ -28,7 +32,7 @@ public class CustomArrayAdapterUserList extends ArrayAdapter<UserContent.UserIte
     }
 
     public View getViewOptimize(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder = null;
+        final ViewHolder viewHolder;
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -36,19 +40,31 @@ public class CustomArrayAdapterUserList extends ArrayAdapter<UserContent.UserIte
             viewHolder = new ViewHolder();
             viewHolder.name = (TextView)convertView.findViewById(R.id.userName);
             viewHolder.email = (TextView)convertView.findViewById(R.id.userEmail);
+            viewHolder.selected = (CheckBox)convertView.findViewById(R.id.userCheckBox);
+            viewHolder.selected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    UserContent.UserItem item = (UserContent.UserItem) viewHolder.selected.getTag();
+                    item.selected = buttonView.isChecked();
+                }
+            });
             convertView.setTag(viewHolder);
+            viewHolder.selected.setTag(list.get(position));
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
+            ((ViewHolder) convertView.getTag()).selected.setTag(list.get(position));
         }
         UserContent.UserItem item = getItem(position);
         viewHolder.name.setText(item.name);
         viewHolder.email.setText(item.email);
+        viewHolder.selected.setChecked(list.get(position).selected);
         return convertView;
     }
 
-    private class ViewHolder {
+    private static class ViewHolder {
         public TextView name;
         public TextView email;
+        public CheckBox selected;
     }
 }
 
