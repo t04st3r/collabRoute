@@ -6,6 +6,7 @@ import android.app.Activity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -73,6 +74,8 @@ public class TravelListHandler extends ConnectionHandler {
                 return retrieveTravelList();
             if (param[0].equals("routes"))
                 return retrieveTravelRoutes();
+            if(param[0].equals("newTravel"))
+                return addNewTravel(param[1]);
         } catch (JSONException e) {
             System.err.println(e);
         }
@@ -189,6 +192,69 @@ public class TravelListHandler extends ConnectionHandler {
         } catch (Exception e) {
             System.err.println(e);
             error.put("result", "CONN_GENERIC_ERROR").put("type", "routes_list");
+            return error;
+        }
+    }
+
+    private JSONObject addNewTravel(String request) throws JSONException {
+        try {
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/add/travel/";
+            URL url = new URL(urlString);
+
+            /** Create all-trusting host name verifier
+             * to avoid the following :
+             * java.security.cert.CertificateException: No name matching
+             * This is because Java by default verifies that the certificate CN (Common Name) is
+             * the same as host name in the URL. If they are not, the web service client fails.
+             **/
+
+            HostnameVerifier allowEveryHost = new HostnameVerifier() {
+
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
+
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
+            urlConnection.setRequestProperty("token", user.getToken());
+            urlConnection.setConnectTimeout(3000);
+            urlConnection.setSSLSocketFactory(context.getSocketFactory());
+            urlConnection.setHostnameVerifier(allowEveryHost);
+            urlConnection.setRequestMethod("POST");
+            DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
+            printout.writeBytes(request);
+            printout.flush();
+            printout.close();
+            InputStream in = urlConnection.getInputStream();
+            String jsonToString = inputToString(in);
+            in.close();
+            JSONObject jsonResponse = new JSONObject(jsonToString);
+            return jsonResponse;
+        } catch (SocketTimeoutException e) {
+            System.err.println(e);
+            error.put("result", "CONN_TIMEDOUT").put("type", "add_new_travel");
+            return error;
+        } catch (ConnectException e) {
+            System.err.println(e);
+            error.put("result", "CONN_REFUSED").put("type", "add_new_travel");
+            return error;
+        } catch (MalformedURLException e) {
+            System.err.println(e);
+            error.put("result", "CONN_BAD_URL").put("type", "add_new_travel");
+            return error;
+        } catch (IOException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_IO_ERROR").put("type", "add_new_travel");
+            return error;
+        } catch (IllegalArgumentException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "add_new_travel");
+            return error;
+        } catch (Exception e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "add_new_travel");
             return error;
         }
     }

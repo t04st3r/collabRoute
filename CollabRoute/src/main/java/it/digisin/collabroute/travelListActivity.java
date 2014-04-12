@@ -13,7 +13,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -312,6 +311,7 @@ public class travelListActivity extends FragmentActivity
             ArrayAdapter<String> userAdapter = loadAutoCompleteAdapter();
             if (userAdapter != null)
                 autoCompleteUsers.setAdapter(userAdapter);
+
             cancelTravel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -330,8 +330,31 @@ public class travelListActivity extends FragmentActivity
                     deleteUser();
                 }
             });
+            addTravel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sendNewTravel();
+                }
+            });
         }
     }
+
+    private void sendNewTravel() {
+        String travelNameString = travelName.getText().toString();
+        String travelDesString = travelDescription.getText().toString();
+        if(travelNameString.equals("") || travelDesString.equals("")){
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_empty_name_description), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        JSONObject request = new JSONObject();
+        try {
+            request.put("name" , travelNameString).put("description" , travelDesString);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void cleanDialog(){
         newTravelDialog.dismiss();
         UserContent.cleanList();
@@ -346,9 +369,8 @@ public class travelListActivity extends FragmentActivity
             Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_empty_selected) , Toast.LENGTH_SHORT).show();
             return;
         }
-        int length = selected.length;
-        for(int i = 0; i < length; i++){
-            String id = selected[i].id;
+        for (UserContent.UserItem aSelected : selected) {
+            String id = aSelected.id;
             UserContent.deleteItem(id);
         }
         adapter.notifyDataSetChanged();
@@ -370,9 +392,7 @@ public class travelListActivity extends FragmentActivity
     }
     private User getUser(String userMail) {
         if (users != null) {
-            Iterator<String> iterator = users.keySet().iterator();
-            while (iterator.hasNext()) {
-                String current = iterator.next();
+            for (String current : users.keySet()) {
                 if (users.get(current).getEMail().equals(userMail)) {
                     return users.get(current);
                 }

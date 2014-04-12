@@ -49,6 +49,10 @@ public class UserContent {
             ITEMS.clear();
     }
 
+    public static String[] getUsers(){
+        return null;
+    }
+
     public static UserItem[] getSelected() {
         if (ITEM_MAP != null) {
             Iterator<String> iterator = ITEM_MAP.keySet().iterator();

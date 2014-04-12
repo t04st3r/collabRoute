@@ -12,8 +12,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import it.digisin.collabroute.R;
-import it.digisin.collabroute.model.User;
-import it.digisin.collabroute.travels.TravelContent;
 
 /**
  * Created by raffaele on 10/04/14.
