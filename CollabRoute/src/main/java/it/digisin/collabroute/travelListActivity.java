@@ -69,6 +69,7 @@ public class travelListActivity extends FragmentActivity
     private AutoCompleteTextView autoCompleteUsers;
     private EditText travelName;
     private EditText travelDescription;
+    private Travel newTravel;
 
     private enum ResponseMSG {OK, AUTH_FAILED, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
@@ -315,7 +316,7 @@ public class travelListActivity extends FragmentActivity
             cancelTravel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                        cleanDialog();
+                    cleanDialog();
                 }
             });
             addUser.setOnClickListener(new View.OnClickListener() {
@@ -342,20 +343,46 @@ public class travelListActivity extends FragmentActivity
     private void sendNewTravel() {
         String travelNameString = travelName.getText().toString();
         String travelDesString = travelDescription.getText().toString();
-        if(travelNameString.equals("") || travelDesString.equals("")){
+        if (travelNameString.equals("") || travelDesString.equals("")) {
             Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_empty_name_description), Toast.LENGTH_SHORT).show();
             return;
         }
+        if (UserContent.isEmpty()) {
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_empty_list), Toast.LENGTH_SHORT).show();
+            return;
+        }
         JSONObject request = new JSONObject();
+        newTravel = new Travel();
+        newTravel.setName(travelNameString);
+        newTravel.setDescription(travelDesString);
+        User admin = new User();
+        admin.setEMail(user.getEMail());
+        admin.setId(user.getId());
+        admin.setName(user.getName());
+        newTravel.setAdmin(admin);
+        HashMap<String, User> newTravelPeople = new HashMap<String, User>();
         try {
-            request.put("name" , travelNameString).put("description" , travelDesString);
-
+            request.put("name", travelNameString).put("description", travelDesString);
+            JSONArray arrayUsers = new JSONArray();
+            UserContent.UserItem[] userItems = UserContent.getUsers();
+            for (UserContent.UserItem userItem : userItems) {
+                String id = userItem.id;
+                JSONObject user = new JSONObject().put("id", id);
+                User toAdd = users.get(id);
+                newTravelPeople.put(String.valueOf(toAdd.getId()) , toAdd);
+                arrayUsers.put(user);
+            }
+            request.put("users", arrayUsers);
+            newTravel.setPeople(newTravelPeople);
+            TravelListHandler addNewTravel = new TravelListHandler(this, user);
+            String[] requestParameters = {"newTravel", request.toString()};
+            addNewTravel.execute(requestParameters);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private void cleanDialog(){
+    private void cleanDialog() {
         newTravelDialog.dismiss();
         UserContent.cleanList();
         travelName.setText("");
@@ -365,8 +392,8 @@ public class travelListActivity extends FragmentActivity
 
     private void deleteUser() {
         UserContent.UserItem[] selected = UserContent.getSelected();
-        if(selected == null){
-            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_empty_selected) , Toast.LENGTH_SHORT).show();
+        if (selected == null) {
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_empty_selected), Toast.LENGTH_SHORT).show();
             return;
         }
         for (UserContent.UserItem aSelected : selected) {
@@ -390,6 +417,7 @@ public class travelListActivity extends FragmentActivity
         }
         return null;
     }
+
     private User getUser(String userMail) {
         if (users != null) {
             for (String current : users.keySet()) {
@@ -400,27 +428,75 @@ public class travelListActivity extends FragmentActivity
         }
         return null;
     }
-    private void insertUser(){
+
+    private void insertUser() {
         String textToAdd = autoCompleteUsers.getText().toString();
         autoCompleteUsers.setText("");
-        if(!EmailValidator.validate(textToAdd)){
-            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_email_error) , Toast.LENGTH_SHORT).show();
+        if (!EmailValidator.validate(textToAdd)) {
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_email_error), Toast.LENGTH_SHORT).show();
             return;
         }
-        if(textToAdd.equals(user.getEMail())){
-            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_error) , Toast.LENGTH_SHORT).show();
+        if (textToAdd.equals(user.getEMail())) {
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_error), Toast.LENGTH_SHORT).show();
             return;
         }
         User fromMap = getUser(textToAdd);
-        if(fromMap == null){
-            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_not_found) , Toast.LENGTH_SHORT).show();
+        if (fromMap == null) {
+            Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
-        if(UserContent.isInTheList(String.valueOf(fromMap.getId()))) {
+        if (UserContent.isInTheList(String.valueOf(fromMap.getId()))) {
             Toast.makeText(travelListActivity.this, this.getString(R.string.new_travel_dialog_user_list_already_added), Toast.LENGTH_SHORT).show();
             return;
         }
-        UserContent.addItem(new UserContent.UserItem(String.valueOf(fromMap.getId()), fromMap.getName(), fromMap.getEMail() , false));
+        UserContent.addItem(new UserContent.UserItem(String.valueOf(fromMap.getId()), fromMap.getName(), fromMap.getEMail(), false));
         adapter.notifyDataSetChanged();
+    }
+
+    public void updateNewTrip(JSONObject response) {
+        try {
+            String resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case CONN_REFUSED:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case AUTH_FAILED:
+                    Toast.makeText(travelListActivity.this, ConnectionHandler.errors.get(ConnectionHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
+                    logOut();
+                    return;
+                case OK:
+                    updateTravelList(response);
+            }
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+    }
+
+    private void updateTravelList(JSONObject response) {
+        try {
+            newTravel.setId(response.getInt("id"));
+            TravelContent.addItem(new TravelContent.TravelItem(String.valueOf(newTravel.getId()), newTravel.getName(), newTravel.getDescription()));
+            travels.put(String.valueOf(newTravel.getId()), newTravel);
+            travelListFragment.adapter.notifyDataSetChanged();
+            cleanDialog();
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
     }
 }

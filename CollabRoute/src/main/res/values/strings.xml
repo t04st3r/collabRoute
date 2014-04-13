@@ -80,4 +80,5 @@
     <string name="new_travel_dialog_user_list_empty_selected">Empty list or no user selected</string>
     <string name="new_travel_dialog_user_list_already_added">User already in the list</string>
     <string name="new_travel_dialog_user_list_empty_name_description">Travel name or travel description missing</string>
+    <string name="new_travel_dialog_user_list_empty_list">Please add at least one user to create your travel</string>
 </resources>

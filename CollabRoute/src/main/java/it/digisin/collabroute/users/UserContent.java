@@ -35,11 +35,13 @@ public class UserContent {
             ITEM_MAP.remove(id);
         }
     }
-    public static boolean isInTheList(String id){
-        if(!ITEM_MAP.isEmpty()){
-            return ITEM_MAP.containsKey(id);
-        }
-        return false;
+
+    public static boolean isInTheList(String id) {
+        return !ITEM_MAP.isEmpty() && ITEM_MAP.containsKey(id);
+    }
+
+    public static boolean isEmpty() {
+        return ITEM_MAP.isEmpty();
     }
 
     public static void cleanList() {
@@ -49,9 +51,22 @@ public class UserContent {
             ITEMS.clear();
     }
 
-    public static String[] getUsers(){
-        return null;
+    public static UserItem[] getUsers() {
+        if (ITEM_MAP == null)
+            return null;
+        Iterator<String> iterator = ITEM_MAP.keySet().iterator();
+        UserItem[] allUsers = new UserItem[ITEM_MAP.size()];
+        int index = 0;
+        while (iterator.hasNext()) {
+            String current = iterator.next();
+            allUsers[index++] = ITEM_MAP.get(current);
+        }
+        if (index == 0) {
+            return null;
+        }
+        return allUsers;
     }
+
 
     public static UserItem[] getSelected() {
         if (ITEM_MAP != null) {
@@ -60,20 +75,19 @@ public class UserContent {
             int index = 0;
             while (iterator.hasNext()) {
                 String current = iterator.next();
-                if(ITEM_MAP.get(current).selected)
+                if (ITEM_MAP.get(current).selected)
                     selectedId[index++] = ITEM_MAP.get(current);
             }
-            if(index == 0){
+            if (index == 0) {
                 return null;
             }
             UserItem[] toReturn = new UserItem[index];
-            for(int i = 0; i < index; i++){
-                toReturn[i] = selectedId[i];
-            }
+            System.arraycopy(selectedId, 0, toReturn, 0, index);
             return toReturn;
         }
         return null;
     }
+
     /**
      * A Travel item representing a piece of content.
      */

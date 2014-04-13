@@ -18,7 +18,6 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
-import it.digisin.collabroute.LoginActivity;
 import it.digisin.collabroute.model.Travel;
 import it.digisin.collabroute.model.UserHandler;
 import it.digisin.collabroute.travelDetailActivity;
@@ -33,11 +32,9 @@ public class TravelListHandler extends ConnectionHandler {
     public Travel travel;
     private JSONObject error;
 
-    public enum Response {AUTH_FAILED, DATABASE_ERROR;}
-
     public TravelListHandler(Activity activity, UserHandler user) {
         super(activity);
-        this.user = user;
+        TravelListHandler.user = user;
         error = new JSONObject();
     }
 
@@ -61,6 +58,9 @@ public class TravelListHandler extends ConnectionHandler {
             if(resultType.equals("routes_list")){
                 ((travelDetailActivity) activity).routesResponse((JSONObject) result);
                 return;
+            }
+            if(resultType.equals("add_new_travel")){
+                ((travelListActivity) activity).updateNewTrip((JSONObject) result);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -219,6 +219,7 @@ public class TravelListHandler extends ConnectionHandler {
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
             urlConnection.setRequestProperty("token", user.getToken());
+            urlConnection.setRequestProperty("Content-Type" , "application/json");
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
@@ -230,8 +231,7 @@ public class TravelListHandler extends ConnectionHandler {
             InputStream in = urlConnection.getInputStream();
             String jsonToString = inputToString(in);
             in.close();
-            JSONObject jsonResponse = new JSONObject(jsonToString);
-            return jsonResponse;
+            return new JSONObject(jsonToString);
         } catch (SocketTimeoutException e) {
             System.err.println(e);
             error.put("result", "CONN_TIMEDOUT").put("type", "add_new_travel");
