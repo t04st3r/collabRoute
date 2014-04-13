@@ -97,8 +97,6 @@ public class travelListActivity extends FragmentActivity
                     .findFragmentById(R.id.travel_list))
                     .setActivateOnItemClick(true);
         }
-
-        // TODO: If exposing deep links into your app, handle intents here.
     }
 
 

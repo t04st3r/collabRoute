@@ -2,7 +2,6 @@ package it.digisin.collabroute.connection;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.JsonReader;
 import java.io.BufferedReader;
@@ -46,7 +45,7 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
 
     protected ConnectionHandler(Activity activity) {
        this.activity = activity;
-       this.dialog = new ProgressDialog(activity);
+       dialog = new ProgressDialog(activity);
 
         /*initialize socket */
         if(serverUrl == null){

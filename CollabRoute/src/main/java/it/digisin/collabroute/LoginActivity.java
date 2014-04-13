@@ -29,7 +29,7 @@ public class LoginActivity extends Activity {
     private static UserHandler User = null;
     public final static String PARCELABLE_KEY = "it.digisin.collabroute.parcelable";
 
-    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
+    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
     EditText mailField;
     EditText passField;
@@ -80,10 +80,7 @@ public class LoginActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
     public void doLogin() {
@@ -133,8 +130,7 @@ public class LoginActivity extends Activity {
                     Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case USER_NOT_CONFIRMED:
-                    String codeFromJson = response.getString("code");
-                    code = codeFromJson;
+                    code = response.getString("code");
                     createConfirmDialog();
                     confirmDialog.show();
                     return;

@@ -27,8 +27,6 @@ public class UserRegistrationHandler extends ConnectionHandler {
 
     private JSONObject error;
 
-    public enum Response {OK, EMAIL_SEND_ERROR, DATABASE_ERROR, EMAIL_EXISTS_ERROR, EMAIL_NOT_FOUND;}
-
     public UserRegistrationHandler(RegistrationActivity activity, UserHandler newbie) {
         super(activity);
         this.newbie = newbie;
@@ -110,8 +108,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
             InputStream in = urlConnection.getInputStream();
             String jsonToString = inputToString(in);
             in.close();
-            JSONObject jsonResponse = new JSONObject(jsonToString);
-            return jsonResponse;
+            return new JSONObject(jsonToString);
         } catch (SocketTimeoutException e) {
             System.err.println(e);
             error.put("type", "request").put("result", "CONN_TIMEDOUT");
@@ -172,8 +169,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
             InputStream in = urlConnection.getInputStream();
             String jsonToString = inputToString(in);
             in.close();
-            JSONObject jsonResponse = new JSONObject(jsonToString);
-            return jsonResponse;
+            return new JSONObject(jsonToString);
         } catch (SocketTimeoutException e) {
             System.err.println(e);
             error.put("type", "confirm").put("result", "CONN_TIMEDOUT");

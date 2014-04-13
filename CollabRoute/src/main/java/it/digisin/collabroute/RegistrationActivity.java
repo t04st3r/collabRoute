@@ -35,7 +35,7 @@ public class RegistrationActivity extends Activity {
     private Button completeReg;
     private UserHandler newbie;
 
-    private enum ResponseMSG {OK, EMAIL_SEND_ERROR, DATABASE_ERROR, EMAIL_EXISTS_ERROR, EMAIL_NOT_FOUND, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
+    private enum ResponseMSG {OK, EMAIL_SEND_ERROR, DATABASE_ERROR, EMAIL_EXISTS_ERROR, EMAIL_NOT_FOUND, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,10 +90,7 @@ public class RegistrationActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
     public void completeRegistration() {
@@ -101,7 +98,7 @@ public class RegistrationActivity extends Activity {
         int codeInserted = 0;
         boolean isNumeric = false;
         try {
-            codeInserted = Integer.parseInt(code.toString());
+            codeInserted = Integer.parseInt(code);
             isNumeric = true;
         } catch (NumberFormatException e) {
             System.err.println(e);

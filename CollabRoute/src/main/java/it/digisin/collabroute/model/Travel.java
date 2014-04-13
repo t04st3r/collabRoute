@@ -1,7 +1,6 @@
 package it.digisin.collabroute.model;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Created by raffaele on 27/03/14.
@@ -70,12 +69,9 @@ public class Travel {
 
     public String getUsersName(){
         if(people != null){
-            String users = new String();
-            Iterator<String> iterator = people.keySet().iterator();
-            int index = 0;
-            while(iterator.hasNext()){
-                String current = iterator.next();
-                users += people.get(current).getName()+" ";
+            String users = "";
+            for (String current : people.keySet()) {
+                users += people.get(current).getName() + " ";
             }
             return users;
         }
@@ -88,7 +84,4 @@ public class Travel {
         }
         routes.put(String.valueOf(route.getId()), route);
     }
-
-
-    //TODO methods for remove or update user in the hashmap and methods for insert, remove, update routes hashmap
 }

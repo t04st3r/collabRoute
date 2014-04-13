@@ -38,7 +38,7 @@ public class travelDetailActivity extends FragmentActivity {
     Travel travel;
     String id;
 
-    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR;}
+    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,7 +153,7 @@ public class travelDetailActivity extends FragmentActivity {
     private void fillRoute(JSONArray response) {
         try {
             int len;
-            String addresses = new String();
+            String addresses = "";
             if ((len = response.length()) > 0) {
                 for (int i = 0; i < len; i++) {
                     JSONObject route = response.getJSONObject(i);

@@ -29,11 +29,9 @@ public class UserLoginHandler extends ConnectionHandler {
 
     private JSONObject error;
 
-    public enum Response {OK, AUTH_FAILED, DATABASE_ERROR;}
-
     public UserLoginHandler(LoginActivity activity, UserHandler user) {
         super(activity);
-        this.user = user;
+        UserLoginHandler.user = user;
         error = new JSONObject();
     }
 
@@ -102,8 +100,7 @@ public class UserLoginHandler extends ConnectionHandler {
             //System.err.println(inputToString(in)); debug
             String jsonToString = inputToString(in);
             in.close();
-            JSONObject jsonResponse = new JSONObject(jsonToString);
-            return jsonResponse;
+            return new JSONObject(jsonToString);
         } catch (SocketTimeoutException e) {
             System.err.println(e);
             error.put("result", "CONN_TIMEDOUT").put("type" , "login");
@@ -164,8 +161,7 @@ public class UserLoginHandler extends ConnectionHandler {
             InputStream in = urlConnection.getInputStream();
             String jsonToString = inputToString(in);
             in.close();
-            JSONObject jsonResponse = new JSONObject(jsonToString);
-            return jsonResponse;
+            return new JSONObject(jsonToString);
         } catch (SocketTimeoutException e) {
             System.err.println(e);
             error.put("type", "confirm").put("result", "CONN_TIMEDOUT");

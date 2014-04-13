@@ -64,7 +64,7 @@ public class SplashActivity extends Activity {
                 break;
             }
         }
-    };
+    }
 
     private UiHandler mHandler;
 
