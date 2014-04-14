@@ -35,7 +35,6 @@
         </activity>
         <activity
             android:name="it.digisin.collabroute.travelDetailActivity"
-            android:label="@string/title_travel_detail"
             android:parentActivityName="it.digisin.collabroute.travelListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -53,7 +53,6 @@
     <string name="passlHint">Type your password here</string>
     <string name="userHint">Type your username here</string>
     <string name="title_travel_list">travels</string>
-    <string name="title_travel_detail">travel Detail</string>
     <string name="home_title">Welcome %1$s</string>
     <string name="home_myTravel">My travels:</string>
     <string name="home_createNew">Create new travel</string>
@@ -64,6 +63,9 @@
     <string name="travel_admin_label">Travel creator:</string>
     <string name="travel_user_label">Users:</string>
     <string name="travel_mp_label">Meeting points:</string>
+    <string name="travel_start_button">Start travel</string>
+    <string name="travel_leave_button">Leave travel</string>
+    <string name="travel_delete_button">Delete travel</string>
     <string name="travel_users_emptyArray">No other user added yet</string>
     <string name="travel_list_user_you">You</string>
     <string name="new__travel_name_hint">Insert travel name</string>

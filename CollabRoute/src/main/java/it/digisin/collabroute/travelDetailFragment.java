@@ -49,14 +49,8 @@ public class travelDetailFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_travel_detail, container, false);
-
-        // Show the Travel content as text in a TextView.
-        if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.travel_detail)).setText(mItem.name);
-        }
-
         return rootView;
     }
 }

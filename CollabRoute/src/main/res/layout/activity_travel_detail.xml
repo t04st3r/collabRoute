@@ -1,18 +1,12 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/travel_detail_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="it.digisin.collabroute.travelDetailActivity"
     tools:ignore="MergeRootFrame"
-    android:textAlignment="center">
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_gravity="left|top"
-        android:layout_marginTop="60dp">
+    android:textAlignment="center"
+    android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
@@ -21,7 +15,8 @@
             android:text="@string/travel_description_label"
             android:textColor="#aa429a"
             android:layout_gravity="left|top"
-            android:layout_marginLeft="10dp" />
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="30dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -78,6 +73,25 @@
             android:id="@+id/travelDetailActRoutes"
             android:layout_marginLeft="10dp" />
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/travel_start_button"
+        android:id="@+id/startTravel"/>
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:id="@+id/leaveOrDeleteTravel" />
+    </LinearLayout>
     </LinearLayout>
 
-</FrameLayout>

@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,12 +51,22 @@ public class travelDetailActivity extends FragmentActivity {
         travelAdministrator = (TextView) findViewById(R.id.travelDetailActAdmin);
         travelUsers = (TextView) findViewById(R.id.travelDetailActUser);
         travelMP = (TextView) findViewById(R.id.travelDetailActRoutes);
+        final Button startTravel = (Button) findViewById(R.id.startTravel);
+        final Button leaveDeleteTravel = (Button) findViewById(R.id.leaveOrDeleteTravel);
         travel = travelListActivity.travels.get(id);
+        setTitle(travel.getName());
         TravelListHandler route = new TravelListHandler(this, travel);
         route.execute("routes");
         travelDescription.setText(travel.getDescription());
         int adminId = travel.getAdmin().getId();
-        String adminString = (adminId == travelListActivity.user.getId()) ? getString(R.string.travel_list_user_you) : travel.getAdmin().getName();
+        String adminString;
+        if(adminId == travelListActivity.user.getId()) {
+            adminString = getString(R.string.travel_list_user_you);
+            leaveDeleteTravel.setText(R.string.travel_delete_button);
+        }else{
+            adminString = travel.getAdmin().getName();
+            leaveDeleteTravel.setText(R.string.travel_leave_button);
+        }
         travelAdministrator.setText(adminString);
         String users;
         if ((users = travel.getUsersName()) != null) {
@@ -87,6 +99,30 @@ public class travelDetailActivity extends FragmentActivity {
                     .add(R.id.travel_detail_container, fragment)
                     .commit();
         }
+        startTravel.setEnabled(true);
+        startTravel.setClickable(true);
+        startTravel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               dummy();
+            }
+        });
+        leaveDeleteTravel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               dummy2();
+            }
+        });
+
+
+    }
+
+    private void dummy(){
+        System.err.println("PORCOIDDIO");
+    }
+
+    private void dummy2(){
+        System.err.println("PORCOIDDIO22");
     }
 
     @Override
