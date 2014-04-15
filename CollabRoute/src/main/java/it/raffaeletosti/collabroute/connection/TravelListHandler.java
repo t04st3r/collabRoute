@@ -1,7 +1,6 @@
-package it.digisin.collabroute.connection;
+package it.raffaeletosti.collabroute.connection;
 
 import android.app.Activity;
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,10 +17,10 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
-import it.digisin.collabroute.model.Travel;
-import it.digisin.collabroute.model.UserHandler;
-import it.digisin.collabroute.travelDetailActivity;
-import it.digisin.collabroute.travelListActivity;
+import it.raffaeletosti.collabroute.model.Travel;
+import it.raffaeletosti.collabroute.model.UserHandler;
+import it.raffaeletosti.collabroute.travelDetailActivity;
+import it.raffaeletosti.collabroute.travelListActivity;
 
 /**
  * Created by raffaele on 28/03/14.

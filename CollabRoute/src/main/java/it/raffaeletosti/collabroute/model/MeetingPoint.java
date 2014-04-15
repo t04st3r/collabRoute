@@ -1,4 +1,4 @@
-package it.digisin.collabroute.model;
+package it.raffaeletosti.collabroute.model;
 
 /**
  * Created by raffaele on 28/03/14.

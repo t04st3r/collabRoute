@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="it.digisin.collabroute"
+    package="it.raffaeletosti.collabroute"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -13,13 +13,13 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:screenOrientation="sensor">
-        <activity android:name="it.digisin.collabroute.LoginActivity">
+        <activity android:name="it.raffaeletosti.collabroute.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.PICK_ACTIVITY" />
             </intent-filter>
         </activity>
         <activity
-            android:name="it.digisin.collabroute.SplashActivity"
+            android:name="it.raffaeletosti.collabroute.SplashActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
             <intent-filter>
@@ -28,17 +28,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="it.digisin.collabroute.RegistrationActivity" />
+        <activity android:name="it.raffaeletosti.collabroute.RegistrationActivity" />
         <activity
-            android:name="it.digisin.collabroute.travelListActivity"
+            android:name="it.raffaeletosti.collabroute.travelListActivity"
             android:label="@string/title_travel_list" >
         </activity>
         <activity
-            android:name="it.digisin.collabroute.travelDetailActivity"
-            android:parentActivityName="it.digisin.collabroute.travelListActivity" >
+            android:name="it.raffaeletosti.collabroute.travelDetailActivity"
+            android:parentActivityName="it.raffaeletosti.collabroute.travelListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="it.digisin.collabroute.travelListActivity" />
+                android:value="it.raffaeletosti.collabroute.travelListActivity" />
         </activity>
     </application>
 

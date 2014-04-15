@@ -1,4 +1,4 @@
-package it.digisin.collabroute.travels;
+package it.raffaeletosti.collabroute.travels;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import it.digisin.collabroute.R;
+import it.raffaeletosti.collabroute.R;
 
 /**
  * Created by raffaele on 02/04/14.

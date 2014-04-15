@@ -1,4 +1,4 @@
-package it.digisin.collabroute;
+package it.raffaeletosti.collabroute;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -22,15 +22,15 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import it.digisin.collabroute.connection.ConnectionHandler;
-import it.digisin.collabroute.connection.EmailValidator;
-import it.digisin.collabroute.connection.TravelListHandler;
-import it.digisin.collabroute.model.Travel;
-import it.digisin.collabroute.model.User;
-import it.digisin.collabroute.model.UserHandler;
-import it.digisin.collabroute.travels.TravelContent;
-import it.digisin.collabroute.users.CustomArrayAdapterUserList;
-import it.digisin.collabroute.users.UserContent;
+import it.raffaeletosti.collabroute.connection.ConnectionHandler;
+import it.raffaeletosti.collabroute.connection.EmailValidator;
+import it.raffaeletosti.collabroute.connection.TravelListHandler;
+import it.raffaeletosti.collabroute.model.Travel;
+import it.raffaeletosti.collabroute.model.User;
+import it.raffaeletosti.collabroute.model.UserHandler;
+import it.raffaeletosti.collabroute.travels.TravelContent;
+import it.raffaeletosti.collabroute.users.CustomArrayAdapterUserList;
+import it.raffaeletosti.collabroute.users.UserContent;
 
 import static android.R.layout.simple_dropdown_item_1line;
 
@@ -44,11 +44,11 @@ import static android.R.layout.simple_dropdown_item_1line;
  * item details side-by-side using two vertical panes.
  * <p/>
  * The activity makes heavy use of fragments. The list of items is a
- * {@link travelListFragment} and the item details
- * (if present) is a {@link travelDetailFragment}.
+ * {@link it.raffaeletosti.collabroute.travelListFragment} and the item details
+ * (if present) is a {@link it.raffaeletosti.collabroute.travelDetailFragment}.
  * <p/>
  * This activity also implements the required
- * {@link travelListFragment.Callbacks} interface
+ * {@link it.raffaeletosti.collabroute.travelListFragment.Callbacks} interface
  * to listen for item selections.
  */
 public class travelListActivity extends FragmentActivity
@@ -101,7 +101,7 @@ public class travelListActivity extends FragmentActivity
 
 
     /**
-     * Callback method from {@link travelListFragment.Callbacks}
+     * Callback method from {@link it.raffaeletosti.collabroute.travelListFragment.Callbacks}
      * indicating that the item with the given ID was selected.
      */
     @Override

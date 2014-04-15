@@ -1,7 +1,8 @@
-package it.digisin.collabroute.connection;
+package it.raffaeletosti.collabroute.connection;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 /**
  * Created by raffaele on 16/03/14.
  */

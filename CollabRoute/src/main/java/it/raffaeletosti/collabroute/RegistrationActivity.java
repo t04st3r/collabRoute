@@ -1,4 +1,4 @@
-package it.digisin.collabroute;
+package it.raffaeletosti.collabroute;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,13 +11,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import it.digisin.collabroute.connection.ConnectionHandler;
-import it.digisin.collabroute.connection.EmailValidator;
-import it.digisin.collabroute.connection.UserRegistrationHandler;
-import it.digisin.collabroute.model.UserHandler;
+import it.raffaeletosti.collabroute.connection.ConnectionHandler;
+import it.raffaeletosti.collabroute.connection.EmailValidator;
+import it.raffaeletosti.collabroute.connection.UserRegistrationHandler;
+import it.raffaeletosti.collabroute.model.UserHandler;
 
 
 public class RegistrationActivity extends Activity {

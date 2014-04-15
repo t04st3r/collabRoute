@@ -1,4 +1,4 @@
-package it.digisin.collabroute.users;
+package it.raffaeletosti.collabroute.users;
 
 import java.util.ArrayList;
 import java.util.HashMap;

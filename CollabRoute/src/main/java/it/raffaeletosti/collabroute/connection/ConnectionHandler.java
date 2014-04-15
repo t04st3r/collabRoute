@@ -1,9 +1,10 @@
-package it.digisin.collabroute.connection;
+package it.raffaeletosti.collabroute.connection;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.JsonReader;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -13,8 +14,8 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
-import it.digisin.collabroute.R;
-import it.digisin.collabroute.ServerCertificateLoader;
+import it.raffaeletosti.collabroute.R;
+import it.raffaeletosti.collabroute.ServerCertificateLoader;
 
 /**
  * Created by raffaele on 19/03/14.

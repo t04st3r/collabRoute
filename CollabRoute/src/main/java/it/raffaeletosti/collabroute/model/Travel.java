@@ -1,4 +1,4 @@
-package it.digisin.collabroute.model;
+package it.raffaeletosti.collabroute.model;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package it.digisin.collabroute;
+package it.raffaeletosti.collabroute;
 
 
 import android.app.Activity;
@@ -18,16 +18,16 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import it.digisin.collabroute.connection.ConnectionHandler;
-import it.digisin.collabroute.connection.EmailValidator;
-import it.digisin.collabroute.connection.UserLoginHandler;
-import it.digisin.collabroute.model.UserHandler;
+import it.raffaeletosti.collabroute.connection.ConnectionHandler;
+import it.raffaeletosti.collabroute.connection.EmailValidator;
+import it.raffaeletosti.collabroute.connection.UserLoginHandler;
+import it.raffaeletosti.collabroute.model.UserHandler;
 
 
 public class LoginActivity extends Activity {
 
     private static UserHandler User = null;
-    public final static String PARCELABLE_KEY = "it.digisin.collabroute.parcelable";
+    public final static String PARCELABLE_KEY = "it.raffaeletosti.collabroute.parcelable";
 
     private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 

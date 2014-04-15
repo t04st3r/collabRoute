@@ -1,4 +1,4 @@
-package it.digisin.collabroute;
+package it.raffaeletosti.collabroute;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,11 +14,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import it.digisin.collabroute.connection.ConnectionHandler;
-import it.digisin.collabroute.connection.TravelListHandler;
-import it.digisin.collabroute.model.MeetingPoint;
-import it.digisin.collabroute.model.Travel;
-import it.digisin.collabroute.travels.TravelContent;
+import it.raffaeletosti.collabroute.connection.ConnectionHandler;
+import it.raffaeletosti.collabroute.connection.TravelListHandler;
+import it.raffaeletosti.collabroute.model.MeetingPoint;
+import it.raffaeletosti.collabroute.model.Travel;
+import it.raffaeletosti.collabroute.travels.TravelContent;
 
 
 /**
@@ -39,6 +39,7 @@ public class travelDetailActivity extends FragmentActivity {
     TextView travelMP;
     Travel travel;
     String id;
+    boolean isAdministrator;
 
     private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
@@ -61,9 +62,11 @@ public class travelDetailActivity extends FragmentActivity {
         int adminId = travel.getAdmin().getId();
         String adminString;
         if(adminId == travelListActivity.user.getId()) {
+            isAdministrator = true;
             adminString = getString(R.string.travel_list_user_you);
             leaveDeleteTravel.setText(R.string.travel_delete_button);
         }else{
+            isAdministrator = false;
             adminString = travel.getAdmin().getName();
             leaveDeleteTravel.setText(R.string.travel_leave_button);
         }
@@ -99,31 +102,31 @@ public class travelDetailActivity extends FragmentActivity {
                     .add(R.id.travel_detail_container, fragment)
                     .commit();
         }
-        startTravel.setEnabled(true);
-        startTravel.setClickable(true);
         startTravel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               dummy();
+               startTravelActivity();
             }
         });
         leaveDeleteTravel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               dummy2();
+               deleteTravel();
             }
         });
 
 
     }
 
-    private void dummy(){
-        System.err.println("PORCOIDDIO");
+    private void deleteTravel() {
+        if(!isAdministrator){
+
+        }
     }
 
-    private void dummy2(){
-        System.err.println("PORCOIDDIO22");
+    private void startTravelActivity() {
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

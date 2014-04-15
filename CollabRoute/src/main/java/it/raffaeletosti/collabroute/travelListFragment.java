@@ -1,4 +1,4 @@
-package it.digisin.collabroute;
+package it.raffaeletosti.collabroute;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -7,15 +7,14 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-
-import it.digisin.collabroute.travels.CustomArrayAdapterTravelList;
-import it.digisin.collabroute.travels.TravelContent;
+import it.raffaeletosti.collabroute.travels.CustomArrayAdapterTravelList;
+import it.raffaeletosti.collabroute.travels.TravelContent;
 
 /**
  * A list fragment representing a list of travels. This fragment
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link travelDetailFragment}.
+ * currently being viewed in a {@link it.raffaeletosti.collabroute.travelDetailFragment}.
  * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
@@ -74,7 +73,7 @@ public class travelListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapter = new CustomArrayAdapterTravelList(
-                getActivity(),R.layout.listview_row,TravelContent.ITEMS);
+                getActivity(), R.layout.listview_row, TravelContent.ITEMS);
         setListAdapter(adapter);
     }
 

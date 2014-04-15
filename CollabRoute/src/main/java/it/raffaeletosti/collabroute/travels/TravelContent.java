@@ -1,4 +1,4 @@
-package it.digisin.collabroute.travels;
+package it.raffaeletosti.collabroute.travels;
 
 import java.util.ArrayList;
 import java.util.HashMap;

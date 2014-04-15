@@ -1,19 +1,17 @@
-package it.digisin.collabroute;
+package it.raffaeletosti.collabroute;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-
-import it.digisin.collabroute.travels.TravelContent;
+import it.raffaeletosti.collabroute.travels.TravelContent;
 
 /**
  * A fragment representing a single travel detail screen.
- * This fragment is either contained in a {@link travelListActivity}
- * in two-pane mode (on tablets) or a {@link travelDetailActivity}
+ * This fragment is either contained in a {@link it.raffaeletosti.collabroute.travelListActivity}
+ * in two-pane mode (on tablets) or a {@link it.raffaeletosti.collabroute.travelDetailActivity}
  * on handsets.
  */
 public class travelDetailFragment extends Fragment {

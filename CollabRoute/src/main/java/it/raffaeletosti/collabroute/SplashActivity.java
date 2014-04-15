@@ -1,4 +1,4 @@
-package it.digisin.collabroute;
+package it.raffaeletosti.collabroute;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,13 +6,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import java.lang.ref.WeakReference;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
-import it.digisin.collabroute.connection.ConnectionHandler;
+import java.lang.ref.WeakReference;
+
+import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 
 
 /**

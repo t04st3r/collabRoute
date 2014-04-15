@@ -1,4 +1,4 @@
-package it.digisin.collabroute.model;
+package it.raffaeletosti.collabroute.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -43,7 +43,7 @@ public class UserHandler extends User implements Parcelable{ //useful for passin
     }
 
 
-    public static final Parcelable.Creator<UserHandler> CREATOR = new Creator<UserHandler>(){
+    public static final Creator<UserHandler> CREATOR = new Creator<UserHandler>(){
 
         @Override
         public UserHandler createFromParcel(Parcel source) {

@@ -1,8 +1,9 @@
-package it.digisin.collabroute.connection;
+package it.raffaeletosti.collabroute.connection;
 
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,46 +11,31 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
-import it.digisin.collabroute.RegistrationActivity;
-import it.digisin.collabroute.model.UserHandler;
 
+import it.raffaeletosti.collabroute.LoginActivity;
+import it.raffaeletosti.collabroute.model.UserHandler;
 
 /**
- * Created by raffaele on 19/03/14.
+ * Created by raffaele on 12/03/14.
  */
-public class UserRegistrationHandler extends ConnectionHandler {
+public class UserLoginHandler extends ConnectionHandler {
 
-    UserHandler newbie;
 
+
+    public static UserHandler user;
 
     private JSONObject error;
 
-    public UserRegistrationHandler(RegistrationActivity activity, UserHandler newbie) {
+    public UserLoginHandler(LoginActivity activity, UserHandler user) {
         super(activity);
-        this.newbie = newbie;
+        UserLoginHandler.user = user;
         error = new JSONObject();
     }
 
-    @Override
-    protected JSONObject doInBackground(String... params) {
-        if (params[0].equals("registration")) {
-            try {
-                return sendRegistrationData();
-            } catch (JSONException e) {
-                System.err.println(e);
-                return null;
-            }
-        }
-        try {
-            return sendConfirmation();
-        } catch (JSONException e) {
-            System.err.println(e);
-            return null;
-        }
-    }
 
     @Override
     protected void onPreExecute() {
@@ -59,25 +45,37 @@ public class UserRegistrationHandler extends ConnectionHandler {
 
     @Override
     protected void onPostExecute(Object result) {
-
-        if (dialog.isShowing()) {
+        if(dialog.isShowing()){
             dialog.dismiss();
         }
-        JSONObject jsonResult = (JSONObject) result;
         try {
-            String type = jsonResult.getString("type");
-            if(type.equals("request"))
-                ((RegistrationActivity)activity).checkResponse(result);
-            else
-                ((RegistrationActivity)activity).checkConfirmation(result);
+            JSONObject jsonResult = (JSONObject) result;
+            String responseType = jsonResult.getString("type");
+            if(responseType.equals("login")){
+                ((LoginActivity)activity).checkCredentials(jsonResult);
+                return;
+            }
+            ((LoginActivity)activity).confirmationResponse(jsonResult);
         } catch (JSONException e) {
             System.err.println(e);
         }
     }
-
-    protected JSONObject sendRegistrationData() throws JSONException {
+    @Override
+    protected JSONObject doInBackground(String... params) {
         try {
-            String urlString = "https://" + serverUrl + ":" + serverPort + "/add/user/";
+            if (params[0].equals("login"))
+                return doLoginData();
+            return confirmUser();
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+        return null;
+    }
+
+    JSONObject doLoginData() throws JSONException {
+        try {
+
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/auth/" + user.getEMail() + "/" + user.getPassword();
             URL url = new URL(urlString);
 
             /** Create all-trusting host name verifier
@@ -99,44 +97,39 @@ public class UserRegistrationHandler extends ConnectionHandler {
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
-            urlConnection.setRequestMethod("POST");
-            String urlParam = "name=" + newbie.getName() + "&mail=" + newbie.getEMail() + "&pass=" + newbie.getPassword();
-            DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
-            printout.writeBytes(urlParam);
-            printout.flush();
-            printout.close();
             InputStream in = urlConnection.getInputStream();
+            //System.err.println(inputToString(in)); debug
             String jsonToString = inputToString(in);
             in.close();
             return new JSONObject(jsonToString);
         } catch (SocketTimeoutException e) {
             System.err.println(e);
-            error.put("type", "request").put("result", "CONN_TIMEDOUT");
+            error.put("result", "CONN_TIMEDOUT").put("type" , "login");
             return error;
         } catch (ConnectException e) {
             System.err.println(e);
-            error.put("type", "request").put("result", "CONN_REFUSED");
+            error.put("result", "CONN_REFUSED").put("type" , "login");
             return error;
         } catch (MalformedURLException e) {
             System.err.println(e);
-            error.put("type", "request").put("result", "CONN_BAD_URL");
+            error.put("result", "CONN_BAD_URL").put("type" , "login");
             return error;
         } catch (IOException e) {
             System.err.println(e);
-            error.put("type", "request").put("result", "CONN_GENERIC_IO_ERROR");
+            error.put("result", "CONN_GENERIC_IO_ERROR").put("type" , "login");
             return error;
         } catch (IllegalArgumentException e) {
             System.err.println(e);
-            error.put("type", "request").put("result", "CONN_GENERIC_ERROR");
+            error.put("result", "CONN_GENERIC_ERROR").put("type" , "login");
             return error;
         } catch (Exception e) {
             System.err.println(e);
-            error.put("type", "request").put("result", "CONN_GENERIC_ERROR");
+            error.put("result", "CONN_GENERIC_ERROR").put("type" , "login");
             return error;
         }
     }
 
-    protected JSONObject sendConfirmation() throws JSONException{
+    protected JSONObject confirmUser() throws JSONException{
         try {
             String urlString = "https://" + serverUrl + ":" + serverPort + "/confirm/user/";
             URL url = new URL(urlString);
@@ -161,7 +154,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
             urlConnection.setRequestMethod("POST");
-            String urlParam = "mail=" + newbie.getEMail();
+            String urlParam = "mail=" + user.getEMail();
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
             printout.writeBytes(urlParam);
             printout.flush();
