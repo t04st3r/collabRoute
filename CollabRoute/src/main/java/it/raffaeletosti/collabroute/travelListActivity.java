@@ -241,37 +241,37 @@ public class travelListActivity extends FragmentActivity
             arrayTravels = response.getJSONArray("array");
             if (arrayTravels.length() == 0) {
                 Toast.makeText(travelListActivity.this, this.getString(R.string.home_emptyList), Toast.LENGTH_LONG).show();
-                return;
-            }
-            int length = arrayTravels.length(); //I feel dumb calling length() method on each iteration :P
-            for (int i = 0; i < length; i++) {
-                JSONObject item = arrayTravels.getJSONObject(i);
-                Travel travel = new Travel();
-                travel.setId(Integer.parseInt(item.getString("id")));
-                travel.setName(item.getString("name"));
-                travel.setDescription(item.getString("description"));
-                if (!item.has("id_admin")) //if there isn't, the current user is the administrator
-                    travel.setAdmin(user);
-                else {
-                    User admin = new User();
-                    admin.setId(Integer.parseInt(item.getString("id_admin")));
-                    admin.setName(item.getString("adm_name"));
-                    travel.setAdmin(admin);
+            }else {
+                int length = arrayTravels.length(); //I feel dumb calling length() method on each iteration :P
+                for (int i = 0; i < length; i++) {
+                    JSONObject item = arrayTravels.getJSONObject(i);
+                    Travel travel = new Travel();
+                    travel.setId(Integer.parseInt(item.getString("id")));
+                    travel.setName(item.getString("name"));
+                    travel.setDescription(item.getString("description"));
+                    if (!item.has("id_admin")) //if there isn't, the current user is the administrator
+                        travel.setAdmin(user);
+                    else {
+                        User admin = new User();
+                        admin.setId(Integer.parseInt(item.getString("id_admin")));
+                        admin.setName(item.getString("adm_name"));
+                        travel.setAdmin(admin);
+                    }
+                    JSONArray users = item.getJSONArray("user");
+                    int userLength = users.length(); //same here
+                    for (int j = 0; j < userLength; j++) {
+                        JSONObject jsonUser = users.getJSONObject(j);
+                        User userFromArray = new User();
+                        userFromArray.setName(jsonUser.getString("user_name"));
+                        userFromArray.setId(Integer.parseInt(jsonUser.getString("user_id")));
+                        travel.insertUser(userFromArray);
+                    }
+                    TravelContent.addItem(new TravelContent.TravelItem(String.valueOf(travel.getId()), travel.getName(), travel.getDescription()));
+                    travels.put(String.valueOf(travel.getId()), travel);
                 }
-                JSONArray users = item.getJSONArray("user");
-                int userLength = users.length(); //same here
-                for (int j = 0; j < userLength; j++) {
-                    JSONObject jsonUser = users.getJSONObject(j);
-                    User userFromArray = new User();
-                    userFromArray.setName(jsonUser.getString("user_name"));
-                    userFromArray.setId(Integer.parseInt(jsonUser.getString("user_id")));
-                    travel.insertUser(userFromArray);
-                }
-                TravelContent.addItem(new TravelContent.TravelItem(String.valueOf(travel.getId()), travel.getName(), travel.getDescription()));
-                travels.put(String.valueOf(travel.getId()), travel);
             }
             JSONArray usersList = response.getJSONArray("users");
-            length = usersList.length();
+            int length = usersList.length();
             users = new HashMap<String, User>();
             for (int i = 0; i < length; i++) {
                 JSONObject item = usersList.getJSONObject(i);

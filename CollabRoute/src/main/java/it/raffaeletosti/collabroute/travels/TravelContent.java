@@ -28,6 +28,14 @@ public class TravelContent {
         ITEM_MAP.put(item.id, item);
     }
 
+    public static void deleteItem(String id) {
+        if (!ITEM_MAP.isEmpty()) {
+            TravelItem toDelete = ITEM_MAP.get(id);
+            ITEMS.remove(toDelete);
+            ITEM_MAP.remove(id);
+        }
+    }
+
     public static void cleanList(){
         if(ITEM_MAP != null)
             ITEM_MAP.clear();

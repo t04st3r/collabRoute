@@ -8,7 +8,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context="it.digisin.collabroute.travelListActivity">
+    tools:context="it.raffaeletosti.collabroute.travelListActivity">
 
     <!--
     This layout is a two-pane layout for the travels
@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/travel_list"
-        android:name="it.digisin.collabroute.travelListFragment"
+        android:name="it.raffaeletosti.collabroute.travelListFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

@@ -3,7 +3,7 @@
     android:id="@+id/travel_detail_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="it.digisin.collabroute.travelDetailActivity"
+    tools:context="it.raffaeletosti.collabroute.travelDetailActivity"
     tools:ignore="MergeRootFrame"
     android:textAlignment="center"
     android:orientation="vertical">

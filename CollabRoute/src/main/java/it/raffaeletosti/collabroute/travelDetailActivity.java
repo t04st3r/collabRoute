@@ -1,5 +1,6 @@
 package it.raffaeletosti.collabroute;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -40,6 +41,7 @@ public class travelDetailActivity extends FragmentActivity {
     Travel travel;
     String id;
     boolean isAdministrator;
+    Dialog deleteTravelDialog;
 
     private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
@@ -112,6 +114,7 @@ public class travelDetailActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                deleteTravel();
+               deleteTravelDialog.show();
             }
         });
 
@@ -119,12 +122,38 @@ public class travelDetailActivity extends FragmentActivity {
     }
 
     private void deleteTravel() {
-        if(!isAdministrator){
-
+        if(deleteTravelDialog == null){
+            deleteTravelDialog = new Dialog(this);
+            deleteTravelDialog.setContentView(R.layout.delete_travel_dialog);
         }
+        String title = isAdministrator ? String.format(getString(R.string.delete_travel_dialog_title),"Delete") : String.format(getString(R.string.delete_travel_dialog_title),"Leave");
+        deleteTravelDialog.setTitle(title);
+        final Button ok = (Button)deleteTravelDialog.findViewById(R.id.DeleteOkButton);
+        final Button cancel = (Button)deleteTravelDialog.findViewById(R.id.DeleteCancelButton);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteTravelDialog.dismiss();
+            }
+        });
+
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendTravel();
+            }
+        });
     }
 
+    private void sendTravel() {
+        TravelListHandler deleteThread = new TravelListHandler(this, travel);
+        deleteThread.execute("deleteTravel" , String.valueOf(travelListActivity.user.getId()));
+    }
+
+
+
     private void startTravelActivity() {
+        //TODO intent to map activity, need to pass User Object and Travel Object
     }
 
 
@@ -186,6 +215,7 @@ public class travelDetailActivity extends FragmentActivity {
         TravelContent.cleanList();
         travelListActivity.user = null;
         travelListActivity.travels = null;
+        travelListActivity.users = null;
         finish();
     }
 
@@ -210,5 +240,56 @@ public class travelDetailActivity extends FragmentActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void deleteComeBack(JSONObject response){
+        if(deleteTravelDialog.isShowing()){
+            deleteTravelDialog.dismiss();
+        }
+        try {
+            String resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case CONN_REFUSED:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case AUTH_FAILED:
+                    Toast.makeText(travelDetailActivity.this, ConnectionHandler.errors.get(ConnectionHandler.AUTH_FAILED), Toast.LENGTH_SHORT).show();
+                    logOut();
+                    return;
+                case OK:
+                    updateTravelList();
+                    comeBack();
+
+            }
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+    }
+
+    private void updateTravelList() {
+        travelListActivity.travels.remove(travel.getId());
+        TravelContent.deleteItem(String.valueOf(travel.getId()));
+    }
+
+    private void comeBack(){
+        final Intent intent = new Intent(this, travelListActivity.class);
+        startActivityForResult(intent, RESULT_OK);
+        finish();
     }
 }

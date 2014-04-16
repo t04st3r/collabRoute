@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:orientation="vertical"
-    tools:context="it.digisin.collabroute.LoginActivity">
+    tools:context="it.raffaeletosti.collabroute.LoginActivity">
 
    <TextView
         android:text="@string/login_mail"
