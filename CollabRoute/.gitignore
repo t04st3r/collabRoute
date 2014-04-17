@@ -1,3 +1,5 @@
 /build
 /src/main/res/raw/config.json
 /src/main/res/raw/collabcert.pem
+/src/main/AndroidManifest.xml
+build.gradle
