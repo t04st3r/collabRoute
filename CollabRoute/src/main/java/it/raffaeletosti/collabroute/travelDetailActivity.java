@@ -1,5 +1,6 @@
 package it.raffaeletosti.collabroute;
 
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,6 +46,7 @@ public class travelDetailActivity extends FragmentActivity {
 
     private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +83,10 @@ public class travelDetailActivity extends FragmentActivity {
         }
 
         // Show the Up button in the action bar.
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        /*int versionNumber = Integer.valueOf(Build.VERSION.SDK_INT);
+        if(versionNumber >= 11) */
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -153,7 +158,11 @@ public class travelDetailActivity extends FragmentActivity {
 
 
     private void startTravelActivity() {
-        //TODO intent to map activity, need to pass User Object and Travel Object
+        //TODO need to pass User Object and Travel Object
+        Intent travelIntent = new Intent(getApplication(), TravelActivity.class);
+        startActivity(travelIntent);
+        finish();
+
     }
 
 

@@ -84,4 +84,8 @@
     <string name="new_travel_dialog_user_list_empty_list">Please add at least one user to create your travel</string>
     <string name="delete_travel_dialog_message">Are you sure?</string>
     <string name="delete_travel_dialog_title">%1$s travel </string>
+    <string name="title_activity_travel">TravelActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

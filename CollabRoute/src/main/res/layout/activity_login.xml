@@ -104,4 +104,5 @@
         android:layout_marginLeft="10dp"
         android:typeface="normal"
         android:enabled="true" />
+
 </LinearLayout>

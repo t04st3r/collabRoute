@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.JsonReader;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -98,23 +100,15 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
 
     public void loadConfiguration() {
         try {
-            JsonReader conf = new JsonReader(new InputStreamReader(activity.getResources().openRawResource(R.raw.config)));
-            conf.beginObject();
-            while (conf.hasNext()) {
-                String nextValue = conf.nextName();
-                if (nextValue.equals("SERVER_ADDRESS")) {
-                    serverUrl = conf.nextString();
-                }
-                if (nextValue.equals("SERVER_PORT")) {
-                    serverPort = conf.nextInt();
-                }
-            }
+            InputStream input = activity.getResources().openRawResource(R.raw.config);
+            String jsonString = inputToString(input);
+            JSONObject object = new JSONObject(jsonString);
+            serverUrl = object.getString("SERVER_ADDRESS");
+            serverPort = object.getInt("SERVER_PORT");
         } catch (FileNotFoundException e) {
             System.err.println("Missing JSON config file: " + e);
         } catch (Exception e) {
             System.err.println(e);
         }
     }
-
-
 }
