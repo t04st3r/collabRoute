@@ -86,7 +86,7 @@ public class TravelActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return GMapFragment.newInstance();
+                    return GMapFragment.newInstance(TravelActivity.this);
                 default:
                     return RoutesFragment.newInstance();
             }
