@@ -1,9 +1,12 @@
 package it.raffaeletosti.collabroute.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by raffaele on 27/03/14.
  */
-public class User {
+public class User implements Parcelable{
     protected String eMail;
     protected int id;
     protected String name;
@@ -30,5 +33,17 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(eMail);
+        parcel.writeString(name);
+        parcel.writeInt(id);
     }
 }

@@ -10,16 +10,25 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import it.raffaeletosti.collabroute.model.Travel;
+import it.raffaeletosti.collabroute.model.UserHandler;
+
 
 public class TravelActivity extends FragmentActivity {
 
     ViewPager mViewPager;
     MyPagerAdapter mViewPagerAdapter;
+    protected Travel travel;
+    static UserHandler user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel);
+        String travelString = getIntent().getExtras().getString("travel");
+        travel = new Travel();
+        travel.createFromJSONString(travelString);
+        user = getIntent().getParcelableExtra("user");
         final android.app.ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(android.app.ActionBar.NAVIGATION_MODE_TABS);
         mViewPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
@@ -86,7 +95,7 @@ public class TravelActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return GMapFragment.newInstance(TravelActivity.this);
+                    return GMapFragment.newInstance();
                 default:
                     return RoutesFragment.newInstance();
             }

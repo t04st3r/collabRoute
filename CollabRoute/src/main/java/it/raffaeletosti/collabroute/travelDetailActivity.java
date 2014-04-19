@@ -158,8 +158,11 @@ public class travelDetailActivity extends FragmentActivity {
 
 
     private void startTravelActivity() {
-        //TODO need to pass User Object and Travel Object
         Intent travelIntent = new Intent(getApplication(), TravelActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("user", travelListActivity.user);
+        travelIntent.putExtras(bundle);
+        travelIntent.putExtra("travel", travel.toJsonString());
         startActivity(travelIntent);
         finish();
 
