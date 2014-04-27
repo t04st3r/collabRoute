@@ -87,5 +87,9 @@
     <string name="title_activity_travel">TravelActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="chat_button_send">Send</string>
+    <string name="travel_tab_0">Map</string>
+    <string name="travel_tab_1">Routes</string>
+    <string name="travel_tab_2">Chat</string>
 
 </resources>

@@ -1,6 +1,9 @@
 package it.raffaeletosti.collabroute;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.res.Resources;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -28,9 +31,11 @@ public class TravelActivity extends FragmentActivity {
         String travelString = getIntent().getExtras().getString("travel");
         travel = new Travel();
         travel.createFromJSONString(travelString);
+        setTitle(travel.getName());
         user = getIntent().getParcelableExtra("user");
-        final android.app.ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(android.app.ActionBar.NAVIGATION_MODE_TABS);
+        final ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
         mViewPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
@@ -41,7 +46,7 @@ public class TravelActivity extends FragmentActivity {
             }
         });
         mViewPager.setAdapter(mViewPagerAdapter);
-        android.app.ActionBar.TabListener tabListener = new android.app.ActionBar.TabListener() {
+        ActionBar.TabListener tabListener = new android.app.ActionBar.TabListener() {
             @Override
             public void onTabSelected(android.app.ActionBar.Tab tab, FragmentTransaction ft) {
                 mViewPager.setCurrentItem(tab.getPosition());
@@ -58,9 +63,12 @@ public class TravelActivity extends FragmentActivity {
 
             }
         };
-        for(int i = 0; i < 2; i++){
+        Resources res = getResources();
+        String packageName = getPackageName();
+        for(int i = 0; i < 3; i++){
+            int id = res.getIdentifier("travel_tab_"+i, "string", packageName);
             actionBar.addTab(actionBar.newTab()
-            .setText("TAB "+(i+1))
+            .setText(res.getText(id))
             .setTabListener(tabListener));
         }
     }
@@ -96,14 +104,17 @@ public class TravelActivity extends FragmentActivity {
             switch (position) {
                 case 0:
                     return GMapFragment.newInstance();
-                default:
-                    return RoutesFragment.newInstance();
-            }
+                case 1:
+                    return  RoutesFragment.newInstance();
+                case 2:
+                    return ChatFragment.newInstance();
+               }
+            return null;
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
     }
 }

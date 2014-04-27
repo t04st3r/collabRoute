@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +18,12 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.maps.GoogleMap;
+
+
 
 import it.raffaeletosti.collabroute.connection.CoordinatesHandler;
+
 
 
 public class GMapFragment extends Fragment implements android.location.LocationListener{
@@ -29,6 +34,8 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     protected Location currentLocation;
     protected LocationClient client;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private GoogleMap map;
+    private static View view;
 
     private GooglePlayServicesClient.ConnectionCallbacks mConnectionCallbacks =
             new GooglePlayServicesClient.ConnectionCallbacks() {
@@ -70,7 +77,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 0, this); //update location ever 20 seconds
         client = new LocationClient(activity, mConnectionCallbacks, mConnectionFailedListener);
-
     }
 
     @Override
@@ -88,16 +94,33 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     public static GMapFragment newInstance() {
         GMapFragment fragment = new GMapFragment();
         Bundle args = new Bundle();
+        fragment.setArguments(args);
         return fragment;
     }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if(view != null){
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if(parent != null){
+                parent.removeView(view);
+            }
+        }
+        try{
+            view = inflater.inflate(R.layout.fragment_gmap, container, false);
+        }catch(InflateException e){
+            System.err.println(e);
+        }
+        return view;
+    }
+
     public GMapFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_gmap, container, false);
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     @Override
@@ -121,5 +144,4 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     public void onProviderDisabled(String provider) {
 
     }
-
 }
