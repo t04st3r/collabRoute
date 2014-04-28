@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -23,7 +24,7 @@ public class TravelActivity extends FragmentActivity {
     MyPagerAdapter mViewPagerAdapter;
     protected Travel travel;
     static UserHandler user;
-
+    protected static GMapFragment map;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +36,9 @@ public class TravelActivity extends FragmentActivity {
         user = getIntent().getParcelableExtra("user");
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        if(map == null){
+          map = GMapFragment.newInstance();
+        }
 
         mViewPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -94,6 +98,16 @@ public class TravelActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            map.view = null;
+            map.map = null;
+
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     private class MyPagerAdapter extends FragmentPagerAdapter {
         public MyPagerAdapter(FragmentManager supportFragmentManager) {
             super(supportFragmentManager);
@@ -103,7 +117,7 @@ public class TravelActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return GMapFragment.newInstance();
+                    return map;
                 case 1:
                     return  RoutesFragment.newInstance();
                 case 2:
