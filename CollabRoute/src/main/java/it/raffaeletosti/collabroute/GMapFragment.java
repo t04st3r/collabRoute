@@ -7,7 +7,6 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -20,7 +19,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;;
 import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 
@@ -31,14 +29,12 @@ import it.raffaeletosti.collabroute.connection.CoordinatesHandler;
 public class GMapFragment extends Fragment implements android.location.LocationListener {
 
     protected LocationManager locationManager;
-    protected LocationListener locationListener;
     protected Activity activity;
     protected Location currentLocation;
     protected LocationClient client;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     protected GoogleMap map;
     protected View view;
-    private Handler mUserLocationHandler = null;
 
     protected GooglePlayServicesClient.ConnectionCallbacks mConnectionCallbacks =
             new GooglePlayServicesClient.ConnectionCallbacks() {
@@ -84,18 +80,17 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         super.onViewCreated(view, savedInstanceState);
         FragmentManager manager = getFragmentManager();
         Fragment existingFragment = manager.findFragmentById(R.id.googleMap);
-        if(existingFragment == null && currentLocation != null){
+        if (existingFragment == null && currentLocation != null) {
             SupportMapFragment mapFragment = SupportMapFragment.newInstance();
             FragmentTransaction ft = manager.beginTransaction();
             ft.add(R.id.mapLayout, mapFragment);
             ft.commit();
             manager.executePendingTransactions();
             map = mapFragment.getMap();
+        } else {
+            map = ((SupportMapFragment) existingFragment).getMap();
         }
-        else{
-            map = ((SupportMapFragment)existingFragment).getMap();
-        }
-        if(map != null) {
+        if (map != null) {
             map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
             //TODO embed map camera view with markers and users possibly in a separate method
         }
@@ -151,7 +146,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     public void onLocationChanged(Location location) { //useful for updating location on client location changes
         CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user);
         handler.execute(String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude()));
-        System.err.println(" LONG: "+String.valueOf(location.getLongitude()+"LAT: "+String.valueOf(location.getLatitude())));
+        System.err.println(" LONG: " + String.valueOf(location.getLongitude() + " LAT: " + String.valueOf(location.getLatitude())));
     }
 
     @Override
@@ -169,5 +164,15 @@ public class GMapFragment extends Fragment implements android.location.LocationL
 
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.err.println("GPS UPDATE SERVICE STOPPED");
+        if (locationManager != null) {
+            locationManager.removeUpdates(this);
+        }
+        if(client != null && client.isConnected()){
+            client.disconnect();
+        }
+    }
 }
