@@ -24,7 +24,7 @@
         android:ems="10"
         android:id="@+id/chatEditText"
         android:layout_gravity="bottom"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:layout_marginTop="30dp" />
 
         <Button
@@ -34,7 +34,7 @@
             android:text="@string/chat_button_send"
             android:id="@+id/chatButton"
             android:layout_gravity="bottom|right"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:clickable="true"
             android:enabled="true" />
     </LinearLayout>

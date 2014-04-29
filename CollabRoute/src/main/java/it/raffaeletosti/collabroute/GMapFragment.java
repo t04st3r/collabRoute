@@ -7,6 +7,7 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -37,6 +38,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     protected GoogleMap map;
     protected View view;
+    private Handler mUserLocationHandler = null;
 
     protected GooglePlayServicesClient.ConnectionCallbacks mConnectionCallbacks =
             new GooglePlayServicesClient.ConnectionCallbacks() {
@@ -149,7 +151,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     public void onLocationChanged(Location location) { //useful for updating location on client location changes
         CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user);
         handler.execute(String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude()));
-        System.err.println("LATITUDE: " + location.getLatitude() + "  LONGITUDE: " + location.getLongitude());
+        System.err.println(" LONG: "+String.valueOf(location.getLongitude()+"LAT: "+String.valueOf(location.getLatitude())));
     }
 
     @Override
@@ -166,4 +168,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     public void onProviderDisabled(String provider) {
 
     }
+
+
 }

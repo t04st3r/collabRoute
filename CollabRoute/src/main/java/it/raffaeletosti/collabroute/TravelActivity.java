@@ -3,6 +3,7 @@ package it.raffaeletosti.collabroute;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,8 @@ public class TravelActivity extends FragmentActivity {
     protected Travel travel;
     static UserHandler user;
     protected static GMapFragment map;
+    protected static ChatFragment chat;
+    protected static RoutesFragment route;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +42,12 @@ public class TravelActivity extends FragmentActivity {
         if(map == null){
           map = GMapFragment.newInstance();
         }
-
+        if(chat == null){
+            chat = ChatFragment.newInstance();
+        }
+        if(route == null){
+            route = RoutesFragment.newInstance();
+        }
         mViewPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
@@ -101,9 +109,16 @@ public class TravelActivity extends FragmentActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            final Intent intent = new Intent(this, travelListActivity.class);
+            startActivityForResult(intent, RESULT_OK);
             map.view = null;
             map.map = null;
-
+            map.client.disconnect();
+            map.locationManager.removeUpdates(map);
+            map = null;
+            route = null;
+            chat = null;
+            finish();
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -119,9 +134,9 @@ public class TravelActivity extends FragmentActivity {
                 case 0:
                     return map;
                 case 1:
-                    return  RoutesFragment.newInstance();
+                    return  route;
                 case 2:
-                    return ChatFragment.newInstance();
+                    return chat;
                }
             return null;
         }

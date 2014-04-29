@@ -87,7 +87,7 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
     protected abstract Object doInBackground(String... param); //implement in subclasses
 
     //parse in a string data from an InputStream
-    public String inputToString(InputStream input) throws Exception {
+    public static String inputToString(InputStream input) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         StringBuilder sb = new StringBuilder();
         String line;
