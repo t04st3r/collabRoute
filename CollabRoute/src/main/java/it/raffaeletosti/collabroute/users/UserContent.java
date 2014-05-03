@@ -13,12 +13,12 @@ public class UserContent {
 
 
     /**
-     * An array of sample (Travel) items.
+     * An array of sample (User) items.
      */
     public static List<UserItem> ITEMS = new ArrayList<UserItem>();
 
     /**
-     * A map of sample (Travel) items, by ID.
+     * A map of sample (User) items, by ID.
      */
     public static Map<String, UserItem> ITEM_MAP = new HashMap<String, UserItem>();
 
@@ -89,7 +89,7 @@ public class UserContent {
     }
 
     /**
-     * A Travel item representing a piece of content.
+     * A User item representing a piece of content.
      */
     public static class UserItem {
         public String id;

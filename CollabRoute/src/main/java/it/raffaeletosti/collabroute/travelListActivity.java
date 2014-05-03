@@ -255,6 +255,7 @@ public class travelListActivity extends FragmentActivity
                         User admin = new User();
                         admin.setId(Integer.parseInt(item.getString("id_admin")));
                         admin.setName(item.getString("adm_name"));
+                        admin.setEMail(item.getString("adm_mail"));
                         travel.setAdmin(admin);
                     }
                     JSONArray users = item.getJSONArray("user");

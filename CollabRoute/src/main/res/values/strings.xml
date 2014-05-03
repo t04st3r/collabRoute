@@ -92,5 +92,6 @@
     <string name="travel_tab_1">Routes</string>
     <string name="travel_tab_2">Chat</string>
     <string name="google_play_error_message">Disconnected from Google Play Service</string>
+    <string name="socket_io_wrong_auth">Wrong user or travel</string>
 
 </resources>

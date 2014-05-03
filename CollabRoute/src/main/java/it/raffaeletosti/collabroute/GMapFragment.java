@@ -144,8 +144,8 @@ public class GMapFragment extends Fragment implements android.location.LocationL
 
     @Override
     public void onLocationChanged(Location location) { //useful for updating location on client location changes
-        CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user);
-        handler.execute(String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude()));
+        //CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user);
+        //handler.execute(String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude()));
         System.err.println(" LONG: " + String.valueOf(location.getLongitude() + " LAT: " + String.valueOf(location.getLatitude())));
     }
 

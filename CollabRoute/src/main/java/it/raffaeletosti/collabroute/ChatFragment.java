@@ -1,19 +1,25 @@
 package it.raffaeletosti.collabroute;
 
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.socketio.Acknowledge;
 import com.koushikdutta.async.http.socketio.ConnectCallback;
 import com.koushikdutta.async.http.socketio.EventCallback;
-import com.koushikdutta.async.http.socketio.JSONCallback;
+import com.koushikdutta.async.http.socketio.ReconnectCallback;
 import com.koushikdutta.async.http.socketio.SocketIOClient;
-import com.koushikdutta.async.http.socketio.StringCallback;
+
 
 
 import org.json.JSONArray;
@@ -22,9 +28,15 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 
+import it.raffaeletosti.collabroute.chat.ChatContent;
+import it.raffaeletosti.collabroute.chat.CustomArrayAdapterChatList;
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
+import it.raffaeletosti.collabroute.model.Travel;
+import it.raffaeletosti.collabroute.model.User;
+import it.raffaeletosti.collabroute.model.UserHandler;
 
 
 /**
@@ -34,7 +46,13 @@ public class ChatFragment extends Fragment {
 
 
     protected SocketIOClient socketClient;
-
+    private Button send;
+    private ListView chatList;
+    private ArrayAdapter chatAdapter;
+    private EditText text;
+    private Travel travel;
+    private UserHandler user;
+    protected Activity thisActivity;
     public ChatFragment() {
         // Required empty public constructor
     }
@@ -46,12 +64,37 @@ public class ChatFragment extends Fragment {
         return fragment;
     }
 
+     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        text = (EditText) thisActivity.findViewById(R.id.chatEditText);
+        send = (Button) thisActivity.findViewById(R.id.chatButton);
+        if (chatList == null) {
+            chatList = (ListView) thisActivity.findViewById(R.id.chatListView);
+            chatAdapter = new CustomArrayAdapterChatList(thisActivity, R.layout.chat_row, ChatContent.ITEMS);
+            chatList.setAdapter(chatAdapter);
+        }
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    sendText();
+                } catch (JSONException e) {
+                    System.err.println(e);
+                }
+            }
+        });
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
-        (new ChatThread()).start();
-
-
+        thisActivity = getActivity();
+        travel = TravelActivity.travel;
+        user = TravelActivity.user;
+        ChatThread thread = new ChatThread();
+        thread.start();
     }
 
 
@@ -82,6 +125,9 @@ public class ChatFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         System.err.println("SOCKET IO SERVICE STOPPED");
+        chatAdapter = null;
+        chatList = null;
+        ChatContent.cleanList();
         if (socketClient != null) {
             if (socketClient.isConnected()) {
                 socketClient.disconnect();
@@ -90,52 +136,116 @@ public class ChatFragment extends Fragment {
         }
     }
 
-    public class ChatThread extends Thread{
-        public void run(){
-            if (socketClient == null || !socketClient.isConnected()) {
-                String[] socketData = loadChatServerData();
+    private void sendText() throws JSONException {
+        String textToSend = text.getText().toString();
+        if (textToSend.equals("")) {
+            return;
+        }
+        text.setText("");
+        JSONArray messageArray = new JSONArray().put(new JSONObject()
+                .put("text", textToSend)
+                .put("userId", TravelActivity.user.getId())
+                .put("travelId", TravelActivity.travel.getId()));
+        socketClient.emit("text", messageArray);
+        }
 
-                SocketIOClient.connect(AsyncHttpClient.getDefaultInstance(), "http://" + socketData[0] + ":" + socketData[1], new ConnectCallback() {
+    private String getUserName(String id) {
+        if (travel != null) {
+            if (travel.getAdmin().getId() == Integer.parseInt(id))
+                return travel.getAdmin().getName();
+            if(user.getId() == Integer.parseInt(id))
+                return user.getName();
+            HashMap<String, User> people = travel.getPeople();
+            for (String current : people.keySet()) {
+                if (people.get(current).getId() == Integer.parseInt(id)) {
+                    return people.get(current).getName();
+                }
+            }
+        }
+        return null;
+    }
 
+    private class ChatThread extends Thread{
+
+        @Override
+        public void run() {
+        final String[] socketData = loadChatServerData();
+        SocketIOClient.connect(AsyncHttpClient.getDefaultInstance(), "http://" + socketData[0] + ":" + socketData[1], new ConnectCallback() {
+
+
+
+            @Override
+            public void onConnectCompleted(Exception ex, SocketIOClient client) {
+                if (ex != null) {
+                    System.err.println(ex);
+                    return;
+                }
+
+                socketClient = client;
+                client.setReconnectCallback(new ReconnectCallback() {
                     @Override
-                    public void onConnectCompleted(Exception ex, SocketIOClient client) {
-                        if(ex != null){
-                            System.err.println(ex);
-                            return;
-                        }
-                        socketClient = client;
-                        client.setJSONCallback(new JSONCallback() {
-                            @Override
-                            public void onJSON(JSONObject jsonObject, Acknowledge acknowledge) {
-                                System.err.println(jsonObject.toString());
-                            }
-                        });
-
-                        client.setStringCallback(new StringCallback() {
-
-                            @Override
-                            public void onString(String s, Acknowledge acknowledge) {
-                                System.err.println(s);
-                            }
-                        });
-
-                        client.on("message", new EventCallback() {
-
-                            @Override
-                            public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
-                                System.err.println("RECIEVED: "+jsonArray.toString());
-                            }
-                        });
-
+                    public void onReconnect() {
                         try {
-                            client.emit(new JSONObject().put("message" , "HelloWorld"));
+                            JSONArray array = new JSONArray();
+                            array.put(new JSONObject().put("userId", TravelActivity.user.getId())
+                                    .put("travelId", TravelActivity.travel.getId()));
+                            socketClient.emit("adduser", array);
                         } catch (JSONException jsonEx) {
                             jsonEx.printStackTrace();
                         }
                     }
                 });
-            }
-        }
-    }
 
+                client.on("disconnect", new EventCallback() {
+                    @Override
+                    public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                        socketClient.disconnect();
+                        TravelActivity.closeEverything();
+                        final Intent intent = new Intent(thisActivity, LoginActivity.class);
+                        startActivityForResult(intent, thisActivity.RESULT_OK);
+                        thisActivity.finish();
+                    }
+                });
+                client.on("text", new EventCallback() {
+
+                    @Override
+                    public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                        System.err.println("RECEIVED: " + jsonArray.toString());
+                        try {
+                            String userId = jsonArray.getJSONObject(0).getString("id");
+                            String text = jsonArray.getJSONObject(0).getString("text");
+                            String userName = getUserName(userId);
+                            System.err.println(userId + " " + text + " " + userName);
+                            ChatContent.addItem(new ChatContent.ChatItem(userName, text));
+                            thisActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    chatAdapter.notifyDataSetChanged();
+                                }
+                            });
+                            } catch (JSONException e) {
+                            System.err.println(e);
+                        }
+                    }
+                });
+                client.on("clientList", new EventCallback() {
+                    @Override
+                    public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                        System.err.println("CLIENT LIST: " + jsonArray.toString());
+                    }
+                });
+
+                try {
+                    JSONArray array = new JSONArray();
+                    array.put(new JSONObject().put("userId", TravelActivity.user.getId())
+                            .put("travelId", TravelActivity.travel.getId()));
+                    client.emit("adduser", array);
+                } catch (JSONException jsonEx) {
+                    jsonEx.printStackTrace();
+                }
+            }
+        });
+    }
+    }
 }
+

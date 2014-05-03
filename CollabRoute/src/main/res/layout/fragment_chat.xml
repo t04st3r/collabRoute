@@ -5,17 +5,36 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <ListView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:layout_weight="2">
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:stackFromBottom="true"
+        android:transcriptMode="normal"
         android:id="@+id/chatListView"
-        android:layout_weight="2" />
+        android:layout_weight="1" />
+
+     <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/usersListView"
+            android:layout_weight="2" />
+
+</LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="12">
+        android:layout_weight="10"
+        android:layout_gravity="bottom"
+        android:gravity="bottom">
 
     <EditText
         android:layout_width="wrap_content"

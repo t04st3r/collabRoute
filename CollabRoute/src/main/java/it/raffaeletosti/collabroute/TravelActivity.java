@@ -23,7 +23,7 @@ public class TravelActivity extends FragmentActivity {
 
     ViewPager mViewPager;
     MyPagerAdapter mViewPagerAdapter;
-    protected Travel travel;
+    protected static Travel travel;
     static UserHandler user;
     protected static GMapFragment map;
     protected static ChatFragment chat;
@@ -39,15 +39,6 @@ public class TravelActivity extends FragmentActivity {
         user = getIntent().getParcelableExtra("user");
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        if(map == null){
-          map = GMapFragment.newInstance();
-        }
-        if(chat == null){
-            chat = ChatFragment.newInstance();
-        }
-        if(route == null){
-            route = RoutesFragment.newInstance();
-        }
         mViewPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
@@ -57,6 +48,7 @@ public class TravelActivity extends FragmentActivity {
                 getActionBar().setSelectedNavigationItem(position);
             }
         });
+        mViewPager.setOffscreenPageLimit(3);
         mViewPager.setAdapter(mViewPagerAdapter);
         ActionBar.TabListener tabListener = new android.app.ActionBar.TabListener() {
             @Override
@@ -111,13 +103,7 @@ public class TravelActivity extends FragmentActivity {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             final Intent intent = new Intent(this, travelListActivity.class);
             startActivityForResult(intent, RESULT_OK);
-            map.view = null;
-            map.map = null;
-            map.client.disconnect();
-            map.locationManager.removeUpdates(map);
-            map = null;
-            route = null;
-            chat = null;
+            closeEverything();
             finish();
         }
         return super.onKeyDown(keyCode, event);
@@ -132,10 +118,19 @@ public class TravelActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
+                    if(map == null){
+                        map = GMapFragment.newInstance();
+                    }
                     return map;
                 case 1:
+                    if(route == null){
+                    route = RoutesFragment.newInstance();
+                    }
                     return  route;
                 case 2:
+                    if(chat == null){
+                    chat = ChatFragment.newInstance();
+                    }
                     return chat;
                }
             return null;
@@ -145,5 +140,15 @@ public class TravelActivity extends FragmentActivity {
         public int getCount() {
             return 3;
         }
+    }
+
+    public static void closeEverything(){
+        map.view = null;
+        map.map = null;
+        map.client.disconnect();
+        map.locationManager.removeUpdates(map);
+        map = null;
+        route = null;
+        chat = null;
     }
 }
