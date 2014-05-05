@@ -21,7 +21,6 @@ import com.koushikdutta.async.http.socketio.ReconnectCallback;
 import com.koushikdutta.async.http.socketio.SocketIOClient;
 
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +32,8 @@ import java.util.HashMap;
 
 import it.raffaeletosti.collabroute.chat.ChatContent;
 import it.raffaeletosti.collabroute.chat.CustomArrayAdapterChatList;
+import it.raffaeletosti.collabroute.chat.CustomArrayAdapterUsersList;
+import it.raffaeletosti.collabroute.chat.UsersListContent;
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.model.Travel;
 import it.raffaeletosti.collabroute.model.User;
@@ -53,6 +54,7 @@ public class ChatFragment extends Fragment {
     private Travel travel;
     private UserHandler user;
     protected Activity thisActivity;
+
     public ChatFragment() {
         // Required empty public constructor
     }
@@ -64,7 +66,7 @@ public class ChatFragment extends Fragment {
         return fragment;
     }
 
-     @Override
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         text = (EditText) thisActivity.findViewById(R.id.chatEditText);
@@ -147,13 +149,13 @@ public class ChatFragment extends Fragment {
                 .put("userId", TravelActivity.user.getId())
                 .put("travelId", TravelActivity.travel.getId()));
         socketClient.emit("text", messageArray);
-        }
+    }
 
     private String getUserName(String id) {
         if (travel != null) {
             if (travel.getAdmin().getId() == Integer.parseInt(id))
                 return travel.getAdmin().getName();
-            if(user.getId() == Integer.parseInt(id))
+            if (user.getId() == Integer.parseInt(id))
                 return user.getName();
             HashMap<String, User> people = travel.getPeople();
             for (String current : people.keySet()) {
@@ -165,87 +167,90 @@ public class ChatFragment extends Fragment {
         return null;
     }
 
-    private class ChatThread extends Thread{
+    private class ChatThread extends Thread {
 
         @Override
         public void run() {
-        final String[] socketData = loadChatServerData();
-        SocketIOClient.connect(AsyncHttpClient.getDefaultInstance(), "http://" + socketData[0] + ":" + socketData[1], new ConnectCallback() {
+            final String[] socketData = loadChatServerData();
+            SocketIOClient.connect(AsyncHttpClient.getDefaultInstance(), "http://" + socketData[0] + ":" + socketData[1], new ConnectCallback() {
 
 
+                @Override
+                public void onConnectCompleted(Exception ex, SocketIOClient client) {
+                    if (ex != null) {
+                        System.err.println(ex);
+                        return;
+                    }
 
-            @Override
-            public void onConnectCompleted(Exception ex, SocketIOClient client) {
-                if (ex != null) {
-                    System.err.println(ex);
-                    return;
-                }
-
-                socketClient = client;
-                client.setReconnectCallback(new ReconnectCallback() {
-                    @Override
-                    public void onReconnect() {
-                        try {
-                            JSONArray array = new JSONArray();
-                            array.put(new JSONObject().put("userId", TravelActivity.user.getId())
-                                    .put("travelId", TravelActivity.travel.getId()));
-                            socketClient.emit("adduser", array);
-                        } catch (JSONException jsonEx) {
-                            jsonEx.printStackTrace();
+                    socketClient = client;
+                    client.setReconnectCallback(new ReconnectCallback() {
+                        @Override
+                        public void onReconnect() {
+                            try {
+                                JSONArray array = new JSONArray();
+                                array.put(new JSONObject().put("userId", TravelActivity.user.getId())
+                                        .put("travelId", TravelActivity.travel.getId()));
+                                socketClient.emit("adduser", array);
+                            } catch (JSONException jsonEx) {
+                                jsonEx.printStackTrace();
+                            }
                         }
-                    }
-                });
+                    });
 
-                client.on("disconnect", new EventCallback() {
-                    @Override
-                    public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
-                        socketClient.disconnect();
-                        TravelActivity.closeEverything();
-                        final Intent intent = new Intent(thisActivity, LoginActivity.class);
-                        startActivityForResult(intent, thisActivity.RESULT_OK);
-                        thisActivity.finish();
-                    }
-                });
-                client.on("text", new EventCallback() {
+                    client.on("disconnect", new EventCallback() {
+                        @Override
+                        public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                            socketClient.disconnect();
+                            TravelActivity.closeEverything();
+                            final Intent intent = new Intent(thisActivity, LoginActivity.class);
+                            startActivityForResult(intent, thisActivity.RESULT_OK);
+                            thisActivity.finish();
+                        }
+                    });
+                    client.on("text", new EventCallback() {
 
-                    @Override
-                    public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
-                        System.err.println("RECEIVED: " + jsonArray.toString());
-                        try {
-                            String userId = jsonArray.getJSONObject(0).getString("id");
-                            String text = jsonArray.getJSONObject(0).getString("text");
-                            String userName = getUserName(userId);
-                            System.err.println(userId + " " + text + " " + userName);
-                            ChatContent.addItem(new ChatContent.ChatItem(userName, text));
-                            thisActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    chatAdapter.notifyDataSetChanged();
-                                }
-                            });
+                        @Override
+                        public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                            System.err.println("RECEIVED: " + jsonArray.toString());
+                            try {
+                                String userId = jsonArray.getJSONObject(0).getString("id");
+                                String text = jsonArray.getJSONObject(0).getString("text");
+                                String userName = getUserName(userId);
+                                System.err.println(userId + " " + text + " " + userName);
+                                ChatContent.addItem(new ChatContent.ChatItem(userName, text));
+                                updateChatList();
                             } catch (JSONException e) {
-                            System.err.println(e);
+                                System.err.println(e);
+                            }
                         }
-                    }
-                });
-                client.on("clientList", new EventCallback() {
-                    @Override
-                    public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
-                        System.err.println("CLIENT LIST: " + jsonArray.toString());
-                    }
-                });
+                    });
+                    client.on("clientList", new EventCallback() {
+                        @Override
+                        public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                            System.err.println("CLIENT LIST: " + jsonArray.toString());
+                        }
+                    });
 
-                try {
-                    JSONArray array = new JSONArray();
-                    array.put(new JSONObject().put("userId", TravelActivity.user.getId())
-                            .put("travelId", TravelActivity.travel.getId()));
-                    client.emit("adduser", array);
-                } catch (JSONException jsonEx) {
-                    jsonEx.printStackTrace();
+                    try {
+                        JSONArray array = new JSONArray();
+                        array.put(new JSONObject().put("userId", TravelActivity.user.getId())
+                                .put("travelId", TravelActivity.travel.getId()));
+                        client.emit("adduser", array);
+                    } catch (JSONException jsonEx) {
+                        jsonEx.printStackTrace();
+                    }
                 }
+            });
+        }
+    }
+
+    private void updateChatList(){
+        thisActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                chatAdapter.notifyDataSetChanged();
             }
         });
-    }
     }
 }
 

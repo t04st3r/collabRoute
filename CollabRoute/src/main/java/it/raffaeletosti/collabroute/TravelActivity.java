@@ -28,6 +28,8 @@ public class TravelActivity extends FragmentActivity {
     protected static GMapFragment map;
     protected static ChatFragment chat;
     protected static RoutesFragment route;
+    protected static UsersFragment users;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +50,7 @@ public class TravelActivity extends FragmentActivity {
                 getActionBar().setSelectedNavigationItem(position);
             }
         });
-        mViewPager.setOffscreenPageLimit(3);
+        mViewPager.setOffscreenPageLimit(4);
         mViewPager.setAdapter(mViewPagerAdapter);
         ActionBar.TabListener tabListener = new android.app.ActionBar.TabListener() {
             @Override
@@ -69,7 +71,7 @@ public class TravelActivity extends FragmentActivity {
         };
         Resources res = getResources();
         String packageName = getPackageName();
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < 4; i++){
             int id = res.getIdentifier("travel_tab_"+i, "string", packageName);
             actionBar.addTab(actionBar.newTab()
             .setText(res.getText(id))
@@ -118,27 +120,32 @@ public class TravelActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    if(map == null){
+                    if (map == null) {
                         map = GMapFragment.newInstance();
                     }
                     return map;
                 case 1:
-                    if(route == null){
-                    route = RoutesFragment.newInstance();
+                    if (route == null) {
+                        route = RoutesFragment.newInstance();
                     }
-                    return  route;
+                    return route;
                 case 2:
-                    if(chat == null){
-                    chat = ChatFragment.newInstance();
+                    if (chat == null) {
+                        chat = ChatFragment.newInstance();
                     }
                     return chat;
-               }
+                case 3:
+                    if (users == null) {
+                        users = UsersFragment.newInstance();
+                    }
+                    return users;
+            }
             return null;
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
     }
 

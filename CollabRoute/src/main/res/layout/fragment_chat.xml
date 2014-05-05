@@ -5,54 +5,39 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:baselineAligned="false"
-        android:layout_weight="2">
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stackFromBottom="true"
+                android:transcriptMode="alwaysScroll"
+                android:id="@+id/chatListView"
+                android:layout_weight="1" />
 
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:stackFromBottom="true"
-        android:transcriptMode="normal"
-        android:id="@+id/chatListView"
-        android:layout_weight="1" />
-
-     <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:id="@+id/usersListView"
-            android:layout_weight="2" />
-
-</LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="10"
-        android:layout_gravity="bottom"
-        android:gravity="bottom">
+        android:layout_height="60dp"
+        android:gravity="bottom"
+        android:layout_gravity="bottom">
 
     <EditText
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:inputType="textMultiLine"
         android:ems="10"
         android:id="@+id/chatEditText"
-        android:layout_gravity="bottom"
         android:layout_weight="2"
-        android:layout_marginTop="30dp" />
+        android:gravity="bottom"
+        android:layout_gravity="bottom" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="@string/chat_button_send"
             android:id="@+id/chatButton"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="right"
             android:layout_weight="1"
             android:clickable="true"
             android:enabled="true" />
