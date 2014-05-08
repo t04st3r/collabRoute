@@ -95,6 +95,6 @@
     <string name="google_play_error_message">Disconnected from Google Play Service</string>
     <string name="socket_io_wrong_auth">Wrong user or travel</string>
     <string name="users_visualize_map">visualize on the map</string>
-    <string name="users_get_routes">get routes to users</string>
+    <string name="users_get_routes">get directions to users</string>
 
 </resources>

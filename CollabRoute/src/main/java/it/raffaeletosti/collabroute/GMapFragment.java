@@ -23,7 +23,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.CoordinatesHandler;
+import it.raffaeletosti.collabroute.connection.UserLoginHandler;
 
 
 public class GMapFragment extends Fragment implements android.location.LocationListener {
@@ -35,6 +40,11 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     protected GoogleMap map;
     protected View view;
+
+    private final static int UPDATE_TIME_RANGE = 10000; //millisecond
+    private final static double MAX_DISTANCE = 10; //meters
+
+    private enum ResponseMSG {OK, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
     protected GooglePlayServicesClient.ConnectionCallbacks mConnectionCallbacks =
             new GooglePlayServicesClient.ConnectionCallbacks() {
@@ -71,7 +81,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         super.onCreate(savedInstance);
         activity = getActivity();
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 0, this); //update location ever 20 seconds
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_TIME_RANGE, 0, this);
         client = new LocationClient(activity, mConnectionCallbacks, mConnectionFailedListener);
     }
 
@@ -144,9 +154,23 @@ public class GMapFragment extends Fragment implements android.location.LocationL
 
     @Override
     public void onLocationChanged(Location location) { //useful for updating location on client location changes
-        //CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user);
-        //handler.execute(String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude()));
-        System.err.println(" LONG: " + String.valueOf(location.getLongitude() + " LAT: " + String.valueOf(location.getLatitude())));
+        double lat2 = location.getLatitude();
+        double long2 = location.getLongitude();
+        double lat1 = TravelActivity.user.getLatitude();
+        double long1 = TravelActivity.user.getLongitude();
+
+        //if values are not initialized update send it to the server
+        if (lat1 == 0.0d && long1 == 0.0d) {
+            CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this);
+            handler.execute(String.valueOf(long2), String.valueOf(lat2));
+            return;
+        }
+
+        //if distance are bigger that maxDistance send it to the server
+        if (calculateDistance(lat1, long1, lat2, long2)) {
+            CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this);
+            handler.execute(String.valueOf(long2), String.valueOf(lat2));
+        }
     }
 
     @Override
@@ -171,8 +195,74 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         if (locationManager != null) {
             locationManager.removeUpdates(this);
         }
-        if(client != null && client.isConnected()){
+        if (client != null && client.isConnected()) {
             client.disconnect();
+        }
+    }
+
+    /* this function return true if distance between previous coordinates values
+ * (lat1, long1) and the current values (lat2, long2) is bigger than MAX_DISTANCE (in meter) according to the
+ *
+ * Haversine formula: (d = distance, R = earth radius)
+ *
+ * haversine(d / R) = haversine(lat2 - lat1) + cos(lat1) * cos(lat2) * haversine(long2 - long1)
+ *
+ * where:
+ *
+ * haversine(x) = (sin(x / 2))^2
+ * or
+ * haversine(x) = (1 - cos(x)) / 2
+ *
+ * (http://en.wikipedia.org/wiki/Haversine_formula)
+ * */
+    private boolean calculateDistance(double lat1, double long1, double lat2, double long2) {
+        final double EARTH_RADIUS = 6372795.477598; //meters
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLong = Math.toRadians(long2 - long1);
+        double sinDLat = Math.sin(dLat / 2);
+        double sinDLong = Math.sin(dLong / 2);
+        double a = Math.pow(sinDLat, 2) + Math.pow(sinDLong, 2) * Math.cos(Math.toRadians(lat1)) *
+                Math.cos(Math.toRadians(lat2));
+        double d = Math.asin(Math.sqrt(a)) * 2 * EARTH_RADIUS;
+        //System.err.println("Distance: "+d);
+        return d > MAX_DISTANCE;
+    }
+
+    public void confirmationResponse(JSONObject response) {
+        try {
+            String resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case CONN_REFUSED:
+                    Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    System.err.println("CONNECTION REFUSED");
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    System.err.println("CONNECTION REFUSED");
+                    Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case OK:
+                    double latitude = response.getDouble("latitude");
+                    double longitude = response.getDouble("longitude");
+                    TravelActivity.user.setLatitude(latitude);
+                    TravelActivity.user.setLongitude(longitude);
+                    //System.err.println("update coordinates LONG: " + String.valueOf(longitude) + " LAT: " + String.valueOf(latitude));
+
+            }
+        } catch (JSONException e) {
+            System.err.println(e);
         }
     }
 }

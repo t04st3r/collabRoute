@@ -17,6 +17,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
+import it.raffaeletosti.collabroute.GMapFragment;
 import it.raffaeletosti.collabroute.model.UserHandler;
 
 /**
@@ -26,11 +27,13 @@ public class CoordinatesHandler extends ConnectionHandler{
 
     UserHandler user;
     private JSONObject error;
+    private GMapFragment fragment;
 
-    public CoordinatesHandler(Activity activity, UserHandler user) {
+    public CoordinatesHandler(Activity activity, UserHandler user, GMapFragment fragment) {
         super(activity);
         this.user = user;
         error = new JSONObject();
+        this.fragment = fragment;
     }
 
     @Override
@@ -41,6 +44,13 @@ public class CoordinatesHandler extends ConnectionHandler{
             System.err.println(e);
             return null;
         }
+    }
+
+    @Override
+    protected void onPostExecute(Object o) {
+        super.onPostExecute(o);
+        fragment.confirmationResponse((JSONObject)o);
+
     }
 
     private JSONObject updateLocation(String longitude, String latitude) throws JSONException {

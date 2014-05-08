@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.json.JSONArray;
+
 import java.util.HashMap;
 
 import it.raffaeletosti.collabroute.chat.CustomArrayAdapterUsersList;
@@ -21,8 +23,8 @@ import it.raffaeletosti.collabroute.model.User;
 public class UsersFragment extends Fragment {
 
     private ListView chatUsersStatus;
-    private ArrayAdapter usersListAdapter;
-    private Activity thisActivity;
+    private static ArrayAdapter usersListAdapter;
+    private static Activity thisActivity;
 
     public static UsersFragment newInstance() {
         UsersFragment fragment = new UsersFragment();
@@ -46,25 +48,25 @@ public class UsersFragment extends Fragment {
         thisActivity = getActivity();
         if (chatUsersStatus == null) {
             chatUsersStatus = (ListView) thisActivity.findViewById(R.id.usersListView);
-            fillUsersStatus();
             usersListAdapter = new CustomArrayAdapterUsersList(thisActivity, R.layout.chat_user_row, UsersListContent.ITEMS);
             chatUsersStatus.setAdapter(usersListAdapter);
+            chatUsersStatus.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             updateUsersList();
         }
     }
 
-    private void fillUsersStatus() {
+    private static void fillUsersStatus(JSONArray usersListArray) {
         UsersListContent.addItem(new UsersListContent.UsersListItem(String.valueOf(TravelActivity.travel.getAdmin().getId()),
-                TravelActivity.travel.getAdmin().getName(),false));
+                TravelActivity.travel.getAdmin().getName(),false, false, true));
         HashMap<String, User> users = TravelActivity.travel.getPeople();
         for (String current : users.keySet()) {
             UsersListContent.UsersListItem item = new UsersListContent.UsersListItem(current,
-                    users.get(current).getName(), false);
+                    users.get(current).getName(), false, false, false);
             UsersListContent.addItem(item);
         }
     }
 
-    private void updateUsersList(){
+    private static void updateUsersList(){
         thisActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

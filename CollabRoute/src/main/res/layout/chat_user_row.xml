@@ -3,21 +3,59 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="fill_parent">
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/userChatStatus"
         android:contentDescription="status"
-        android:src="@android:drawable/presence_offline" />
+        android:src="@android:drawable/presence_offline"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dp" />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/userRadioButton"
+        android:singleLine="true"
+        android:checked="false"
+        android:layout_margin="10dp"
+        android:layout_gravity="center" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp">
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Small Text"
         android:id="@+id/usersListChatName"
         android:gravity="center_vertical"
-        android:layout_marginLeft="10dp" />
+        android:layout_marginLeft="10dp"
+        android:textColor="#ffcc0eff" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="30dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/usersListChatCoordinates"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="30dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/usersListChatUserType"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="10dp" />
+
+    </LinearLayout>
 </LinearLayout>
