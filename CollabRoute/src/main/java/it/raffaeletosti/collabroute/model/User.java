@@ -10,8 +10,28 @@ public class User implements Parcelable{
     protected String eMail;
     protected int id;
     protected String name;
-    protected double latitude;
-    protected double longitude;
+    protected double latitude = 0;
+    protected double longitude = 0;
+    protected String address = "unknown";
+
+    public User(){};
+
+    public User(int id, String name, String eMail, double latitude, double longitude, String address){
+        this.id = id;
+        this.name = name;
+        this.eMail = eMail;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.address = address;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public String getEMail() {
         return eMail;

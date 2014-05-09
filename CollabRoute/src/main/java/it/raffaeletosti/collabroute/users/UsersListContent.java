@@ -1,4 +1,4 @@
-package it.raffaeletosti.collabroute.chat;
+package it.raffaeletosti.collabroute.users;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,14 +57,16 @@ public class UsersListContent {
         public boolean isOnLine;
         public boolean isSelected;
         public boolean isAdministrator;
+        public String address;
 
 
-        public UsersListItem(String id, String userName, boolean isOnLine, boolean isSelected, boolean isAdministrator) {
+        public UsersListItem(String id, String userName, String address, boolean isOnLine, boolean isSelected, boolean isAdministrator) {
             this.id  = id;
             this.userName = userName;
             this.isOnLine = isOnLine;
             this.isSelected = isSelected;
             this.isAdministrator = isAdministrator;
+            this.address = address;
 
 
         }

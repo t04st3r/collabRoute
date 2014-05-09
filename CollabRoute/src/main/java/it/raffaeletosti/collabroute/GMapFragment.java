@@ -44,7 +44,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     private final static int UPDATE_TIME_RANGE = 10000; //millisecond
     private final static double MAX_DISTANCE = 10; //meters
 
-    private enum ResponseMSG {OK, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
+    private enum ResponseMSG {OK, DATABASE_ERROR, CONN_TIMEDOUT, WRONG_COORDINATES, CONN_REFUSED, GEOCODE_API_ERROR, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
     protected GooglePlayServicesClient.ConnectionCallbacks mConnectionCallbacks =
             new GooglePlayServicesClient.ConnectionCallbacks() {
@@ -215,7 +215,8 @@ public class GMapFragment extends Fragment implements android.location.LocationL
  *
  * (http://en.wikipedia.org/wiki/Haversine_formula)
  * */
-    private boolean calculateDistance(double lat1, double long1, double lat2, double long2) {
+
+     private boolean calculateDistance(double lat1, double long1, double lat2, double long2) {
         final double EARTH_RADIUS = 6372795.477598; //meters
         double dLat = Math.toRadians(lat2 - lat1);
         double dLong = Math.toRadians(long2 - long1);
@@ -253,14 +254,21 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                 case DATABASE_ERROR:
                     Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
                     return;
+                case WRONG_COORDINATES:
+                    Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.WRONG_COORDINATES),Toast.LENGTH_SHORT).show();
+                    return;
+                case GEOCODE_API_ERROR:
+                    Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.GEOCODE_API_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
                 case OK:
                     double latitude = response.getDouble("latitude");
                     double longitude = response.getDouble("longitude");
+                    String address = response.getString("address");
                     TravelActivity.user.setLatitude(latitude);
                     TravelActivity.user.setLongitude(longitude);
-                    //System.err.println("update coordinates LONG: " + String.valueOf(longitude) + " LAT: " + String.valueOf(latitude));
-
-            }
+                    TravelActivity.user.setAddress(address);
+                    //System.err.println("update coordinates LONG: " + String.valueOf(longitude) + " LAT: " + String.valueOf(latitude) + " ADDR: "+address);
+                }
         } catch (JSONException e) {
             System.err.println(e);
         }

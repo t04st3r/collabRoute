@@ -27,7 +27,8 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp">
+        android:padding="5dp"
+        android:weightSum="1">
 
     <TextView
         android:layout_width="fill_parent"
@@ -41,21 +42,22 @@
 
         <TextView
             android:layout_width="fill_parent"
-            android:layout_height="30dp"
+            android:layout_height="fill_parent"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Small Text"
-            android:id="@+id/usersListChatCoordinates"
-            android:gravity="center_vertical"
+            android:id="@+id/usersListChatUserType"
+            android:gravity="center_vertical|top"
             android:layout_marginLeft="10dp" />
 
         <TextView
             android:layout_width="fill_parent"
-            android:layout_height="30dp"
+            android:layout_height="fill_parent"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Small Text"
-            android:id="@+id/usersListChatUserType"
-            android:gravity="center_vertical"
-            android:layout_marginLeft="10dp" />
+            android:id="@+id/usersListChatCoordinates"
+            android:gravity="center_vertical|top"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1.65" />
 
     </LinearLayout>
 </LinearLayout>

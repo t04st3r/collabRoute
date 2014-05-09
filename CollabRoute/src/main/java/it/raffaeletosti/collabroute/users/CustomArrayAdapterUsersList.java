@@ -1,12 +1,10 @@
-package it.raffaeletosti.collabroute.chat;
+package it.raffaeletosti.collabroute.users;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -60,9 +58,15 @@ public class CustomArrayAdapterUsersList extends ArrayAdapter<UsersListContent.U
         UsersListContent.UsersListItem item = getItem(position);
         viewHolder.isSelected.setChecked(item.isSelected);
         viewHolder.userName.setText(item.userName);
+        viewHolder.location.setText(item.address);
+        viewHolder.isAdministrator.setText(item.isAdministrator ? "Administrator" : "User");
+        if(item.isOnLine){
+            viewHolder.isOnline.setImageResource(android.R.drawable.presence_online);
+        }else{
+           viewHolder.isOnline.setImageResource(android.R.drawable.presence_offline);
+        }
         return convertView;
     }
-
     private class ViewHolder {
         public TextView userName;
         public RadioButton isSelected;

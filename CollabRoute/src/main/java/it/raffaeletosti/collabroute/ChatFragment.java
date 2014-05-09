@@ -32,8 +32,6 @@ import java.util.HashMap;
 
 import it.raffaeletosti.collabroute.chat.ChatContent;
 import it.raffaeletosti.collabroute.chat.CustomArrayAdapterChatList;
-import it.raffaeletosti.collabroute.chat.CustomArrayAdapterUsersList;
-import it.raffaeletosti.collabroute.chat.UsersListContent;
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.model.Travel;
 import it.raffaeletosti.collabroute.model.User;
@@ -54,6 +52,7 @@ public class ChatFragment extends Fragment {
     private Travel travel;
     private UserHandler user;
     protected Activity thisActivity;
+    protected ChatThread chatThread;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -86,7 +85,6 @@ public class ChatFragment extends Fragment {
                 }
             }
         });
-
     }
 
     @Override
@@ -95,10 +93,11 @@ public class ChatFragment extends Fragment {
         thisActivity = getActivity();
         travel = TravelActivity.travel;
         user = TravelActivity.user;
-        ChatThread thread = new ChatThread();
-        thread.start();
+        if (chatThread == null) {
+            chatThread = new ChatThread();
+            chatThread.start();
+        }
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -136,6 +135,7 @@ public class ChatFragment extends Fragment {
                 socketClient = null;
             }
         }
+        chatThread = null;
     }
 
     private void sendText() throws JSONException {
@@ -167,10 +167,11 @@ public class ChatFragment extends Fragment {
         return null;
     }
 
-    private class ChatThread extends Thread {
+    public class ChatThread extends Thread {
 
         @Override
         public void run() {
+
             final String[] socketData = loadChatServerData();
             SocketIOClient.connect(AsyncHttpClient.getDefaultInstance(), "http://" + socketData[0] + ":" + socketData[1], new ConnectCallback() {
 
@@ -181,9 +182,8 @@ public class ChatFragment extends Fragment {
                         System.err.println(ex);
                         return;
                     }
-
                     socketClient = client;
-                    client.setReconnectCallback(new ReconnectCallback() {
+                    socketClient.setReconnectCallback(new ReconnectCallback() {
                         @Override
                         public void onReconnect() {
                             try {
@@ -192,12 +192,12 @@ public class ChatFragment extends Fragment {
                                         .put("travelId", TravelActivity.travel.getId()));
                                 socketClient.emit("adduser", array);
                             } catch (JSONException jsonEx) {
-                                jsonEx.printStackTrace();
+                                System.err.println(jsonEx);
                             }
                         }
                     });
 
-                    client.on("disconnect", new EventCallback() {
+                    socketClient.on("disconnect", new EventCallback() {
                         @Override
                         public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
                             socketClient.disconnect();
@@ -207,7 +207,7 @@ public class ChatFragment extends Fragment {
                             thisActivity.finish();
                         }
                     });
-                    client.on("text", new EventCallback() {
+                    socketClient.on("text", new EventCallback() {
 
                         @Override
                         public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
@@ -224,27 +224,28 @@ public class ChatFragment extends Fragment {
                             }
                         }
                     });
-                    client.on("clientList", new EventCallback() {
+                    socketClient.on("clientList", new EventCallback() {
                         @Override
                         public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
-                            System.err.println("CLIENT LIST: " + jsonArray.toString());
+                            UsersFragment.fillUsersStatus(jsonArray);
                         }
                     });
-
                     try {
                         JSONArray array = new JSONArray();
                         array.put(new JSONObject().put("userId", TravelActivity.user.getId())
                                 .put("travelId", TravelActivity.travel.getId()));
-                        client.emit("adduser", array);
+                        socketClient.emit("adduser", array);
                     } catch (JSONException jsonEx) {
-                        jsonEx.printStackTrace();
+                        System.err.println(jsonEx);
                     }
+
                 }
             });
+
         }
     }
 
-    private void updateChatList(){
+    private void updateChatList() {
         thisActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

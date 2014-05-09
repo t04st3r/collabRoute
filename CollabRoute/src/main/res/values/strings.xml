@@ -45,6 +45,8 @@
     <string name="error_mailNotFound">Email address not found</string>
     <string name="error_mailExists">Email address already in use \npplease use another one</string>
     <string name="error_databaseError">Database error</string>
+    <string name="error_wrongCoordinates">Bad Coordinates</string>
+    <string name="error_geocodeAPIError">Error on Google Server connection</string>
     <string name="login_success">Welcome on board %1$s!</string>
     <string name="error_authError">Wrong email address \nor password</string>
     <string name="error_wrongToken">It seems that you have some authentication issues\nlog in back please</string>

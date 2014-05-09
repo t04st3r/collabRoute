@@ -37,6 +37,8 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
     public static final int DB_ERROR = 0;
     public static final int OK = 1;
     public static final int WRONG_TOKEN = 10;
+    public static final int WRONG_COORDINATES = 11;
+    public static final int GEOCODE_API_ERROR = 12;
 
     protected static String serverUrl;
     protected static int serverPort;
@@ -81,6 +83,8 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
             errors.put(OK, activity.getString(R.string.login_success));
             errors.put(AUTH_FAILED,activity.getString(R.string.error_authError));
             errors.put(WRONG_TOKEN, activity.getString(R.string.error_wrongToken));
+            errors.put(WRONG_COORDINATES, activity.getString(R.string.error_wrongCoordinates));
+            errors.put(GEOCODE_API_ERROR, activity.getString(R.string.error_geocodeAPIError));
         }
 
 
