@@ -18,6 +18,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
 import it.raffaeletosti.collabroute.GMapFragment;
+import it.raffaeletosti.collabroute.TravelActivity;
 import it.raffaeletosti.collabroute.model.UserHandler;
 
 /**
@@ -28,12 +29,14 @@ public class CoordinatesHandler extends ConnectionHandler{
     UserHandler user;
     private JSONObject error;
     private GMapFragment fragment;
+    String travelId;
 
-    public CoordinatesHandler(Activity activity, UserHandler user, GMapFragment fragment) {
+    public CoordinatesHandler(Activity activity, UserHandler user, GMapFragment fragment, String travelId) {
         super(activity);
         this.user = user;
         error = new JSONObject();
         this.fragment = fragment;
+        this.travelId = travelId;
     }
 
     @Override
@@ -82,7 +85,7 @@ public class CoordinatesHandler extends ConnectionHandler{
             urlConnection.setHostnameVerifier(allowEveryHost);
             urlConnection.setRequestMethod("POST");
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
-            printout.writeBytes(new JSONObject().put("longitude", longitude).put("latitude" , latitude).toString());
+            printout.writeBytes(new JSONObject().put("longitude", longitude).put("latitude", latitude).put("travelId" , travelId).toString());
             printout.flush();
             printout.close();
             InputStream in = urlConnection.getInputStream();

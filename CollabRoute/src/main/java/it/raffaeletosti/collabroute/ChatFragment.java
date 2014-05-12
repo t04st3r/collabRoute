@@ -44,7 +44,7 @@ import it.raffaeletosti.collabroute.model.UserHandler;
 public class ChatFragment extends Fragment {
 
 
-    protected SocketIOClient socketClient;
+    public static SocketIOClient socketClient;
     private Button send;
     private ListView chatList;
     private ArrayAdapter chatAdapter;
@@ -242,6 +242,19 @@ public class ChatFragment extends Fragment {
                 }
             });
 
+        }
+    }
+
+    public static void updateStatus(){
+        if(socketClient != null){
+            try{
+                JSONArray array = new JSONArray();
+                array.put(new JSONObject().put("userId", TravelActivity.user.getId())
+                        .put("travelId", TravelActivity.travel.getId()));
+                socketClient.emit("update_request" , array);
+            }catch (JSONException e){
+                System.err.println(e);
+            }
         }
     }
 

@@ -23,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,7 +42,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     protected GoogleMap map;
     protected View view;
 
-    private final static int UPDATE_TIME_RANGE = 10000; //millisecond
+    private final static int UPDATE_TIME_RANGE = 5000; //millisecond
     private final static double MAX_DISTANCE = 10; //meters
 
     private enum ResponseMSG {OK, DATABASE_ERROR, CONN_TIMEDOUT, WRONG_COORDINATES, CONN_REFUSED, GEOCODE_API_ERROR, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
@@ -161,14 +162,13 @@ public class GMapFragment extends Fragment implements android.location.LocationL
 
         //if values are not initialized update send it to the server
         if (lat1 == 0.0d && long1 == 0.0d) {
-            CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this);
+            CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this, String.valueOf(TravelActivity.travel.getId()));
             handler.execute(String.valueOf(long2), String.valueOf(lat2));
-            return;
         }
 
         //if distance are bigger that maxDistance send it to the server
         if (calculateDistance(lat1, long1, lat2, long2)) {
-            CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this);
+            CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this, String.valueOf(TravelActivity.travel.getId()));
             handler.execute(String.valueOf(long2), String.valueOf(lat2));
         }
     }

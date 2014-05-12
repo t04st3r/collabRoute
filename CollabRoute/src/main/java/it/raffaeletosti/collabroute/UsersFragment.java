@@ -89,9 +89,11 @@ public class UsersFragment extends Fragment {
     private static void checkForUpdate(JSONArray array) {
         HashMap<String, User> newMap = new HashMap<String, User>();
         int length = array.length();
+        UsersListContent.cleanList();
         try {
             for (int i = 0; i < length; i++) {
                 JSONObject item = array.getJSONObject(i);
+                System.err.println(item.toString());
                 int id = item.getInt("id");
                 String name = item.getString("name");
                 String mail = item.getString("email");
