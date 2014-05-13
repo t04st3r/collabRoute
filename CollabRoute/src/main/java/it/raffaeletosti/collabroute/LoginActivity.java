@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,8 +35,11 @@ public class LoginActivity extends Activity {
     EditText mailField;
     EditText passField;
     Dialog confirmDialog;
+    Dialog exitDialog;
     EditText codeField;
     String code;
+    Boolean theEnd = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,6 +189,41 @@ public class LoginActivity extends Activity {
         });
     }
 
+    public void createExitDialog() {
+        exitDialog = new Dialog(this);
+        exitDialog.setContentView(R.layout.exit_dialog);
+        exitDialog.setTitle(getString(R.string.exit_title));
+        final Button exitOk = (Button) exitDialog.findViewById(R.id.exitOk);
+        final Button exitCancel = (Button) exitDialog.findViewById(R.id.exitCancel);
+        exitOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeApplication();
+            }
+        });
+        exitCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitDialog.dismiss();
+            }
+        });
+    }
+
+    private void closeApplication() {
+        exitDialog.dismiss();
+        theEnd = true;
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (theEnd) {
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(0);
+        }
+        super.onDestroy();
+    }
+
     public void checkCode(String codeWritten) {
         if (!code.equals(codeWritten)) {
             Toast.makeText(LoginActivity.this, this.getString(R.string.registration_wrong_code), Toast.LENGTH_SHORT).show();
@@ -193,6 +232,16 @@ public class LoginActivity extends Activity {
         confirmDialog.dismiss();
         UserLoginHandler login = new UserLoginHandler(this, User);
         login.execute("confirm");//extend AsyncTask and run with a separate thread
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            createExitDialog();
+            exitDialog.show();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     public void checkMail() {

@@ -4,8 +4,14 @@
     <string name="app_name">CollabRoute</string>
     <string name="ok_button">Ok</string>
     <string name="cancel_button">Cancel</string>
+    <string name="exit_yes">Yes</string>
+    <string name="exit_title">Exit CollabRoute</string>
+    <string name="exit_text">This will close the application..\n are you sure?</string>
     <string name="logout_title">Back to login</string>
     <string name="logout_message">This will log you out, are you sure?</string>
+    <string name="exit_travel_text">This will leave current travel..\n are you sure?</string>
+    <string name="exit_travel_title">Exit Travel</string>
+    <string name="exit_message">See you soon!</string>
     <string name="action_settings">Account Settings</string>
     <string name="splash_description">Route your favourite trip with your friends collaboratively!</string>
     <string name="login_mail">Email Address:</string>

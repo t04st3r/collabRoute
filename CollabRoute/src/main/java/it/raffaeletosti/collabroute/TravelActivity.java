@@ -2,6 +2,7 @@ package it.raffaeletosti.collabroute;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -14,6 +15,8 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import it.raffaeletosti.collabroute.model.Travel;
 import it.raffaeletosti.collabroute.model.UserHandler;
@@ -29,7 +32,7 @@ public class TravelActivity extends FragmentActivity {
     protected static ChatFragment chat;
     protected static RoutesFragment route;
     protected static UsersFragment users;
-
+    private Dialog exitTravel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,13 +103,42 @@ public class TravelActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void createExitTravelDialog(){
+        exitTravel = new Dialog(this);
+        exitTravel.setContentView(R.layout.exit_travel_dialog);
+        exitTravel.setTitle(getString(R.string.exit_travel_title));
+        final Button exitOk = (Button) exitTravel.findViewById(R.id.exitOk);
+        final Button exitCancel = (Button) exitTravel.findViewById(R.id.exitCancel);
+        exitOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeTravelActivity();
+            }
+        });
+        exitCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitTravel.dismiss();
+            }
+        });
+    }
+
+    private void closeTravelActivity() {
+        if(exitTravel.isShowing()){
+            exitTravel.dismiss();
+        }
+        final Intent intent = new Intent(this, travelListActivity.class);
+        startActivityForResult(intent, RESULT_OK);
+        closeEverything();
+        finish();
+    }
+
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            final Intent intent = new Intent(this, travelListActivity.class);
-            startActivityForResult(intent, RESULT_OK);
-            closeEverything();
-            finish();
+            createExitTravelDialog();
+            exitTravel.show();
         }
         return super.onKeyDown(keyCode, event);
     }
