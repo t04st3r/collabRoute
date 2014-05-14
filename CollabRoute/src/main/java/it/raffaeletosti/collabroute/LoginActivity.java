@@ -142,7 +142,6 @@ public class LoginActivity extends Activity {
                     User.setName(response.getString("name"));
                     User.setToken(response.getString("token"));
                     User.setId(response.getInt("id"));
-                    //System.err.println(User.getId() + " " + User.getName() + " " + User.getToken());
                     Intent travelListIntent = new Intent(getApplication(), travelListActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putParcelable(PARCELABLE_KEY, User);
@@ -211,17 +210,13 @@ public class LoginActivity extends Activity {
 
     private void closeApplication() {
         exitDialog.dismiss();
-        theEnd = true;
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
         finish();
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (theEnd) {
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(0);
-        }
-        super.onDestroy();
+        System.exit(0);
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     public void checkCode(String codeWritten) {
@@ -235,13 +230,9 @@ public class LoginActivity extends Activity {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            createExitDialog();
-            exitDialog.show();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
+    public void onBackPressed() {
+        createExitDialog();
+        exitDialog.show();
     }
 
     public void checkMail() {

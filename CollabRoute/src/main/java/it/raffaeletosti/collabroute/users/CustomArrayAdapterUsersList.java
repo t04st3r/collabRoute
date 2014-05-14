@@ -45,12 +45,6 @@ public class CustomArrayAdapterUsersList extends ArrayAdapter<UsersListContent.U
             viewHolder.isAdministrator = (TextView) convertView.findViewById(R.id.usersListChatUserType);
             viewHolder.isSelected = (RadioButton) convertView.findViewById(R.id.userRadioButton);
             viewHolder.isSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                /*@Override
-                public void onClick(View v) {
-                    UsersListContent.UsersListItem item = (UsersListContent.UsersListItem) viewHolder.isSelected.getTag();
-                    UsersListContent.deselectOtherChoices(item.id);
-                    item.isSelected = true;
-                }*/
 
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

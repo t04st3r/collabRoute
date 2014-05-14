@@ -128,6 +128,7 @@ public class TravelActivity extends FragmentActivity {
             exitTravel.dismiss();
         }
         final Intent intent = new Intent(this, travelListActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivityForResult(intent, RESULT_OK);
         closeEverything();
         finish();

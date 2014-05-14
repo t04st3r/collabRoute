@@ -191,7 +191,8 @@ public class travelListActivity extends FragmentActivity
         if (logoutDialog != null) {
             logoutDialog.dismiss();
         }
-        startActivityForResult(intent, RESULT_OK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
         TravelContent.cleanList();
         user = null;
         users = null;
@@ -241,7 +242,7 @@ public class travelListActivity extends FragmentActivity
             arrayTravels = response.getJSONArray("array");
             if (arrayTravels.length() == 0) {
                 Toast.makeText(travelListActivity.this, this.getString(R.string.home_emptyList), Toast.LENGTH_LONG).show();
-            }else {
+            } else {
                 int length = arrayTravels.length(); //I feel dumb calling length() method on each iteration :P
                 for (int i = 0; i < length; i++) {
                     JSONObject item = arrayTravels.getJSONObject(i);
@@ -369,7 +370,7 @@ public class travelListActivity extends FragmentActivity
                 String id = userItem.id;
                 JSONObject user = new JSONObject().put("id", id);
                 User toAdd = users.get(id);
-                newTravelPeople.put(String.valueOf(toAdd.getId()) , toAdd);
+                newTravelPeople.put(String.valueOf(toAdd.getId()), toAdd);
                 arrayUsers.put(user);
             }
             request.put("users", arrayUsers);
