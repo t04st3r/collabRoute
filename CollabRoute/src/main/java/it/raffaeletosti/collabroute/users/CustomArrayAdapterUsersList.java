@@ -2,9 +2,11 @@ package it.raffaeletosti.collabroute.users;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -17,8 +19,9 @@ import it.raffaeletosti.collabroute.R;
  * Created by raffaele on 04/05/14.
  */
 public class CustomArrayAdapterUsersList extends ArrayAdapter<UsersListContent.UsersListItem> {
-    private final List <UsersListContent.UsersListItem> list;
+    private final List<UsersListContent.UsersListItem> list;
     private final CustomArrayAdapterUsersList arrayAdapterUsersList = this;
+
     public CustomArrayAdapterUsersList(Context context, int textViewResourceId, List<UsersListContent.UsersListItem> objects) {
         super(context, textViewResourceId, objects);
         list = objects;
@@ -29,7 +32,7 @@ public class CustomArrayAdapterUsersList extends ArrayAdapter<UsersListContent.U
         return getViewOptimize(position, convertView, parent);
     }
 
-    public View getViewOptimize(int position, View convertView, ViewGroup parent) {
+    public View getViewOptimize(final int position, View convertView, ViewGroup parent) {
         final ViewHolder viewHolder;
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) getContext()
@@ -41,13 +44,21 @@ public class CustomArrayAdapterUsersList extends ArrayAdapter<UsersListContent.U
             viewHolder.location = (TextView) convertView.findViewById(R.id.usersListChatCoordinates);
             viewHolder.isAdministrator = (TextView) convertView.findViewById(R.id.usersListChatUserType);
             viewHolder.isSelected = (RadioButton) convertView.findViewById(R.id.userRadioButton);
-            viewHolder.isSelected.setOnClickListener(new View.OnClickListener() {
-                @Override
+            viewHolder.isSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                /*@Override
                 public void onClick(View v) {
                     UsersListContent.UsersListItem item = (UsersListContent.UsersListItem) viewHolder.isSelected.getTag();
                     UsersListContent.deselectOtherChoices(item.id);
                     item.isSelected = true;
-                    arrayAdapterUsersList.notifyDataSetChanged();
+                }*/
+
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if(isChecked) {
+                        UsersListContent.UsersListItem item = (UsersListContent.UsersListItem) viewHolder.isSelected.getTag();
+                        UsersListContent.selectCurrent(item.id);
+                        notifyList();
+                    }
                 }
             });
             convertView.setTag(viewHolder);
@@ -60,13 +71,18 @@ public class CustomArrayAdapterUsersList extends ArrayAdapter<UsersListContent.U
         viewHolder.userName.setText(item.userName);
         viewHolder.location.setText(item.address);
         viewHolder.isAdministrator.setText(item.isAdministrator ? "Administrator" : "User");
-        if(item.isOnLine){
+        if (item.isOnLine) {
             viewHolder.isOnline.setImageResource(android.R.drawable.presence_online);
-        }else{
-           viewHolder.isOnline.setImageResource(android.R.drawable.presence_offline);
+        } else {
+            viewHolder.isOnline.setImageResource(android.R.drawable.presence_offline);
         }
         return convertView;
     }
+
+    public void notifyList(){
+            arrayAdapterUsersList.notifyDataSetChanged();
+    }
+
     private class ViewHolder {
         public TextView userName;
         public RadioButton isSelected;

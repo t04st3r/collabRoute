@@ -89,12 +89,14 @@ public class UsersFragment extends Fragment {
     private static void checkForUpdate(JSONArray array) {
         HashMap<String, User> newMap = new HashMap<String, User>();
         int length = array.length();
+        String idSelected = UsersListContent.getSelected();
         UsersListContent.cleanList();
         try {
             for (int i = 0; i < length; i++) {
                 JSONObject item = array.getJSONObject(i);
-                System.err.println(item.toString());
+                //System.err.println(item.toString());
                 int id = item.getInt("id");
+                boolean selected = idSelected != null && Integer.parseInt(idSelected) == id ? true : false;
                 String name = item.getString("name");
                 String mail = item.getString("email");
                 double latitude = item.getDouble("latitude");
@@ -103,7 +105,7 @@ public class UsersFragment extends Fragment {
                 if (id != TravelActivity.travel.getAdmin().getId()) {
                     User newUser = new User(id, name, mail, latitude, longitude, address);
                     newMap.put(String.valueOf(id), newUser);
-                    UsersListContent.addItem(new UsersListContent.UsersListItem(String.valueOf(id), name, formatString(latitude, longitude, address), item.getBoolean("onLine"), false, false));
+                    UsersListContent.addItem(new UsersListContent.UsersListItem(String.valueOf(id), name, formatString(latitude, longitude, address), item.getBoolean("onLine"), selected, false));
                 } else {
                     User admin = TravelActivity.travel.getAdmin();
                     admin.setName(name);
@@ -111,7 +113,7 @@ public class UsersFragment extends Fragment {
                     admin.setLatitude(latitude);
                     admin.setLongitude(longitude);
                     admin.setAddress(address);
-                    UsersListContent.addItem(new UsersListContent.UsersListItem(String.valueOf(id), name, formatString(latitude, longitude, address), item.getBoolean("onLine"), false, true));
+                    UsersListContent.addItem(new UsersListContent.UsersListItem(String.valueOf(id), name, formatString(latitude, longitude, address), item.getBoolean("onLine"), selected, true));
                 }
             }
             TravelActivity.travel.setPeople(newMap);

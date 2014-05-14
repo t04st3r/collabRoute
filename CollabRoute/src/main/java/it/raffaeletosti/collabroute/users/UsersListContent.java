@@ -35,20 +35,36 @@ public class UsersListContent {
             ITEMS.clear();
     }
 
-    public static void deselectOtherChoices(String id){
+
+    public static void selectCurrent(String id){
         if(!ITEM_MAP.isEmpty()){
             for(UsersListItem current : ITEMS){
                 if(!current.id.equals(id)){
                     current.isSelected = false;
+                }else{
+                    current.isSelected = true;
                 }
             }
             for(String current : ITEM_MAP.keySet()){
+                UsersListItem item = ITEM_MAP.get(current);
                 if(!current.equals(id)){
-                    UsersListItem item = ITEM_MAP.get(current);
                     item.isSelected = false;
+                }else{
+                    item.isSelected = true;
                 }
             }
         }
+    }
+
+    public static String getSelected() {
+        if (!ITEM_MAP.isEmpty()) {
+            for (UsersListItem current : ITEMS) {
+                if (current.isSelected) {
+                    return current.id;
+                }
+            }
+        }
+        return null;
     }
 
     public static class UsersListItem {
