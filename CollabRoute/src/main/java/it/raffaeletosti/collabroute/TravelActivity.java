@@ -4,19 +4,27 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.FragmentTransaction;
+import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TabHost;
+import android.widget.TabWidget;
+import android.widget.TextView;
 
 import it.raffaeletosti.collabroute.model.Travel;
 import it.raffaeletosti.collabroute.model.UserHandler;
@@ -24,7 +32,7 @@ import it.raffaeletosti.collabroute.model.UserHandler;
 
 public class TravelActivity extends FragmentActivity {
 
-    ViewPager mViewPager;
+    public static ViewPager mViewPager;
     MyPagerAdapter mViewPagerAdapter;
     protected static Travel travel;
     static UserHandler user;
@@ -33,6 +41,8 @@ public class TravelActivity extends FragmentActivity {
     protected static RoutesFragment route;
     protected static UsersFragment users;
     private Dialog exitTravel;
+    public static ActionBar.Tab chatTab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +56,7 @@ public class TravelActivity extends FragmentActivity {
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         mViewPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {
@@ -59,6 +69,19 @@ public class TravelActivity extends FragmentActivity {
             @Override
             public void onTabSelected(android.app.ActionBar.Tab tab, FragmentTransaction ft) {
                 mViewPager.setCurrentItem(tab.getPosition());
+                if (tab.getPosition() == 2 && ChatFragment.isTabViolet) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (chatTab != null) {
+                                TextView tabView = (TextView) TravelActivity.chatTab.getCustomView();
+                                tabView.setTextColor(Color.parseColor("white"));
+                                TravelActivity.chatTab.setCustomView(tabView);
+                                ChatFragment.isTabViolet = false;
+                            }
+                        }
+                    });
+                }
 
             }
 
@@ -74,14 +97,38 @@ public class TravelActivity extends FragmentActivity {
         };
         Resources res = getResources();
         String packageName = getPackageName();
-        for(int i = 0; i < 4; i++){
-            int id = res.getIdentifier("travel_tab_"+i, "string", packageName);
-            actionBar.addTab(actionBar.newTab()
-            .setText(res.getText(id))
-            .setTabListener(tabListener));
+        for (int i = 0; i < 4; i++) {
+            int id = res.getIdentifier("travel_tab_" + i, "string", packageName);
+            ActionBar.Tab tab = actionBar.newTab();
+            if(i == 2) {
+                chatTab = tab;
+            }
+            TextView tabTextView = createTab(String.valueOf(res.getText(id)));
+            tabTextView.setGravity(Gravity.CENTER);
+            tabTextView.setTextColor(Color.parseColor("white"));
+            tab.setCustomView(tabTextView);
+            tab.setTabListener(tabListener);
+            actionBar.addTab(tab);
+            //in order to correctly place the text centered on the tab we have to do this
+            View view = (View) tabTextView.getParent();
+            LinearLayout.LayoutParams lp = (android.widget.LinearLayout.LayoutParams)view.getLayoutParams();
+            view.setPadding(0, 0, 0, 0);
+            view.setLayoutParams(lp);
         }
+
     }
 
+    private TextView createTab(String titleText) {
+        TextView tv = new TextView(this);
+        //set caption and caption appearance
+        tv.setTextAppearance(this, R.style.AppTheme);
+        tv.setText(titleText);
+        tv.setLayoutParams(new android.view.ViewGroup.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
+        //Make sure all tabs have the same height
+        tv.setMaxLines(2);
+        tv.setMinLines(2);
+        return tv;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -103,7 +150,7 @@ public class TravelActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void createExitTravelDialog(){
+    private void createExitTravelDialog() {
         exitTravel = new Dialog(this);
         exitTravel.setContentView(R.layout.exit_travel_dialog);
         exitTravel.setTitle(getString(R.string.exit_travel_title));
@@ -124,7 +171,7 @@ public class TravelActivity extends FragmentActivity {
     }
 
     private void closeTravelActivity() {
-        if(exitTravel.isShowing()){
+        if (exitTravel.isShowing()) {
             exitTravel.dismiss();
         }
         final Intent intent = new Intent(this, travelListActivity.class);
@@ -182,7 +229,7 @@ public class TravelActivity extends FragmentActivity {
         }
     }
 
-    public static void closeEverything(){
+    public static void closeEverything() {
         map.view = null;
         map.map = null;
         map.client.disconnect();

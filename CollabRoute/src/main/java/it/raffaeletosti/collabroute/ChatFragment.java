@@ -3,6 +3,7 @@ package it.raffaeletosti.collabroute;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.socketio.Acknowledge;
@@ -53,6 +55,7 @@ public class ChatFragment extends Fragment {
     private UserHandler user;
     protected Activity thisActivity;
     protected ChatThread chatThread;
+    public static boolean isTabViolet = false;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -211,13 +214,17 @@ public class ChatFragment extends Fragment {
 
                         @Override
                         public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
-                            System.err.println("RECEIVED: " + jsonArray.toString());
                             try {
                                 String userId = jsonArray.getJSONObject(0).getString("id");
                                 String text = jsonArray.getJSONObject(0).getString("text");
                                 String userName = getUserName(userId);
-                                System.err.println(userId + " " + text + " " + userName);
                                 ChatContent.addItem(new ChatContent.ChatItem(userName, text));
+                                //if I'm not on the chat wiew
+                                if(TravelActivity.mViewPager != null) {
+                                    if (TravelActivity.mViewPager.getCurrentItem() != 2) {
+                                        changeTabChatState();
+                                    }
+                                }
                                 updateChatList();
                             } catch (JSONException e) {
                                 System.err.println(e);
@@ -266,5 +273,21 @@ public class ChatFragment extends Fragment {
             }
         });
     }
-}
 
+    public void changeTabChatState(){
+        thisActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(TravelActivity.chatTab != null){
+                    TextView tabView = (TextView) TravelActivity.chatTab.getCustomView();
+                    tabView.setTextColor(Color.parseColor("#ffcc0eff"));
+                    TravelActivity.chatTab.setCustomView(tabView);
+                    isTabViolet = true;
+                }
+            }
+        });
+
+    }
+
+
+}

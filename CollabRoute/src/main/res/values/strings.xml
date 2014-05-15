@@ -6,7 +6,7 @@
     <string name="cancel_button">Cancel</string>
     <string name="exit_yes">Yes</string>
     <string name="exit_title">Exit CollabRoute</string>
-    <string name="exit_text">This will close the application..\n are you sure?</string>
+    <string name="exit_text">Application will be closed</string>
     <string name="logout_title">Back to login</string>
     <string name="logout_message">This will log you out, are you sure?</string>
     <string name="exit_travel_text">This will leave current travel..\n are you sure?</string>
@@ -102,7 +102,11 @@
     <string name="travel_tab_3">Users</string>
     <string name="google_play_error_message">Disconnected from Google Play Service</string>
     <string name="socket_io_wrong_auth">Wrong user or travel</string>
-    <string name="users_visualize_map">visualize on the map</string>
-    <string name="users_get_routes">get directions to users</string>
+    <string name="users_visualize_map">Visualize on the map</string>
+    <string name="users_get_routes">Get directions to selected user</string>
+    <string name="add_route">Add route</string>
+    <string name="modifiy_route">Modify route</string>
+    <string name="delete_route">Delete route</string>
+    <string name="get_directions_to_route">Get directions to selected route</string>
 
 </resources>

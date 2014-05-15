@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +37,6 @@ public class LoginActivity extends Activity {
     Dialog exitDialog;
     EditText codeField;
     String code;
-    Boolean theEnd = false;
 
 
     @Override
