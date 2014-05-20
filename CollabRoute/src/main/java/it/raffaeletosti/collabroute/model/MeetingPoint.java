@@ -1,8 +1,5 @@
 package it.raffaeletosti.collabroute.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * Created by raffaele on 28/03/14.
  */

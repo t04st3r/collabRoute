@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.text.style.TextAppearanceSpan;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -40,6 +41,7 @@ public class TravelActivity extends FragmentActivity {
     protected static ChatFragment chat;
     protected static RoutesFragment route;
     protected static UsersFragment users;
+    protected static DirectionsFragment directions;
     private Dialog exitTravel;
     public static ActionBar.Tab chatTab;
 
@@ -63,13 +65,13 @@ public class TravelActivity extends FragmentActivity {
                 getActionBar().setSelectedNavigationItem(position);
             }
         });
-        mViewPager.setOffscreenPageLimit(4);
+        mViewPager.setOffscreenPageLimit(5);
         mViewPager.setAdapter(mViewPagerAdapter);
         ActionBar.TabListener tabListener = new android.app.ActionBar.TabListener() {
             @Override
             public void onTabSelected(android.app.ActionBar.Tab tab, FragmentTransaction ft) {
                 mViewPager.setCurrentItem(tab.getPosition());
-                if (tab.getPosition() == 2 && ChatFragment.isTabViolet) {
+                if (tab.getPosition() == 3 && ChatFragment.isTabViolet) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -97,21 +99,22 @@ public class TravelActivity extends FragmentActivity {
         };
         Resources res = getResources();
         String packageName = getPackageName();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             int id = res.getIdentifier("travel_tab_" + i, "string", packageName);
             ActionBar.Tab tab = actionBar.newTab();
-            if(i == 2) {
+            if (i == 3) {
                 chatTab = tab;
             }
             TextView tabTextView = createTab(String.valueOf(res.getText(id)));
             tabTextView.setGravity(Gravity.CENTER);
+            tabTextView.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Small);
             tabTextView.setTextColor(Color.parseColor("white"));
             tab.setCustomView(tabTextView);
             tab.setTabListener(tabListener);
             actionBar.addTab(tab);
             //in order to correctly place the text centered on the tab we have to do this
             View view = (View) tabTextView.getParent();
-            LinearLayout.LayoutParams lp = (android.widget.LinearLayout.LayoutParams)view.getLayoutParams();
+            LinearLayout.LayoutParams lp = (android.widget.LinearLayout.LayoutParams) view.getLayoutParams();
             view.setPadding(0, 0, 0, 0);
             view.setLayoutParams(lp);
         }
@@ -210,11 +213,16 @@ public class TravelActivity extends FragmentActivity {
                     }
                     return route;
                 case 2:
+                    if (directions == null) {
+                        directions = DirectionsFragment.newInstance();
+                    }
+                    return directions;
+                case 3:
                     if (chat == null) {
                         chat = ChatFragment.newInstance();
                     }
                     return chat;
-                case 3:
+                case 4:
                     if (users == null) {
                         users = UsersFragment.newInstance();
                     }
@@ -225,7 +233,7 @@ public class TravelActivity extends FragmentActivity {
 
         @Override
         public int getCount() {
-            return 4;
+            return 5;
         }
     }
 

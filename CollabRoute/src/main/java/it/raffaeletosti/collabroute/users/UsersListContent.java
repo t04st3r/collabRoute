@@ -35,6 +35,16 @@ public class UsersListContent {
             ITEMS.clear();
     }
 
+    public static boolean nobodySelected() {
+        if (!ITEM_MAP.isEmpty()) {
+            for (UsersListItem current : ITEMS) {
+                if (current.isSelected)
+                    return false;
+
+            }
+        }
+        return true;
+    }
 
     public static void selectCurrent(String id){
         if(!ITEM_MAP.isEmpty()){

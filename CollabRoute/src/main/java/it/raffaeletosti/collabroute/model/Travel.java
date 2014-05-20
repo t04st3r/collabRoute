@@ -77,6 +77,13 @@ public class Travel {
         people.put(String.valueOf(user.getId()), user);
     }
 
+    public HashMap<String, User> cloneUsersMap(){
+        HashMap<String, User> toReturn = new HashMap<String, User>();
+        for(String current : people.keySet()){
+            toReturn.put(current, people.get(current));
+        }
+        return toReturn;
+    }
 
     public String getUsersName() {
         if (people != null) {

@@ -220,8 +220,8 @@ public class ChatFragment extends Fragment {
                                 String userName = getUserName(userId);
                                 ChatContent.addItem(new ChatContent.ChatItem(userName, text));
                                 //if I'm not on the chat wiew
-                                if(TravelActivity.mViewPager != null) {
-                                    if (TravelActivity.mViewPager.getCurrentItem() != 2) {
+                                if (TravelActivity.mViewPager != null) {
+                                    if (TravelActivity.mViewPager.getCurrentItem() != 3) {
                                         changeTabChatState();
                                     }
                                 }
@@ -235,6 +235,8 @@ public class ChatFragment extends Fragment {
                         @Override
                         public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
                             UsersFragment.fillUsersStatus(jsonArray);
+                            if (TravelActivity.map.MarkerHandlerThread != null)
+                                TravelActivity.map.MarkerHandlerThread.post(TravelActivity.map.run);
                         }
                     });
                     try {
@@ -252,14 +254,14 @@ public class ChatFragment extends Fragment {
         }
     }
 
-    public static void updateStatus(){
-        if(socketClient != null){
-            try{
+    public static void updateStatus() {
+        if (socketClient != null) {
+            try {
                 JSONArray array = new JSONArray();
                 array.put(new JSONObject().put("userId", TravelActivity.user.getId())
                         .put("travelId", TravelActivity.travel.getId()));
-                socketClient.emit("update_request" , array);
-            }catch (JSONException e){
+                socketClient.emit("update_request", array);
+            } catch (JSONException e) {
                 System.err.println(e);
             }
         }
@@ -274,11 +276,11 @@ public class ChatFragment extends Fragment {
         });
     }
 
-    public void changeTabChatState(){
+    public void changeTabChatState() {
         thisActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(TravelActivity.chatTab != null){
+                if (TravelActivity.chatTab != null) {
                     TextView tabView = (TextView) TravelActivity.chatTab.getCustomView();
                     tabView.setTextColor(Color.parseColor("#ffcc0eff"));
                     TravelActivity.chatTab.setCustomView(tabView);

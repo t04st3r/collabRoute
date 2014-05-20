@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,7 +18,6 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
-import java.util.Set;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.users.CustomArrayAdapterUsersList;
@@ -32,6 +32,8 @@ public class UsersFragment extends Fragment {
     private static ListView chatUsersStatus;
     private static ArrayAdapter usersListAdapter;
     private static Activity thisActivity;
+    private Button visualizeOnTheMap;
+    private Button getDirections;
 
     public static UsersFragment newInstance() {
         UsersFragment fragment = new UsersFragment();
@@ -58,8 +60,28 @@ public class UsersFragment extends Fragment {
             usersListAdapter = new CustomArrayAdapterUsersList(thisActivity, R.layout.chat_user_row, UsersListContent.ITEMS);
             chatUsersStatus.setAdapter(usersListAdapter);
             chatUsersStatus.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
-    }
+            visualizeOnTheMap = (Button)thisActivity.findViewById(R.id.visualize_map_button);
+            getDirections = (Button)thisActivity.findViewById(R.id.users_routes_button);
+            visualizeOnTheMap.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(UsersListContent.nobodySelected()) {
+                        showNobodySelectedMessage();
+                        return;
+                    }
+                //TODO get user coordinates and show it in the map fragment in a separate method
+                }
+            });
+            getDirections.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(UsersListContent.nobodySelected()) {
+                        showNobodySelectedMessage();
+                        return;
+                    }
+                }//TODO get directions using google Directions API and find a way to shows them on the map of course in a separate method as well!! :P
+            });
+}
 
     protected static void fillUsersStatus(JSONArray usersListArray) {
         try {
@@ -72,7 +94,7 @@ public class UsersFragment extends Fragment {
             }
             updateUsersList();
         } catch (JSONException e) {
-            e.printStackTrace();
+            System.err.println(e);
         }
     }
 
@@ -81,6 +103,15 @@ public class UsersFragment extends Fragment {
             @Override
             public void run() {
                 usersListAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void showNobodySelectedMessage(){
+        thisActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(thisActivity,getString(R.string.no_user_selected), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -117,6 +148,7 @@ public class UsersFragment extends Fragment {
                 }
             }
             TravelActivity.travel.setPeople(newMap);
+            System.err.println("Model updated");
         } catch (JSONException e) {
             System.err.println(e);
         }
