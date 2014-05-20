@@ -73,6 +73,10 @@ public class User implements Parcelable{
         this.name = name;
     }
 
+    public boolean isConnected(){
+        return latitude != 0.0d && longitude != 0.0d;
+    }
+
     @Override
     public int describeContents() {
         return 0;

@@ -1,10 +1,8 @@
 package it.raffaeletosti.collabroute;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.FragmentTransaction;
-import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -14,17 +12,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.text.style.TextAppearanceSpan;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TabHost;
-import android.widget.TabWidget;
 import android.widget.TextView;
 
 import it.raffaeletosti.collabroute.model.Travel;

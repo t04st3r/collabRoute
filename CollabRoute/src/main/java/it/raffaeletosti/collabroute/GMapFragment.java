@@ -98,15 +98,15 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_TIME_RANGE, 0, this);
         client = new LocationClient(activity, mConnectionCallbacks, mConnectionFailedListener);
         MarkerHandlerThread = new Handler(Looper.getMainLooper());
-        run = new Runnable(){
+        run = new Runnable() {
 
             @Override
             public void run() {
-                    if (markers == null) {
-                        createMarkers();
-                    } else {
-                        updateMarkers();
-                    }
+                if (markers == null) {
+                    createMarkers();
+                } else {
+                    updateMarkers();
+                }
             }
 
         };
@@ -154,7 +154,8 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         boolean isOnLine = lat == 0 && lng == 0 ? false : true;
         options.visible(isOnLine);
         Marker currentMarker = map.addMarker(options);
-        currentMarker.showInfoWindow();
+        if (isOnLine)
+            currentMarker.showInfoWindow();
         markers.put(String.valueOf(user.getId()), currentMarker);
 
     }
@@ -170,7 +171,8 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             current.setPosition(position);
             current.setTitle(user.getName());
             current.setSnippet(user.getAddress());
-            current.showInfoWindow();
+            if (isOnLine)
+                current.showInfoWindow();
         }
     }
 
@@ -188,15 +190,20 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     }
 
     void updateCameraMapUsers() {
-        User[] maxDistUsers = calculateMaxDistance();
-        if (maxDistUsers[1] != null) {
-            LatLng user1 = new LatLng(maxDistUsers[0].getLatitude(), maxDistUsers[0].getLongitude());
-            LatLng user2 = new LatLng(maxDistUsers[1].getLatitude(), maxDistUsers[1].getLongitude());
-            LatLngBounds latLngBounds = new LatLngBounds(user1, user2);
-            CameraUpdate updateCameraViewWithBounds = CameraUpdateFactory.newLatLngBounds(latLngBounds, 100);
-            map.moveCamera(updateCameraViewWithBounds);
-        } else {
-            updateCameraSingleUser(maxDistUsers[0]);
+        User minDistanceUser = calculateMinDistanceUser();
+        if (minDistanceUser != null) {
+            HashMap<String, User> userMap = TravelActivity.travel.cloneUsersMap();
+            userMap.put(String.valueOf(TravelActivity.travel.getAdmin().getId()), TravelActivity.travel.getAdmin());
+            User maxDistanceUser = getMaxDistanceFromUser(minDistanceUser, userMap);
+            if (maxDistanceUser != null) {
+                LatLng user1 = new LatLng(minDistanceUser.getLatitude(), minDistanceUser.getLongitude());
+                LatLng user2 = new LatLng(maxDistanceUser.getLatitude(), maxDistanceUser.getLongitude());
+                LatLngBounds latLngBounds = new LatLngBounds(user1, user2);
+                CameraUpdate updateCameraViewWithBounds = CameraUpdateFactory.newLatLngBounds(latLngBounds, 100);
+                map.moveCamera(updateCameraViewWithBounds);
+            } else {
+                updateCameraSingleUser(minDistanceUser);
+            }
         }
     }
 
@@ -254,13 +261,14 @@ public class GMapFragment extends Fragment implements android.location.LocationL
 
     @Override
     public void onLocationChanged(Location location) { //useful for updating location on client location changes
+
         double lat2 = location.getLatitude();
         double long2 = location.getLongitude();
         double lat1 = TravelActivity.user.getLatitude();
         double long1 = TravelActivity.user.getLongitude();
 
-        //if distance are bigger that maxDistance send it to the server
-        if (calculateDistance(lat1, long1, lat2, long2) > MAX_DISTANCE) {
+        //if distance are bigger that maxDistance or coordinates from model object are not initialized, send it to the server
+        if ((lat1 == 0.0d && long1 == 0.0d) || calculateDistance(lat1, long1, lat2, long2) > MAX_DISTANCE) {
             CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this, String.valueOf(TravelActivity.travel.getId()));
             handler.execute(String.valueOf(long2), String.valueOf(lat2));
             System.err.println("Coordinate update request because of distance change");
@@ -323,54 +331,92 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         return d;
     }
 
-    User[] calculateMaxDistance() {
-        double maxDistance = 0;
-        User user1 = TravelActivity.travel.getAdmin();
-        User user2 = null;
-        HashMap<String, User> userHashMap = TravelActivity.travel.getPeople();
-        for (String current : userHashMap.keySet()) {
-            double lat1 = user1.getLatitude();
-            double lng1 = user1.getLongitude();
-            double lat2 = userHashMap.get(current).getLatitude();
-            double lng2 = userHashMap.get(current).getLongitude();
-            if (lat1 != 0.0d && lng1 != 0.0d && lat2 != 0.0d && lng2 != 0.0d) {
-                double distance = calculateDistance(lat1, lng1, lat2, lng2);
-                if (distance > maxDistance) {
-                    maxDistance = distance;
-                    user2 = userHashMap.get(current);
-                }
-            }
+    User calculateMinDistanceUser() {
+        HashMap<String, User> userHashMap1 = TravelActivity.travel.cloneUsersMap();
+        userHashMap1.put(String.valueOf(TravelActivity.travel.getAdmin().getId()), TravelActivity.travel.getAdmin());
+        String id = onlyOneUserConnected(userHashMap1);
+        if (id != null) {
+            return userHashMap1.get(id);
         }
-        int size = userHashMap.size();
-        int count = 1;
-        HashMap<String, User> secondMap = TravelActivity.travel.cloneUsersMap();
-        for (String current1 : userHashMap.keySet()) {
-            for (String current2 : secondMap.keySet()) {
-                if (current1 != current2) {
-                    double lat1 = userHashMap.get(current1).getLatitude();
-                    double lng1 = userHashMap.get(current1).getLongitude();
-                    double lat2 = secondMap.get(current2).getLatitude();
-                    double lng2 = secondMap.get(current2).getLongitude();
-                    if (lat1 != 0.0d && lng1 != 0.0d && lat2 != 0.0d && lng2 != 0.0d) {
+        HashMap<String, User> userHashMap2 = TravelActivity.travel.cloneUsersMap();
+        userHashMap2.put(String.valueOf(TravelActivity.travel.getAdmin().getId()), TravelActivity.travel.getAdmin());
+        double temp = 0;
+        int count = 0;
+        int size = userHashMap1.size();
+        HashMap<String, Double> usersDistance = new HashMap<String, Double>();
+        for (String current1 : userHashMap1.keySet()) {
+            if(userHashMap1.get(current1).isConnected()){
+                for (String current2 : userHashMap2.keySet()) {
+                    count++;
+                    if(userHashMap2.get(current2).isConnected() && current1 != current2){
+                        double lat1 = userHashMap1.get(current1).getLatitude();
+                        double lng1 = userHashMap1.get(current1).getLongitude();
+                        double lat2 = userHashMap1.get(current2).getLatitude();
+                        double lng2 = userHashMap1.get(current2).getLongitude();
                         double distance = calculateDistance(lat1, lng1, lat2, lng2);
-                        if (distance > maxDistance) {
-                            maxDistance = distance;
-                            user1 = userHashMap.get(current1);
-                            user2 = secondMap.get(current2);
-                        }
+                        temp += distance;
+                    }
+                    if(count == size) {
+                        usersDistance.put(current1, temp);
+                        count = 0;
+                        temp = 0;
                     }
                 }
-                if (count == size) {
-                    secondMap.remove(current1);
-                    size--;
-                    count = 1;
-                } else
-                    count++;
+            }
+
+        }
+        String idUserMinDistance = getMinDistanceUser(usersDistance);
+        if(idUserMinDistance != null)
+            return userHashMap1.get(idUserMinDistance);
+        else return null;
+    }
+
+    public String getMinDistanceUser(HashMap<String, Double> map){
+        double minDistance = Double.POSITIVE_INFINITY;
+        String idUser = null;
+        for(String current : map.keySet()){
+            Double distance = map.get(current);
+            if(distance < minDistance){
+                minDistance = distance;
+                idUser = current;
             }
         }
-        User[] toReturn = {user1, user2};
-        return toReturn;
+        return idUser;
+    }
 
+    public User getMaxDistanceFromUser(User user, HashMap<String, User> map){
+        double maxDistance = 0;
+        User toReturn = null;
+        for(String current : map.keySet()){
+            if(current != String.valueOf(user.getId()) && map.get(current).isConnected()){
+                double lat1 = user.getLatitude();
+                double lng1 = user.getLongitude();
+                double lat2 = map.get(current).getLatitude();
+                double lng2 = map.get(current).getLongitude();
+                double distance = calculateDistance(lat1, lng1, lat2, lng2);
+                if(distance > maxDistance){
+                    maxDistance = distance;
+                    toReturn = map.get(current);
+                }
+            }
+        }
+    return toReturn;
+    }
+
+    public String onlyOneUserConnected(HashMap<String, User> map) {
+        int count = 0;
+        String currentId = null;
+        for (String current : map.keySet()) {
+            User currentUser = map.get(current);
+            if (currentUser.getLatitude() != 0.0d && currentUser.getLongitude() != 0.0d) {
+                count++;
+                currentId = current;
+            }
+        }
+        if (count != 1) {
+            return null;
+        }
+        return currentId;
     }
 
 

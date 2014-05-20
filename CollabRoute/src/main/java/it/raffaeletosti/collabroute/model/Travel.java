@@ -85,6 +85,8 @@ public class Travel {
         return toReturn;
     }
 
+
+
     public String getUsersName() {
         if (people != null) {
             String users = "";

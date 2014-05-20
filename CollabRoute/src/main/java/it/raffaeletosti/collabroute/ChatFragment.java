@@ -219,7 +219,7 @@ public class ChatFragment extends Fragment {
                                 String text = jsonArray.getJSONObject(0).getString("text");
                                 String userName = getUserName(userId);
                                 ChatContent.addItem(new ChatContent.ChatItem(userName, text));
-                                //if I'm not on the chat wiew
+                                //if I'm not on the chat View
                                 if (TravelActivity.mViewPager != null) {
                                     if (TravelActivity.mViewPager.getCurrentItem() != 3) {
                                         changeTabChatState();
