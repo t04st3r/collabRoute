@@ -110,5 +110,8 @@
     <string name="delete_route">Delete route</string>
     <string name="get_directions_to_route">Get directions to selected route</string>
     <string name="no_user_selected">Please select a user first</string>
+    <string name="gps_disable_message">it seems that GPS is disabled..\nwould you like to enable it?</string>
+    <string name="gps_enable_button">Enable GPS</string>
+    <string name="gps_alert_title">GPS Warning</string>
 
 </resources>

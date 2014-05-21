@@ -1,6 +1,7 @@
 package it.raffaeletosti.collabroute.users;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -63,6 +64,9 @@ public class CustomArrayAdapterUsersList extends ArrayAdapter<UsersListContent.U
         UsersListContent.UsersListItem item = getItem(position);
         viewHolder.isSelected.setChecked(item.isSelected);
         viewHolder.userName.setText(item.userName);
+        if(item.isAdministrator){
+            viewHolder.userName.setTextColor(Color.parseColor("blue"));
+        }
         viewHolder.location.setText(item.address);
         viewHolder.isAdministrator.setText(item.isAdministrator ? "Administrator" : "User");
         if (item.isOnLine) {

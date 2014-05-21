@@ -1,9 +1,13 @@
 package it.raffaeletosti.collabroute;
 
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
@@ -65,11 +69,11 @@ public class travelDetailActivity extends FragmentActivity {
         travelDescription.setText(travel.getDescription());
         int adminId = travel.getAdmin().getId();
         String adminString;
-        if(adminId == travelListActivity.user.getId()) {
+        if (adminId == travelListActivity.user.getId()) {
             isAdministrator = true;
             adminString = getString(R.string.travel_list_user_you);
             leaveDeleteTravel.setText(R.string.travel_delete_button);
-        }else{
+        } else {
             isAdministrator = false;
             adminString = travel.getAdmin().getName();
             leaveDeleteTravel.setText(R.string.travel_leave_button);
@@ -77,7 +81,7 @@ public class travelDetailActivity extends FragmentActivity {
         travelAdministrator.setText(adminString);
         String users;
         if ((users = travel.getUsersName()) != null) {
-            travelUsers.setText(getString(R.string.travel_list_user_you)+" "+users);
+            travelUsers.setText(getString(R.string.travel_list_user_you) + " " + users);
         } else {
             travelUsers.setText(getString(R.string.travel_users_emptyArray));
         }
@@ -85,7 +89,7 @@ public class travelDetailActivity extends FragmentActivity {
         // Show the Up button in the action bar.
         /*int versionNumber = Integer.valueOf(Build.VERSION.SDK_INT);
         if(versionNumber >= 11) */
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         // savedInstanceState is non-null when there is fragment state
@@ -112,14 +116,14 @@ public class travelDetailActivity extends FragmentActivity {
         startTravel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               startTravelActivity();
+                startTravelActivity();
             }
         });
         leaveDeleteTravel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               deleteTravel();
-               deleteTravelDialog.show();
+                deleteTravel();
+                deleteTravelDialog.show();
             }
         });
 
@@ -127,14 +131,14 @@ public class travelDetailActivity extends FragmentActivity {
     }
 
     private void deleteTravel() {
-        if(deleteTravelDialog == null){
+        if (deleteTravelDialog == null) {
             deleteTravelDialog = new Dialog(this);
             deleteTravelDialog.setContentView(R.layout.delete_travel_dialog);
         }
-        String title = isAdministrator ? String.format(getString(R.string.delete_travel_dialog_title),"Delete") : String.format(getString(R.string.delete_travel_dialog_title),"Leave");
+        String title = isAdministrator ? String.format(getString(R.string.delete_travel_dialog_title), "Delete") : String.format(getString(R.string.delete_travel_dialog_title), "Leave");
         deleteTravelDialog.setTitle(title);
-        final Button ok = (Button)deleteTravelDialog.findViewById(R.id.DeleteOkButton);
-        final Button cancel = (Button)deleteTravelDialog.findViewById(R.id.DeleteCancelButton);
+        final Button ok = (Button) deleteTravelDialog.findViewById(R.id.DeleteOkButton);
+        final Button cancel = (Button) deleteTravelDialog.findViewById(R.id.DeleteCancelButton);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,20 +156,45 @@ public class travelDetailActivity extends FragmentActivity {
 
     private void sendTravel() {
         TravelListHandler deleteThread = new TravelListHandler(this, travel);
-        deleteThread.execute("deleteTravel" , String.valueOf(travelListActivity.user.getId()));
+        deleteThread.execute("deleteTravel", String.valueOf(travelListActivity.user.getId()));
     }
 
 
-
     private void startTravelActivity() {
-        Intent travelIntent = new Intent(getApplication(), TravelActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("user", travelListActivity.user);
-        travelIntent.putExtras(bundle);
-        travelIntent.putExtra("travel", travel.toJsonString());
-        startActivity(travelIntent);
-        finish();
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setMessage(getString(R.string.gps_disable_message))
+                    .setTitle(getString(R.string.gps_alert_title))
+                    .setPositiveButton(getString(R.string.gps_enable_button),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent callGPSSettingsIntent = new Intent(
+                                            Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                    startActivity(callGPSSettingsIntent);
+                                }
+                            });
+            alertDialogBuilder.setNegativeButton(getString(R.string.cancel_button) ,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.show();
+
+        } else {
+            Intent travelIntent = new Intent(getApplication(), TravelActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("user", travelListActivity.user);
+            travelIntent.putExtras(bundle);
+            travelIntent.putExtra("travel", travel.toJsonString());
+            startActivity(travelIntent);
+            finish();
+        }
     }
 
 
@@ -241,7 +270,7 @@ public class travelDetailActivity extends FragmentActivity {
                     MeetingPoint mp = new MeetingPoint();
                     mp.setId(route.getInt("id"));
                     mp.setAddress(route.getString("address"));
-                    addresses += mp.getAddress()+"\n";
+                    addresses += mp.getAddress() + "\n";
                     mp.setLatitude(route.getString("latitude"));
                     mp.setLongitude(route.getString("longitude"));
                     travel.insertRoute(mp);
@@ -254,8 +283,8 @@ public class travelDetailActivity extends FragmentActivity {
         }
     }
 
-    public void deleteComeBack(JSONObject response){
-        if(deleteTravelDialog.isShowing()){
+    public void deleteComeBack(JSONObject response) {
+        if (deleteTravelDialog.isShowing()) {
             deleteTravelDialog.dismiss();
         }
         try {
@@ -299,7 +328,7 @@ public class travelDetailActivity extends FragmentActivity {
         TravelContent.deleteItem(String.valueOf(travel.getId()));
     }
 
-    private void comeBack(){
+    private void comeBack() {
         final Intent intent = new Intent(this, travelListActivity.class);
         startActivityForResult(intent, RESULT_OK);
         finish();

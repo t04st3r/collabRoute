@@ -145,11 +145,13 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     void setSingleMarker(User user) {
         double lat = user.getLatitude();
         double lng = user.getLongitude();
+        float icon = user.getId() == TravelActivity.travel.getAdmin().getId() ? BitmapDescriptorFactory.HUE_BLUE : BitmapDescriptorFactory.HUE_VIOLET;
         LatLng position = new LatLng(lat, lng);
         MarkerOptions options = new MarkerOptions()
                 .position(position).title(user.getName())
                 .snippet(user.getAddress())
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                .icon(BitmapDescriptorFactory.defaultMarker(icon))
+                .alpha(0.7f)
                 .draggable(false);
         boolean isOnLine = lat == 0 && lng == 0 ? false : true;
         options.visible(isOnLine);
@@ -198,8 +200,13 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             if (maxDistanceUser != null) {
                 LatLng user1 = new LatLng(minDistanceUser.getLatitude(), minDistanceUser.getLongitude());
                 LatLng user2 = new LatLng(maxDistanceUser.getLatitude(), maxDistanceUser.getLongitude());
-                LatLngBounds latLngBounds = new LatLngBounds(user1, user2);
-                CameraUpdate updateCameraViewWithBounds = CameraUpdateFactory.newLatLngBounds(latLngBounds, 100);
+                double latDiff = Math.abs(minDistanceUser.getLatitude() - maxDistanceUser.getLatitude());
+                double lngDiff = Math.abs(minDistanceUser.getLongitude() - maxDistanceUser.getLongitude());
+                System.err.println("LATDIFF: "+latDiff+" LNGDIFF: "+lngDiff);
+                LatLngBounds latLngBounds = minDistanceUser.getLatitude() < maxDistanceUser.getLatitude() ?
+                        new LatLngBounds(user1, user2) : new LatLngBounds(user2, user1);
+
+                CameraUpdate updateCameraViewWithBounds = CameraUpdateFactory.newLatLngBounds(latLngBounds, 300);
                 map.moveCamera(updateCameraViewWithBounds);
             } else {
                 updateCameraSingleUser(minDistanceUser);
