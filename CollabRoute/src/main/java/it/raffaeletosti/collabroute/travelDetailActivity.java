@@ -273,6 +273,7 @@ public class travelDetailActivity extends FragmentActivity {
                     addresses += mp.getAddress() + "\n";
                     mp.setLatitude(route.getString("latitude"));
                     mp.setLongitude(route.getString("longitude"));
+                    mp.setIdUser(route.getInt("id_user"));
                     travel.insertRoute(mp);
                 }
                 travelMP.setText(addresses);

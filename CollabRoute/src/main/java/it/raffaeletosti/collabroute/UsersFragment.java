@@ -138,7 +138,6 @@ public class UsersFragment extends Fragment {
         try {
             for (int i = 0; i < length; i++) {
                 JSONObject item = array.getJSONObject(i);
-                //System.err.println(item.toString());
                 int id = item.getInt("id");
                 boolean selected = idSelected != null && Integer.parseInt(idSelected) == id ? true : false;
                 String name = item.getString("name");
@@ -161,7 +160,6 @@ public class UsersFragment extends Fragment {
                 }
             }
             TravelActivity.travel.setPeople(newMap);
-            System.err.println("Model updated");
         } catch (JSONException e) {
             System.err.println(e);
         }

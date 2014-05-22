@@ -135,6 +135,7 @@ public class Travel {
                     route.put("address", routes.get(current).getAddress());
                     route.put("latitude", routes.get(current).getLatitude());
                     route.put("longitude", routes.get(current).getLongitude());
+                    route.put("id_user", routes.get(current).getIdUser());
                     routesArray.put(route);
                 }
                 travel.put("routes", routesArray);
@@ -181,6 +182,7 @@ public class Travel {
                         current.setAddress(currentRoute.getString("address"));
                         current.setLatitude(currentRoute.getString("latitude"));
                         current.setLongitude(currentRoute.getString("longitude"));
+                        current.setIdUser(currentRoute.getInt("id_user"));
                         routes.put(String.valueOf(current.getId()) , current);
                     }
                 }

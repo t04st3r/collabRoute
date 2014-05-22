@@ -9,6 +9,7 @@ public class MeetingPoint {
     private String address;
     private String longitude;
     private String latitude;
+    private int idUser;
 
     public int getId() {
         return id;
@@ -42,4 +43,11 @@ public class MeetingPoint {
         this.latitude = latitude;
     }
 
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
+    }
 }
