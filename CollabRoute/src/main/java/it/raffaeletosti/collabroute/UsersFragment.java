@@ -69,7 +69,7 @@ public class UsersFragment extends Fragment {
                         showNobodySelectedMessage();
                         return;
                     }
-                //TODO get user coordinates and show it in the map fragment in a separate method
+                    showUserOnMap();
                 }
             });
             getDirections.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +82,19 @@ public class UsersFragment extends Fragment {
                 }//TODO get directions using google Directions API and find a way to shows them on the map of course in a separate method as well!! :P
             });
 }
+
+    private void showUserOnMap(){
+        String id = UsersListContent.getSelected();
+        if(UsersListContent.isOnLine(id)) {
+            User selected = id != String.valueOf(TravelActivity.travel.getAdmin().getId()) ?
+                    TravelActivity.travel.getPeople().get(id) : TravelActivity.travel.getAdmin();
+            TravelActivity.map.updateCameraSingleUser(selected);
+            TravelActivity.mViewPager.setCurrentItem(0);
+        }else{
+            Toast.makeText(thisActivity, getString(R.string.user_offline_alert), Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     protected static void fillUsersStatus(JSONArray usersListArray) {
         try {

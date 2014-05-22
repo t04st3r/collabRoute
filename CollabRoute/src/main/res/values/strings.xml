@@ -113,5 +113,6 @@
     <string name="gps_disable_message">it seems that GPS is disabled..\nwould you like to enable it?</string>
     <string name="gps_enable_button">Enable GPS</string>
     <string name="gps_alert_title">GPS Warning</string>
+    <string name="user_offline_alert">User selected is actually offline..</string>
 
 </resources>

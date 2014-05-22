@@ -20,12 +20,34 @@ public class UsersListContent {
         ITEMS.add(item);
     }
 
+    public String getSelectedId(){
+        if(!ITEM_MAP.isEmpty()){
+            for(String current : ITEM_MAP.keySet()){
+                UsersListItem currentUser = ITEM_MAP.get(current);
+                if(currentUser.isSelected){
+                    return current;
+                }
+            }
+        }
+        return null;
+    }
+
     public static void deleteItem(String id) {
         if (!ITEM_MAP.isEmpty()) {
             UsersListItem toDelete = ITEM_MAP.get(id);
             ITEMS.remove(toDelete);
             ITEM_MAP.remove(id);
         }
+    }
+
+    public static boolean isOnLine(String id){
+        if(!ITEM_MAP.isEmpty()){
+            UsersListItem selected = ITEM_MAP.get(id);
+            if(selected != null){
+                return selected.isOnLine;
+            }
+        }
+        return false;
     }
 
     public static void cleanList(){
