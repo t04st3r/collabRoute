@@ -4,7 +4,6 @@ package it.raffaeletosti.collabroute;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -28,10 +27,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 
 import org.json.JSONException;
@@ -131,6 +132,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             map = ((SupportMapFragment) existingFragment).getMap();
         }
         if (map != null) {
+            //set a Layout for the markers info window inserting title and snippets
             map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                 @Override
                 public View getInfoWindow(Marker marker) {
@@ -174,13 +176,11 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                 .position(position).title(user.getName())
                 .snippet(user.getAddress())
                 .icon(BitmapDescriptorFactory.defaultMarker(icon))
-                .alpha(0.7f)
+                .alpha(0.9f)
                 .draggable(false);
         boolean isOnLine = lat == 0 && lng == 0 ? false : true;
         options.visible(isOnLine);
         Marker currentMarker = map.addMarker(options);
-        if (user.getId() == TravelActivity.user.getId())
-            currentMarker.showInfoWindow();
         markers.put(String.valueOf(user.getId()), currentMarker);
 
     }
@@ -191,13 +191,16 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             double lat = user.getLatitude();
             double lng = user.getLongitude();
             LatLng position = new LatLng(lat, lng);
-            boolean isOnLine = lat == 0 && lng == 0 ? false : true;
+            boolean isOnLine = lat == 0.0f && lng == 0.0f ? false : true;
             current.setVisible(isOnLine);
             current.setPosition(position);
             current.setTitle(user.getName());
             current.setSnippet(user.getAddress());
-            if (user.getId() == TravelActivity.user.getId())
+            if(current.isInfoWindowShown()){
+                //only way since now to update snippet data on user position update it's pretty naive I know :(
+                current.hideInfoWindow();
                 current.showInfoWindow();
+            }
         }
     }
 
@@ -211,43 +214,61 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                 }
             }
         }
-        //updateCameraMapUsers(false);
     }
 
     void updateCameraMapUsers() {
-        User thisUser = TravelActivity.travel.getPeople().get(String.valueOf(TravelActivity.user.getId()));
-        if (thisUser != null)
-            updateCameraSingleUser(thisUser);
-        else
-            updateCameraSingleUser(TravelActivity.travel.getAdmin());
-
-        /*User minDistanceUser = calculateMinDistanceUser();
-        if (minDistanceUser != null) {
-            HashMap<String, User> userMap = TravelActivity.travel.cloneUsersMap();
-            userMap.put(String.valueOf(TravelActivity.travel.getAdmin().getId()), TravelActivity.travel.getAdmin());
-            User maxDistanceUser = getMaxDistanceFromUser(minDistanceUser, userMap);
-            if (maxDistanceUser != null) {
-                LatLng user1 = new LatLng(minDistanceUser.getLatitude(), minDistanceUser.getLongitude());
-                LatLng user2 = new LatLng(maxDistanceUser.getLatitude(), maxDistanceUser.getLongitude());
-                double latDiff = Math.abs(minDistanceUser.getLatitude() - maxDistanceUser.getLatitude());
-                double lngDiff = Math.abs(minDistanceUser.getLongitude() - maxDistanceUser.getLongitude());
-                System.err.println("LATDIFF: "+latDiff+" LNGDIFF: "+lngDiff);
-                LatLngBounds latLngBounds = minDistanceUser.getLatitude() < maxDistanceUser.getLatitude() ?
-                        new LatLngBounds(user1, user2) : new LatLngBounds(user2, user1);
-
-                CameraUpdate updateCameraViewWithBounds = CameraUpdateFactory.newLatLngBounds(latLngBounds, 300);
-                map.moveCamera(updateCameraViewWithBounds);
-            } else {
-                updateCameraSingleUser(minDistanceUser);
+        if (markers != null) {
+            String idMarker = onlyOneMarkerVisible(markers);
+            if (idMarker != null) {
+                if (isAdmin(idMarker))
+                    updateCameraSingleUser(TravelActivity.travel.getAdmin());
+                else {
+                    updateCameraSingleUser(TravelActivity.travel.getPeople().get(idMarker));
+                }
+                return;
             }
-        }*/
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (String current : markers.keySet()) {
+                if (current.equals(String.valueOf(TravelActivity.user.getId()))) {
+                    markers.get(current).showInfoWindow();
+                } else {
+                    markers.get(current).hideInfoWindow();
+                }
+                if (markers.get(current).isVisible())
+                    builder.include(markers.get(current).getPosition());
+            }
+            LatLngBounds bounds = builder.build();
+            int padding = 200;
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            map.animateCamera(cu);
+        }
+    }
+
+    private String onlyOneMarkerVisible(HashMap<String, Marker> markerHashMap) {
+        int count = 0;
+        String id = null;
+        for (String current : markerHashMap.keySet()) {
+            Marker currentMarker = markerHashMap.get(current);
+            if (currentMarker.isVisible()) {
+                count++;
+                id = current;
+            }
+        }
+        if (count == 1) {
+            return id;
+        }
+        return null;
+    }
+
+    boolean isAdmin(String id) {
+        return id.equals(String.valueOf(TravelActivity.travel.getAdmin().getId()));
     }
 
     void updateCameraSingleUser(User user) {
         LatLng userLatLng = new LatLng(user.getLatitude(), user.getLongitude());
         Marker currentMarker = markers.get(String.valueOf(user.getId()));
         currentMarker.showInfoWindow();
-        CameraUpdate updateCameraView = CameraUpdateFactory.newLatLngZoom(userLatLng, 4);
+        CameraUpdate updateCameraView = CameraUpdateFactory.newLatLngZoom(userLatLng, 7);
         map.animateCamera(updateCameraView);
     }
 
@@ -368,95 +389,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         //System.err.println("Distance: "+d);
         return d;
     }
-
-    User calculateMinDistanceUser() {
-        HashMap<String, User> userHashMap1 = TravelActivity.travel.cloneUsersMap();
-        userHashMap1.put(String.valueOf(TravelActivity.travel.getAdmin().getId()), TravelActivity.travel.getAdmin());
-        String id = onlyOneUserConnected(userHashMap1);
-        if (id != null) {
-            return userHashMap1.get(id);
-        }
-        HashMap<String, User> userHashMap2 = TravelActivity.travel.cloneUsersMap();
-        userHashMap2.put(String.valueOf(TravelActivity.travel.getAdmin().getId()), TravelActivity.travel.getAdmin());
-        double temp = 0;
-        int count = 0;
-        int size = userHashMap1.size();
-        HashMap<String, Double> usersDistance = new HashMap<String, Double>();
-        for (String current1 : userHashMap1.keySet()) {
-            if (userHashMap1.get(current1).isConnected()) {
-                for (String current2 : userHashMap2.keySet()) {
-                    count++;
-                    if (userHashMap2.get(current2).isConnected() && current1 != current2) {
-                        double lat1 = userHashMap1.get(current1).getLatitude();
-                        double lng1 = userHashMap1.get(current1).getLongitude();
-                        double lat2 = userHashMap1.get(current2).getLatitude();
-                        double lng2 = userHashMap1.get(current2).getLongitude();
-                        double distance = calculateDistance(lat1, lng1, lat2, lng2);
-                        temp += distance;
-                    }
-                    if (count == size) {
-                        usersDistance.put(current1, temp);
-                        count = 0;
-                        temp = 0;
-                    }
-                }
-            }
-
-        }
-        String idUserMinDistance = getMinDistanceUser(usersDistance);
-        if (idUserMinDistance != null)
-            return userHashMap1.get(idUserMinDistance);
-        else return null;
-    }
-
-    public String getMinDistanceUser(HashMap<String, Double> map) {
-        double minDistance = Double.POSITIVE_INFINITY;
-        String idUser = null;
-        for (String current : map.keySet()) {
-            Double distance = map.get(current);
-            if (distance < minDistance) {
-                minDistance = distance;
-                idUser = current;
-            }
-        }
-        return idUser;
-    }
-
-    public User getMaxDistanceFromUser(User user, HashMap<String, User> map) {
-        double maxDistance = 0;
-        User toReturn = null;
-        for (String current : map.keySet()) {
-            if (current != String.valueOf(user.getId()) && map.get(current).isConnected()) {
-                double lat1 = user.getLatitude();
-                double lng1 = user.getLongitude();
-                double lat2 = map.get(current).getLatitude();
-                double lng2 = map.get(current).getLongitude();
-                double distance = calculateDistance(lat1, lng1, lat2, lng2);
-                if (distance > maxDistance) {
-                    maxDistance = distance;
-                    toReturn = map.get(current);
-                }
-            }
-        }
-        return toReturn;
-    }
-
-    public String onlyOneUserConnected(HashMap<String, User> map) {
-        int count = 0;
-        String currentId = null;
-        for (String current : map.keySet()) {
-            User currentUser = map.get(current);
-            if (currentUser.getLatitude() != 0.0d && currentUser.getLongitude() != 0.0d) {
-                count++;
-                currentId = current;
-            }
-        }
-        if (count != 1) {
-            return null;
-        }
-        return currentId;
-    }
-
 
     public void confirmationResponse(JSONObject response) {
         try {

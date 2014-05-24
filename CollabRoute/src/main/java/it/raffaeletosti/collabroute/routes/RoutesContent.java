@@ -19,6 +19,21 @@ public class RoutesContent {
         ITEMS.add(item);
     }
 
+    public static boolean nobodySelected() {
+        if (!ITEM_MAP.isEmpty()) {
+            for (RoutesContent.RoutesItem current : ITEMS) {
+                if (current.isSelected)
+                    return false;
+
+            }
+        }
+        return true;
+    }
+
+    public static boolean isEmpty(){
+        return ITEM_MAP.isEmpty();
+    }
+
     public static void selectCurrent(String id){
         if(!ITEM_MAP.isEmpty()){
             for(RoutesItem current : ITEMS){

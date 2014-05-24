@@ -80,10 +80,6 @@ public class travelListActivity extends FragmentActivity
             user = getIntent().getParcelableExtra(LoginActivity.PARCELABLE_KEY);
         }
         setContentView(R.layout.activity_travel_list);
-        if (travels == null) {
-            TravelListHandler list = new TravelListHandler(this, user);
-            list.execute("list");
-        }
         if (findViewById(R.id.travel_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -235,9 +231,20 @@ public class travelListActivity extends FragmentActivity
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        TravelListHandler list = new TravelListHandler(this, user);
+            list.execute("list");
+    }
+
     private void fillIt(JSONObject response) {
         JSONArray arrayTravels;
-        travels = new HashMap<String, Travel>();
+        if(travels == null)
+            travels = new HashMap<String, Travel>();
+        else
+            travels.clear();
+        TravelContent.cleanList();
         try {
             arrayTravels = response.getJSONArray("array");
             if (arrayTravels.length() == 0) {
@@ -275,7 +282,10 @@ public class travelListActivity extends FragmentActivity
             }
             JSONArray usersList = response.getJSONArray("users");
             int length = usersList.length();
-            users = new HashMap<String, User>();
+            if(users == null)
+                users = new HashMap<String, User>();
+            else
+                users.clear();
             for (int i = 0; i < length; i++) {
                 JSONObject item = usersList.getJSONObject(i);
                 User userForList = new User();

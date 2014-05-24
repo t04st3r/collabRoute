@@ -103,16 +103,20 @@
     <string name="travel_tab_2">Directions</string>
     <string name="google_play_error_message">Disconnected from Google Play Service</string>
     <string name="socket_io_wrong_auth">Wrong user or travel</string>
-    <string name="users_visualize_map">Visualize on the map</string>
-    <string name="users_get_routes">Get directions to selected user</string>
+    <string name="users_visualize_map">Visualize single user</string>
+    <string name="users_visualize_them_all">Visualize all users</string>
+    <string name="users_route_get_directions">Get directions</string>
     <string name="add_route">Add route</string>
-    <string name="modifiy_route">Modify route</string>
+    <string name="modify_route">Modify route</string>
     <string name="delete_route">Delete route</string>
-    <string name="get_directions_to_route">Get directions to selected route</string>
+    <string name="visualize_single_route">Get directions to selected route</string>
     <string name="no_user_selected">Please select a user first</string>
+    <string name="no_route_selected">Please select a route first</string>
     <string name="gps_disable_message">it seems that GPS is disabled..\nwould you like to enable it?</string>
     <string name="gps_enable_button">Enable GPS</string>
     <string name="gps_alert_title">GPS Warning</string>
     <string name="user_offline_alert">User selected is actually offline..</string>
+    <string name="empty_route_message">It seems that nobody added a route yet..\nclick on Add route and be the first!</string>
+    <string name="route_visualize_single_route">Visualize single route</string>
 
 </resources>

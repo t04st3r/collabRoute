@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.HashMap;
 
@@ -64,7 +65,51 @@ public class RoutesFragment extends Fragment {
         deleteRoute = (Button)thisActivity.findViewById(R.id.delete_route_button);
         visualizeRouteOnMap = (Button)thisActivity.findViewById(R.id.visualize_route_on_map_button);
         getDirections = (Button)thisActivity.findViewById(R.id.get_directions_to_route);
-        //TODO onClick listener for every buttons with handler methods
+        addRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(RoutesContent.nobodySelected()){
+                    showNobodySelectedMessage();
+                    return;
+                }
+            }
+        });
+        modifyRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(RoutesContent.nobodySelected()){
+                    showNobodySelectedMessage();
+                    return;
+                }
+            }
+        });
+        deleteRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(RoutesContent.nobodySelected()){
+                    showNobodySelectedMessage();
+                    return;
+                }
+            }
+        });
+        visualizeRouteOnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(RoutesContent.nobodySelected()){
+                    showNobodySelectedMessage();
+                    return;
+                }
+            }
+        });
+        getDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(RoutesContent.nobodySelected()){
+                    showNobodySelectedMessage();
+                    return;
+                }
+            }
+        });
         fillListFromModel();
         updateRoutesList();
 
@@ -85,6 +130,16 @@ public class RoutesFragment extends Fragment {
             }
         });
     }
+
+    private void showNobodySelectedMessage(){
+        thisActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(thisActivity, getString(R.string.no_route_selected), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     private void fillListFromModel(){
         HashMap<String, MeetingPoint> routesList = TravelActivity.travel.getRoutes();

@@ -20,9 +20,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import it.raffaeletosti.collabroute.model.Travel;
 import it.raffaeletosti.collabroute.model.UserHandler;
+import it.raffaeletosti.collabroute.routes.RoutesContent;
 
 
 public class TravelActivity extends FragmentActivity {
@@ -77,6 +79,9 @@ public class TravelActivity extends FragmentActivity {
                             }
                         }
                     });
+                }
+                if(tab.getPosition() == 1 && RoutesContent.isEmpty()){
+                    Toast.makeText(TravelActivity.this, getString(R.string.empty_route_message), Toast.LENGTH_SHORT).show();
                 }
 
             }

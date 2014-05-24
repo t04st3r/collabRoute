@@ -34,6 +34,7 @@ public class UsersFragment extends Fragment {
     private static Activity thisActivity;
     private Button visualizeOnTheMap;
     private Button getDirections;
+    private Button visualizeAllUsers;
 
     public static UsersFragment newInstance() {
         UsersFragment fragment = new UsersFragment();
@@ -56,41 +57,52 @@ public class UsersFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         thisActivity = getActivity();
-           chatUsersStatus = (ListView) thisActivity.findViewById(R.id.usersListView);
-            usersListAdapter = new CustomArrayAdapterUsersList(thisActivity, R.layout.chat_user_row, UsersListContent.ITEMS);
-            chatUsersStatus.setAdapter(usersListAdapter);
-            chatUsersStatus.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            visualizeOnTheMap = (Button)thisActivity.findViewById(R.id.visualize_map_button);
-            getDirections = (Button)thisActivity.findViewById(R.id.users_routes_button);
-            visualizeOnTheMap.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(UsersListContent.nobodySelected()) {
-                        showNobodySelectedMessage();
-                        return;
-                    }
-                    showUserOnMap();
-                }
-            });
-            getDirections.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(UsersListContent.nobodySelected()) {
-                        showNobodySelectedMessage();
-                        return;
-                    }
-                }//TODO get directions using google Directions API and find a way to shows them on the map of course in a separate method as well!! :P
-            });
-}
+        chatUsersStatus = (ListView) thisActivity.findViewById(R.id.usersListView);
+        usersListAdapter = new CustomArrayAdapterUsersList(thisActivity, R.layout.chat_user_row, UsersListContent.ITEMS);
+        chatUsersStatus.setAdapter(usersListAdapter);
+        chatUsersStatus.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        visualizeOnTheMap = (Button) thisActivity.findViewById(R.id.visualize_map_button);
+        visualizeAllUsers = (Button) thisActivity.findViewById(R.id.visualize_all_button);
+        getDirections = (Button) thisActivity.findViewById(R.id.users_routes_button);
 
-    private void showUserOnMap(){
+        visualizeOnTheMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (UsersListContent.nobodySelected()) {
+                    showNobodySelectedMessage();
+                    return;
+                }
+                showUserOnMap();
+            }
+        });
+
+        getDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (UsersListContent.nobodySelected()) {
+                    showNobodySelectedMessage();
+                    return;
+                }
+            }//TODO get directions using google Directions API and find a way to shows them on the map of course in a separate method as well!! :P
+        });
+
+        visualizeAllUsers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TravelActivity.map.updateCameraMapUsers();
+                TravelActivity.mViewPager.setCurrentItem(0);
+            }
+        });
+    }
+
+    private void showUserOnMap() {
         String id = UsersListContent.getSelected();
-        if(UsersListContent.isOnLine(id)) {
+        if (UsersListContent.isOnLine(id)) {
             User selected = id != String.valueOf(TravelActivity.travel.getAdmin().getId()) ?
                     TravelActivity.travel.getPeople().get(id) : TravelActivity.travel.getAdmin();
             TravelActivity.map.updateCameraSingleUser(selected);
             TravelActivity.mViewPager.setCurrentItem(0);
-        }else{
+        } else {
             Toast.makeText(thisActivity, getString(R.string.user_offline_alert), Toast.LENGTH_SHORT).show();
         }
     }
@@ -120,11 +132,11 @@ public class UsersFragment extends Fragment {
         });
     }
 
-    private void showNobodySelectedMessage(){
+    private void showNobodySelectedMessage() {
         thisActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(thisActivity,getString(R.string.no_user_selected), Toast.LENGTH_SHORT).show();
+                Toast.makeText(thisActivity, getString(R.string.no_user_selected), Toast.LENGTH_SHORT).show();
             }
         });
     }

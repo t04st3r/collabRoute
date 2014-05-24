@@ -22,6 +22,13 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:text="@string/users_visualize_them_all"
+            android:id="@+id/visualize_all_button"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:text="@string/users_visualize_map"
             android:id="@+id/visualize_map_button"
             android:layout_weight="1" />
@@ -29,7 +36,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/users_get_routes"
+            android:text="@string/users_route_get_directions"
             android:id="@+id/users_routes_button"
             android:layout_weight="1" />
     </LinearLayout>
