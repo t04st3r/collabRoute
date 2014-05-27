@@ -118,5 +118,20 @@
     <string name="user_offline_alert">User selected is actually offline..</string>
     <string name="empty_route_message">It seems that nobody added a route yet..\nclick on Add route and be the first!</string>
     <string name="route_visualize_single_route">Visualize single route</string>
+    <string name="new_route_button_current_location">Use current location</string>
+    <string name="new_route_button_get_from_map">Add location from map</string>
+    <string name="new_route_address_edit_text">Address</string>
+    <string name="new_route_zip_code_edit_text">ZIP</string>
+    <string name="new_route_city_edit_text">City</string>
+    <string name="new_route_region_edit_text">District - Region - State</string>
+    <string name="new_route_country_edit_text">Country</string>
+    <string name="new_route_send_button">Search</string>
+    <string name="new_route_title">Add new route</string>
+    <string name="new_route_data_missing">City or country missing</string>
+    <string name="new_route_zip_not_numeric">Only numeric values allowed for ZIP code</string>
+    <string name="new_route_unknown_country">Unknown Country</string>
+    <string name="geocode_dialog_title">Search Result:</string>
+    <string name="geocode_dialog_positive">We have found the following address:\n\n%1$s\n\nis it correct?</string>
+    <string name="geocode_dialog_negative">Something went wrong.. \nno address found</string>
 
 </resources>

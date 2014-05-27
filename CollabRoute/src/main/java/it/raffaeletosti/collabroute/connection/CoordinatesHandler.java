@@ -18,7 +18,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
 import it.raffaeletosti.collabroute.GMapFragment;
-import it.raffaeletosti.collabroute.TravelActivity;
 import it.raffaeletosti.collabroute.model.UserHandler;
 
 /**

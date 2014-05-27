@@ -42,6 +42,7 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
 
     protected static String serverUrl;
     protected static int serverPort;
+    protected static String googleApiKey;
     protected Activity activity;
     protected static SSLContext context = null;
     public static ProgressDialog dialog;
@@ -109,6 +110,7 @@ public abstract class ConnectionHandler extends AsyncTask <String, Void, Object>
             JSONObject object = new JSONObject(jsonString);
             serverUrl = object.getString("SERVER_ADDRESS");
             serverPort = object.getInt("SERVER_PORT");
+            googleApiKey = object.getString("API_KEY");
         } catch (FileNotFoundException e) {
             System.err.println("Missing JSON config file: " + e);
         } catch (Exception e) {

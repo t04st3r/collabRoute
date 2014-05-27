@@ -268,7 +268,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         LatLng userLatLng = new LatLng(user.getLatitude(), user.getLongitude());
         Marker currentMarker = markers.get(String.valueOf(user.getId()));
         currentMarker.showInfoWindow();
-        CameraUpdate updateCameraView = CameraUpdateFactory.newLatLngZoom(userLatLng, 7);
+        CameraUpdate updateCameraView = CameraUpdateFactory.newLatLngZoom(userLatLng, 15);
         map.animateCamera(updateCameraView);
     }
 
