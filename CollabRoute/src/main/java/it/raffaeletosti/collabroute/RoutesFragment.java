@@ -5,16 +5,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -24,7 +28,6 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.RoutesHandler;
@@ -41,18 +44,22 @@ public class RoutesFragment extends Fragment {
     private static ArrayAdapter routesListAdapter;
     private static Activity thisActivity;
     private Button addRoute;
-    private Button modifyRoute;
+    private Button visualizeAllRoutes;
     private Button deleteRoute;
     private Button visualizeRouteOnMap;
     private Button getDirections;
     private Dialog addRouteDialog;
+    private Dialog menuDialog;
     private EditText address;
     private EditText city;
     private EditText zipCode;
     private EditText region;
     private AutoCompleteTextView country;
     private HashMap<String, String> countryList;
-    private enum ResponseMSG {OK, ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, UNKNOWN_ERROR, INVALID_REQUEST, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
+    public static boolean isTabViolet = false;
+    public MeetingPoint selected;
+
+    private enum ResponseMSG {OK, ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, UNKNOWN_ERROR, INVALID_REQUEST, DATABASE_ERROR, AUTH_FAILED, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
 
     /**
@@ -85,56 +92,38 @@ public class RoutesFragment extends Fragment {
         routesListView = (ListView) thisActivity.findViewById(R.id.routesListView);
         routesListAdapter = new CustomArrayAdapterRoutes(thisActivity, R.layout.route_row, RoutesContent.ITEMS);
         routesListView.setAdapter(routesListAdapter);
-        routesListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        routesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                RoutesContent.RoutesItem item = (RoutesContent.RoutesItem) routesListAdapter.getItem(position);
+                selected = TravelActivity.travel.getRoutes().get(item.id);
+                createMenuDialog();
+                menuDialog.show();
+                //TODO use the item for the actions on the route menu dialog
+            }
+        });
         addRoute = (Button) thisActivity.findViewById(R.id.add_route_button);
-        modifyRoute = (Button) thisActivity.findViewById(R.id.modify_route_button);
-        deleteRoute = (Button) thisActivity.findViewById(R.id.delete_route_button);
-        visualizeRouteOnMap = (Button) thisActivity.findViewById(R.id.visualize_route_on_map_button);
-        getDirections = (Button) thisActivity.findViewById(R.id.get_directions_to_route);
         addRoute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (addRouteDialog == null)
-                    createAddRouteDialog();
+                createAddRouteDialog();
+                cleanForms();
                 addRouteDialog.show();
             }
         });
-        modifyRoute.setOnClickListener(new View.OnClickListener() {
+        visualizeAllRoutes = (Button) thisActivity.findViewById(R.id.visualize_all_routes_button);
+        visualizeAllRoutes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (RoutesContent.nobodySelected()) {
-                    showNobodySelectedMessage();
+                if(RoutesContent.isEmpty()){
+                    Toast.makeText(thisActivity, getString(R.string.route_empty_list), Toast.LENGTH_SHORT).show();
                     return;
                 }
+                TravelActivity.mViewPager.setCurrentItem(0);
+                TravelActivity.map.updateCameraRoutes();
             }
         });
-        deleteRoute.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (RoutesContent.nobodySelected()) {
-                    showNobodySelectedMessage();
-                    return;
-                }
-            }
-        });
-        visualizeRouteOnMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (RoutesContent.nobodySelected()) {
-                    showNobodySelectedMessage();
-                    return;
-                }
-            }
-        });
-        getDirections.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (RoutesContent.nobodySelected()) {
-                    showNobodySelectedMessage();
-                    return;
-                }
-            }
-        });
+
         fillListFromModel();
         updateRoutesList();
 
@@ -147,6 +136,15 @@ public class RoutesFragment extends Fragment {
 
     }
 
+    private void cleanForms() {
+        address.setText("");
+        city.setText("");
+        zipCode.setText("");
+        region.setText("");
+        country.setText("");
+    }
+
+
     private static void updateRoutesList() {
         thisActivity.runOnUiThread(new Runnable() {
             @Override
@@ -156,27 +154,90 @@ public class RoutesFragment extends Fragment {
         });
     }
 
-    private void showNobodySelectedMessage() {
-        thisActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(thisActivity, getString(R.string.no_route_selected), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
 
     private void fillListFromModel() {
         HashMap<String, MeetingPoint> routesList = TravelActivity.travel.getRoutes();
         if (!routesList.isEmpty()) {
+            RoutesContent.cleanList();
             for (String current : routesList.keySet()) {
                 MeetingPoint currentMP = routesList.get(current);
-                User creator = currentMP.getIdUser() == TravelActivity.travel.getAdmin().getId() ? TravelActivity.travel.getAdmin()
-                        : TravelActivity.travel.getPeople().get(currentMP.getIdUser());
+                User creator = (currentMP.getIdUser() == TravelActivity.travel.getAdmin().getId() ? TravelActivity.travel.getAdmin()
+                        : TravelActivity.travel.getPeople().get(String.valueOf(currentMP.getIdUser())));
                 RoutesContent.RoutesItem item = new RoutesContent.RoutesItem(String.valueOf(currentMP.getId()),
-                        currentMP.getAddress(), creator.getName(), currentMP.getLatitude(), currentMP.getLongitude(), false);
+                        currentMP.getAddress(), creator.getName(), String.valueOf(currentMP.getLatitude()), String.valueOf(currentMP.getLongitude()));
                 RoutesContent.addItem(item);
             }
+        }
+    }
+
+    public void updateModel(JSONArray routeArray) throws JSONException {
+        String result = routeArray.getJSONObject(0).getString("result");
+        if (!result.equals("OK")) {
+            Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        JSONArray routeList = routeArray.getJSONObject(0).getJSONArray("list");
+        int length = routeList.length();
+        if (length > 0) {
+            HashMap<String, MeetingPoint> newMap = new HashMap<String, MeetingPoint>();
+            for (int i = 0; i < length; i++) {
+                JSONObject item = routeList.getJSONObject(i);
+                int id = item.getInt("id");
+                Double latitude = item.getDouble("latitude");
+                Double longitude = item.getDouble("longitude");
+                int userId = item.getInt("idUser");
+                String address = item.getString("address");
+                MeetingPoint brandNew = new MeetingPoint();
+                brandNew.setId(id);
+                brandNew.setLatitude(latitude);
+                brandNew.setLongitude(longitude);
+                brandNew.setIdUser(userId);
+                brandNew.setAddress(address);
+                newMap.put(String.valueOf(id), brandNew);
+            }
+            TravelActivity.travel.setRoutes(newMap);
+            fillListFromModel();
+            if (addRouteDialog != null && addRouteDialog.isShowing()) {
+                addRouteDialog.dismiss();
+            }
+            if (TravelActivity.mViewPager != null) {
+                if (TravelActivity.mViewPager.getCurrentItem() != 1) {
+                    changeTabChatState();
+                }
+            }
+            updateRoutesList();
+        }
+    }
+
+    private void createMenuDialog() {
+        if (menuDialog == null) {
+            menuDialog = new Dialog(thisActivity);
+            menuDialog.setContentView(R.layout.route_menu_dialog);
+            menuDialog.setTitle(R.string.menu_route_title);
+            deleteRoute = (Button) menuDialog.findViewById(R.id.delete_route_button);
+            visualizeRouteOnMap = (Button) menuDialog.findViewById(R.id.visualize_route_on_map_button);
+            getDirections = (Button) menuDialog.findViewById(R.id.get_directions_to_route);
+            deleteRoute.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+            visualizeRouteOnMap.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    menuDialog.dismiss();
+                    TravelActivity.map.updateCameraSingleRoute(selected);
+                    TravelActivity.mViewPager.setCurrentItem(0);
+
+                }
+            });
+            getDirections.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
         }
     }
 
@@ -277,7 +338,7 @@ public class RoutesFragment extends Fragment {
             return;
         }
         String zipString = zipCode.getText().toString();
-        if(!zipString.equals("")) {
+        if (!zipString.equals("")) {
             try {
                 Integer.parseInt(zipString);
             } catch (NumberFormatException e) {
@@ -301,13 +362,13 @@ public class RoutesFragment extends Fragment {
         formattedAddress += cityString.replaceAll(spaceRemoverRegExp, "+") + ",";
         if (!regionString.equals(""))
             formattedAddress += regionString.replaceAll(spaceRemoverRegExp, "+");
-        formattedAddress += "&component=country:"+countryCode+"&sensor=true";
+        formattedAddress += "&component=country:" + countryCode + "&sensor=true";
         RoutesHandler addressRequest = new RoutesHandler(thisActivity, this);
-        addressRequest.execute("geocoding" , formattedAddress);
+        addressRequest.execute("geocoding", formattedAddress);
 
     }
 
-    public void checkGeocodingResponse(JSONObject response){
+    public void checkGeocodingResponse(JSONObject response) {
         try {
             String resultString = response.getString("status");
             ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
@@ -338,8 +399,8 @@ public class RoutesFragment extends Fragment {
         }
     }
 
-    private void geocodeHandle(JSONObject response) throws JSONException{
-        if(!response.getString("status").equals("OK")){
+    private void geocodeHandle(JSONObject response) throws JSONException {
+        if (!response.getString("status").equals("OK")) {
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(thisActivity);
             alertDialogBuilder.setTitle(getString(R.string.geocode_dialog_title));
             alertDialogBuilder.setNegativeButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
@@ -350,7 +411,10 @@ public class RoutesFragment extends Fragment {
             });
             alertDialogBuilder.setMessage(getString(R.string.geocode_dialog_negative));
             alertDialogBuilder.show();
-        }else if(response.getJSONArray("results").length() == 1){
+        } else if (response.getJSONArray("results").length() == 1) {
+            final String address = response.getJSONArray("results").getJSONObject(0).getString("formatted_address");
+            final double lat = response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
+            final double lng = response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng");
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(thisActivity);
             alertDialogBuilder.setTitle(getString(R.string.geocode_dialog_title));
             alertDialogBuilder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener() {
@@ -362,19 +426,84 @@ public class RoutesFragment extends Fragment {
             alertDialogBuilder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    //TODO call a method for send data to the database and store values on the model
+                    try {
+                        JSONArray toSend = prepareRequest(lat, lng, address);
+                        RoutesHandler sendRoutes = new RoutesHandler(thisActivity, TravelActivity.user,
+                                String.valueOf(TravelActivity.travel.getId()), RoutesFragment.this, toSend);
+                        sendRoutes.execute("addRoute");
+                    } catch (JSONException e) {
+                        System.err.println(e);
+                    }
                 }
             });
-            String address = response.getJSONArray("results").getJSONObject(0).getString("formatted_address");
-            double lat = response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
-            double lng = response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng");
-            alertDialogBuilder.setMessage(String.format(getString(R.string.geocode_dialog_positive),address+"\nLAT: "
-                    +String.valueOf(lat)+"\nLNG: "+String.valueOf(lng)));
+            alertDialogBuilder.setMessage(String.format(getString(R.string.geocode_dialog_positive), address + "\nLAT: "
+                    + String.valueOf(lat) + "\nLNG: " + String.valueOf(lng)));
             alertDialogBuilder.show();
-        }else{
+        } else {
             System.err.println(response.toString());
             //TODO build a dialog with a list view showing all the addresses found
         }
 
+    }
+
+    private JSONArray prepareRequest(double lat, double lng, String address) throws JSONException {
+        JSONArray array = new JSONArray();
+        JSONObject item = new JSONObject()
+                .put("latitude", String.valueOf(lat))
+                .put("longitude", String.valueOf(lng))
+                .put("address", address);
+        array.put(item);
+        return array;
+    }
+
+    public void routeAddedResponse(JSONObject response) {
+        try {
+            String resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case CONN_REFUSED:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case AUTH_FAILED:
+                    TravelActivity.chat.socketClient.disconnect();
+                    TravelActivity.closeEverything();
+                    final Intent intent = new Intent(thisActivity, LoginActivity.class);
+                    startActivityForResult(intent, thisActivity.RESULT_OK);
+                    thisActivity.finish();
+                case OK: //response do not bring array with new routes added because socket.io will provide to broadcast them to all users connected
+                    return;
+            }
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+    }
+
+    public void changeTabChatState() {
+        thisActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (TravelActivity.routeTab != null) {
+                    TextView tabView = (TextView) TravelActivity.routeTab.getCustomView();
+                    tabView.setTextColor(Color.parseColor("#ffcc0eff"));
+                    TravelActivity.routeTab.setCustomView(tabView);
+                    isTabViolet = true;
+                }
+            }
+        });
     }
 }

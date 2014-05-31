@@ -19,39 +19,8 @@ public class RoutesContent {
         ITEMS.add(item);
     }
 
-    public static boolean nobodySelected() {
-        if (!ITEM_MAP.isEmpty()) {
-            for (RoutesContent.RoutesItem current : ITEMS) {
-                if (current.isSelected)
-                    return false;
-
-            }
-        }
-        return true;
-    }
-
     public static boolean isEmpty(){
         return ITEM_MAP.isEmpty();
-    }
-
-    public static void selectCurrent(String id){
-        if(!ITEM_MAP.isEmpty()){
-            for(RoutesItem current : ITEMS){
-                if(!current.id.equals(id)){
-                    current.isSelected = false;
-                }else{
-                    current.isSelected = true;
-                }
-            }
-            for(String current : ITEM_MAP.keySet()){
-                RoutesItem item = ITEM_MAP.get(current);
-                if(!current.equals(id)){
-                    item.isSelected = false;
-                }else{
-                    item.isSelected = true;
-                }
-            }
-        }
     }
 
     public static void cleanList(){
@@ -67,16 +36,14 @@ public class RoutesContent {
         public String creator;
         public String latitude;
         public String longitude;
-        public boolean isSelected;
 
 
-        public RoutesItem(String id, String address, String creator, String latitude, String longitude, boolean isSelected){
+        public RoutesItem(String id, String address, String creator, String latitude, String longitude){
             this.id = id;
             this.address = address;
             this.creator = creator;
             this.latitude = latitude;
             this.longitude = longitude;
-            this.isSelected = isSelected;
         }
     }
 }

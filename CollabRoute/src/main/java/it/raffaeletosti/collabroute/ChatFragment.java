@@ -239,6 +239,16 @@ public class ChatFragment extends Fragment {
                                 TravelActivity.map.MarkerHandlerThread.post(TravelActivity.map.run);
                         }
                     });
+                    socketClient.on("routesList", new EventCallback() {
+                        @Override
+                        public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                            try {
+                                TravelActivity.route.updateModel(jsonArray);
+                            } catch (JSONException e) {
+                                System.err.println(e);
+                            }
+                        }
+                    });
                     try {
                         JSONArray array = new JSONArray();
                         array.put(new JSONObject().put("userId", TravelActivity.user.getId())
@@ -251,19 +261,6 @@ public class ChatFragment extends Fragment {
                 }
             });
 
-        }
-    }
-
-    public static void updateStatus() {
-        if (socketClient != null) {
-            try {
-                JSONArray array = new JSONArray();
-                array.put(new JSONObject().put("userId", TravelActivity.user.getId())
-                        .put("travelId", TravelActivity.travel.getId()));
-                socketClient.emit("update_request", array);
-            } catch (JSONException e) {
-                System.err.println(e);
-            }
         }
     }
 

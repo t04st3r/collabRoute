@@ -40,6 +40,7 @@ public class TravelActivity extends FragmentActivity {
     protected static DirectionsFragment directions;
     private Dialog exitTravel;
     public static ActionBar.Tab chatTab;
+    public static ActionBar.Tab routeTab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,14 +68,28 @@ public class TravelActivity extends FragmentActivity {
             @Override
             public void onTabSelected(android.app.ActionBar.Tab tab, FragmentTransaction ft) {
                 mViewPager.setCurrentItem(tab.getPosition());
+                mViewPager.setCurrentItem(tab.getPosition());
+                if (tab.getPosition() == 1 && RoutesFragment.isTabViolet) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (routeTab != null) {
+                                TextView tabView = (TextView) routeTab.getCustomView();
+                                tabView.setTextColor(Color.parseColor("white"));
+                                routeTab.setCustomView(tabView);
+                                RoutesFragment.isTabViolet = false;
+                            }
+                        }
+                    });
+                }
                 if (tab.getPosition() == 3 && ChatFragment.isTabViolet) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (chatTab != null) {
-                                TextView tabView = (TextView) TravelActivity.chatTab.getCustomView();
+                                TextView tabView = (TextView) chatTab.getCustomView();
                                 tabView.setTextColor(Color.parseColor("white"));
-                                TravelActivity.chatTab.setCustomView(tabView);
+                                chatTab.setCustomView(tabView);
                                 ChatFragment.isTabViolet = false;
                             }
                         }
@@ -103,6 +118,9 @@ public class TravelActivity extends FragmentActivity {
             ActionBar.Tab tab = actionBar.newTab();
             if (i == 3) {
                 chatTab = tab;
+            }
+            if(i == 1){
+                routeTab = tab;
             }
             TextView tabTextView = createTab(String.valueOf(res.getText(id)));
             tabTextView.setGravity(Gravity.CENTER);

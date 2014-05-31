@@ -16,6 +16,7 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +43,7 @@ import java.util.HashMap;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.CoordinatesHandler;
+import it.raffaeletosti.collabroute.model.MeetingPoint;
 import it.raffaeletosti.collabroute.model.User;
 
 
@@ -55,8 +57,10 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     protected GoogleMap map;
     protected View view;
     public HashMap<String, Marker> markers;
+    public HashMap<String, Marker> routeMarkers;
     public Handler MarkerHandlerThread;
     public Runnable run;
+    private GoogleMap.InfoWindowAdapter windowAdapter;
 
 
     private final static int UPDATE_TIME_RANGE = 5000; //millisecond
@@ -101,6 +105,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_TIME_RANGE, 0, this);
         client = new LocationClient(activity, mConnectionCallbacks, mConnectionFailedListener);
+        routeMarkers = new HashMap<String, Marker>();
         MarkerHandlerThread = new Handler(Looper.getMainLooper());
         run = new Runnable() {
 
@@ -133,7 +138,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         }
         if (map != null) {
             //set a Layout for the markers info window inserting title and snippets
-            map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            windowAdapter = new GoogleMap.InfoWindowAdapter() {
                 @Override
                 public View getInfoWindow(Marker marker) {
                     return null;
@@ -145,10 +150,17 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                     TextView name = (TextView) markerWindow.findViewById(R.id.user_name_text_view);
                     name.setText(marker.getTitle());
                     TextView address = (TextView) markerWindow.findViewById(R.id.address_text_view);
-                    address.setText(marker.getSnippet());
+                    String snippetText = marker.getSnippet();
+                    ImageView logo = (ImageView) markerWindow.findViewById(R.id.markerLogo);
+                    if (snippetText.contains("Created by:"))
+                        logo.setImageResource(android.R.drawable.ic_menu_mylocation);
+                    else
+                        logo.setImageResource(android.R.drawable.ic_menu_myplaces);
+                    address.setText(snippetText);
                     return markerWindow;
                 }
-            });
+            };
+            map.setInfoWindowAdapter(windowAdapter);
             map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         }
     }
@@ -162,6 +174,11 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             User currentUser = users.get(current);
             setSingleMarker(currentUser);
         }
+        HashMap<String, MeetingPoint> routes = TravelActivity.travel.getRoutes();
+        for (String current : routes.keySet()) {
+            MeetingPoint currentMP = routes.get(current);
+            setSingleMarker(currentMP);
+        }
         updateCameraMapUsers();
 
     }
@@ -171,7 +188,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         double lng = user.getLongitude();
         float icon = user.getId() == TravelActivity.travel.getAdmin().getId() ? BitmapDescriptorFactory.HUE_BLUE : BitmapDescriptorFactory.HUE_VIOLET;
         LatLng position = new LatLng(lat, lng);
-
         MarkerOptions options = new MarkerOptions()
                 .position(position).title(user.getName())
                 .snippet(user.getAddress())
@@ -185,6 +201,23 @@ public class GMapFragment extends Fragment implements android.location.LocationL
 
     }
 
+    void setSingleMarker(MeetingPoint mp) {
+        double lat = mp.getLatitude();
+        double lng = mp.getLongitude();
+        MarkerOptions option = new MarkerOptions();
+        option.position(new LatLng(lat, lng));
+        option.title(mp.getAddress());
+        String creatorId = String.valueOf(mp.getIdUser());
+        String name = isAdmin(creatorId) ?
+                TravelActivity.travel.getAdmin().getName() :
+                TravelActivity.travel.getPeople().get(creatorId).getName();
+        option.snippet("Created by: " + name);
+        option.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        option.visible(true);
+        Marker currentMarker = map.addMarker(option);
+        routeMarkers.put(String.valueOf(mp.getId()), currentMarker);
+    }
+
     void updateSingleMarker(User user) {
         if (markers != null) {
             Marker current = markers.get(String.valueOf(user.getId()));
@@ -196,7 +229,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             current.setPosition(position);
             current.setTitle(user.getName());
             current.setSnippet(user.getAddress());
-            if(current.isInfoWindowShown()){
+            if (current.isInfoWindowShown()) {
                 //only way since now to update snippet data on user position update it's pretty naive I know :(
                 current.hideInfoWindow();
                 current.showInfoWindow();
@@ -216,10 +249,25 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         }
     }
 
+    void updateCameraRoutes() {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        if (routeMarkers != null && !routeMarkers.isEmpty()) {
+            for (String current : routeMarkers.keySet()) {
+                routeMarkers.get(current).hideInfoWindow();
+                builder.include(routeMarkers.get(current).getPosition());
+            }
+        }
+        LatLngBounds bounds = builder.build();
+        int padding = 200;
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        map.animateCamera(cu);
+    }
+
+
     void updateCameraMapUsers() {
         if (markers != null) {
             String idMarker = onlyOneMarkerVisible(markers);
-            if (idMarker != null) {
+            if (idMarker != null && routeMarkers.isEmpty()) {
                 if (isAdmin(idMarker))
                     updateCameraSingleUser(TravelActivity.travel.getAdmin());
                 else {
@@ -236,6 +284,12 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                 }
                 if (markers.get(current).isVisible())
                     builder.include(markers.get(current).getPosition());
+            }
+            if (!routeMarkers.isEmpty()) {
+                for (String current : routeMarkers.keySet()) {
+                    routeMarkers.get(current).hideInfoWindow();
+                    builder.include(routeMarkers.get(current).getPosition());
+                }
             }
             LatLngBounds bounds = builder.build();
             int padding = 200;
@@ -269,6 +323,14 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         Marker currentMarker = markers.get(String.valueOf(user.getId()));
         currentMarker.showInfoWindow();
         CameraUpdate updateCameraView = CameraUpdateFactory.newLatLngZoom(userLatLng, 15);
+        map.animateCamera(updateCameraView);
+    }
+
+    void updateCameraSingleRoute(MeetingPoint mp) {
+        LatLng routeLatLng = new LatLng(mp.getLatitude(), mp.getLongitude());
+        Marker currentMarker = routeMarkers.get(String.valueOf(mp.getId()));
+        currentMarker.showInfoWindow();
+        CameraUpdate updateCameraView = CameraUpdateFactory.newLatLngZoom(routeLatLng, 15);
         map.animateCamera(updateCameraView);
     }
 
@@ -330,7 +392,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         if ((lat1 == 0.0d && long1 == 0.0d) || calculateDistance(lat1, long1, lat2, long2) > MAX_DISTANCE) {
             CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this, String.valueOf(TravelActivity.travel.getId()));
             handler.execute(String.valueOf(long2), String.valueOf(lat2));
-            System.err.println("Coordinate update request because of distance change");
         }
     }
 

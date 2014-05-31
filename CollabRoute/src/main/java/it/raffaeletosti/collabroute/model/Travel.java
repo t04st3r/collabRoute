@@ -180,8 +180,8 @@ public class Travel {
                         MeetingPoint current = new MeetingPoint();
                         current.setId(currentRoute.getInt("id"));
                         current.setAddress(currentRoute.getString("address"));
-                        current.setLatitude(currentRoute.getString("latitude"));
-                        current.setLongitude(currentRoute.getString("longitude"));
+                        current.setLatitude(currentRoute.getDouble("latitude"));
+                        current.setLongitude(currentRoute.getDouble("longitude"));
                         current.setIdUser(currentRoute.getInt("id_user"));
                         routes.put(String.valueOf(current.getId()) , current);
                     }

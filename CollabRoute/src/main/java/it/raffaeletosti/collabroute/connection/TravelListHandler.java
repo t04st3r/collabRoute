@@ -80,14 +80,14 @@ public class TravelListHandler extends ConnectionHandler {
             if(param[0].equals("newTravel"))
                 return addNewTravel(param[1]);
             if(param[0].equals("deleteTravel"))
-                return deleteTravel(param[1]);
+                return deleteTravel();
         } catch (JSONException e) {
             System.err.println(e);
         }
         return null;
     }
 
-    private JSONObject deleteTravel(String id) throws JSONException {
+    private JSONObject deleteTravel() throws JSONException {
         try {
 
             String urlString = "https://" + serverUrl + ":" + serverPort + "/delete/travel/";

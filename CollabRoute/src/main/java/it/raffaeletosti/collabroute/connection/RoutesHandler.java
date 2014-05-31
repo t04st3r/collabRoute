@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -13,23 +14,26 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 
 import it.raffaeletosti.collabroute.RoutesFragment;
+import it.raffaeletosti.collabroute.model.UserHandler;
 
 /**
  * Created by raffaele on 26/05/14.
  */
 public class RoutesHandler extends ConnectionHandler {
-    String idUser;
+    UserHandler user;
     String idTravel;
     RoutesFragment routeFragment;
     JSONArray routes;
     private JSONObject error;
 
-    public RoutesHandler(Activity activity, String idUser, String idTravel, RoutesFragment routeFragment, JSONArray routes) {
+    public RoutesHandler(Activity activity, UserHandler user, String idTravel, RoutesFragment routeFragment, JSONArray routes) {
         super(activity);
-        this.idUser = idUser;
+        this.user = user;
         this.idTravel = idTravel;
         this.routeFragment = routeFragment;
         this.routes = routes;
@@ -53,7 +57,8 @@ public class RoutesHandler extends ConnectionHandler {
         try {
             if (param[0].equals("geocoding"))
                 return addressGeocodingRequest(param[1]);
-
+            if(param[0].equals("addRoute"))
+                return addRoutes();
         } catch (JSONException e) {
             System.err.println(e);
         }
@@ -71,6 +76,9 @@ public class RoutesHandler extends ConnectionHandler {
             if(responseType.equals("geocoding_request")){
                 routeFragment.checkGeocodingResponse(jsonResult);
                 return;
+            }
+            if(responseType.equals("add_new_routes")){
+                routeFragment.routeAddedResponse(jsonResult);
             }
         } catch (JSONException e) {
             System.err.println(e);
@@ -112,4 +120,68 @@ public class RoutesHandler extends ConnectionHandler {
             return error;
         }
     }
+
+    private JSONObject addRoutes() throws JSONException {
+        try {
+
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/add/routes/";
+            URL url = new URL(urlString);
+
+            /** Create all-trusting host name verifier
+             * to avoid the following :
+             * java.security.cert.CertificateException: No name matching
+             * This is because Java by default verifies that the certificate CN (Common Name) is
+             * the same as host name in the URL. If they are not, the web service client fails.
+             **/
+
+            HostnameVerifier allowEveryHost = new HostnameVerifier() {
+
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
+            urlConnection.setRequestProperty("token", user.getToken());
+            urlConnection.setRequestProperty("Content-Type" , "application/json");
+            urlConnection.setConnectTimeout(3000);
+            urlConnection.setSSLSocketFactory(context.getSocketFactory());
+            urlConnection.setHostnameVerifier(allowEveryHost);
+            urlConnection.setRequestMethod("POST");
+            DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
+            printout.writeBytes(new JSONObject().put("travelId", idTravel).put("routes" , routes).toString());
+            printout.flush();
+            printout.close();
+            InputStream in = urlConnection.getInputStream();
+            String jsonToString = inputToString(in);
+            in.close();
+            return new JSONObject(jsonToString);
+        } catch (SocketTimeoutException e) {
+            System.err.println(e);
+            error.put("result", "CONN_TIMEDOUT").put("type", "add_new_routes");
+            return error;
+        } catch (ConnectException e) {
+            System.err.println(e);
+            error.put("result", "CONN_REFUSED").put("type", "add_new_routes");
+            return error;
+        } catch (MalformedURLException e) {
+            System.err.println(e);
+            error.put("result", "CONN_BAD_URL").put("type", "add_new_routes");
+            return error;
+        } catch (IOException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_IO_ERROR").put("type", "add_new_routes");
+            return error;
+        } catch (IllegalArgumentException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "add_new_routes");
+            return error;
+        } catch (Exception e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "add_new_routes");
+            return error;
+        }
+    }
+
 }

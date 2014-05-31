@@ -13,15 +13,6 @@
         android:layout_gravity="center"
         android:layout_marginLeft="10dp" />
 
-    <RadioButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/routesRadioButton"
-        android:singleLine="true"
-        android:checked="false"
-        android:layout_margin="10dp"
-        android:layout_gravity="center" />
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
