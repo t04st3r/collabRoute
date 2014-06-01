@@ -246,23 +246,43 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                     updateSingleMarker(currentUser);
                 }
             }
+            for (String current : routeMarkers.keySet()) {
+                Marker currentMarker = routeMarkers.get(current);
+                currentMarker.remove();
+            }
+            routeMarkers.clear();
+            for (String current : TravelActivity.travel.getRoutes().keySet()) {
+                setSingleMarker(TravelActivity.travel.getRoutes().get(current));
+            }
         }
     }
 
     void updateCameraRoutes() {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        LatLng singleRouteLatLng = null;
         if (routeMarkers != null && !routeMarkers.isEmpty()) {
+            boolean isSingleRoute = routeMarkers.size() == 1 ? true : false;
             for (String current : routeMarkers.keySet()) {
-                routeMarkers.get(current).hideInfoWindow();
-                builder.include(routeMarkers.get(current).getPosition());
+                if (isSingleRoute) {
+                    Marker marker = routeMarkers.get(current);
+                    marker.showInfoWindow();
+                    singleRouteLatLng = marker.getPosition();
+                }else {
+                    routeMarkers.get(current).hideInfoWindow();
+                    builder.include(routeMarkers.get(current).getPosition());
+                }
             }
+            if (!isSingleRoute) {
+                LatLngBounds bounds = builder.build();
+                int padding = 200;
+                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                map.animateCamera(cu);
+                return;
+            }
+            CameraUpdate updateCameraView = CameraUpdateFactory.newLatLngZoom(singleRouteLatLng, 15);
+            map.animateCamera(updateCameraView);
         }
-        LatLngBounds bounds = builder.build();
-        int padding = 200;
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-        map.animateCamera(cu);
     }
-
 
     void updateCameraMapUsers() {
         if (markers != null) {

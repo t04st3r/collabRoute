@@ -244,6 +244,8 @@ public class ChatFragment extends Fragment {
                         public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
                             try {
                                 TravelActivity.route.updateModel(jsonArray);
+                                if (TravelActivity.map.MarkerHandlerThread != null)
+                                    TravelActivity.map.MarkerHandlerThread.post(TravelActivity.map.run);
                             } catch (JSONException e) {
                                 System.err.println(e);
                             }

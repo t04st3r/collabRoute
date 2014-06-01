@@ -27,6 +27,7 @@ import it.raffaeletosti.collabroute.model.UserHandler;
 public class RoutesHandler extends ConnectionHandler {
     UserHandler user;
     String idTravel;
+    String idRoute;
     RoutesFragment routeFragment;
     JSONArray routes;
     private JSONObject error;
@@ -46,6 +47,15 @@ public class RoutesHandler extends ConnectionHandler {
         error = new JSONObject();
     }
 
+    public RoutesHandler(Activity activity, RoutesFragment routeFragment, String idTravel, String idRoute, UserHandler user){
+        super(activity);
+        this.user = user;
+        this.routeFragment = routeFragment;
+        this.idTravel = idTravel;
+        this.idRoute = idRoute;
+        error = new JSONObject();
+    }
+
     @Override
     protected void onPreExecute() {
         dialog.setMessage("Sending data, please wait");
@@ -59,6 +69,9 @@ public class RoutesHandler extends ConnectionHandler {
                 return addressGeocodingRequest(param[1]);
             if(param[0].equals("addRoute"))
                 return addRoutes();
+            if(param[0].equals("deleteRoute")){
+                return deleteRoute();
+            }
         } catch (JSONException e) {
             System.err.println(e);
         }
@@ -79,6 +92,9 @@ public class RoutesHandler extends ConnectionHandler {
             }
             if(responseType.equals("add_new_routes")){
                 routeFragment.routeAddedResponse(jsonResult);
+            }
+            if(responseType.equals("delete_route")){
+                routeFragment.routeDeletedResponse(jsonResult);
             }
         } catch (JSONException e) {
             System.err.println(e);
@@ -180,6 +196,69 @@ public class RoutesHandler extends ConnectionHandler {
         } catch (Exception e) {
             System.err.println(e);
             error.put("result", "CONN_GENERIC_ERROR").put("type", "add_new_routes");
+            return error;
+        }
+    }
+
+    private JSONObject deleteRoute() throws JSONException {
+        try {
+
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/delete/routes/";
+            URL url = new URL(urlString);
+
+            /** Create all-trusting host name verifier
+             * to avoid the following :
+             * java.security.cert.CertificateException: No name matching
+             * This is because Java by default verifies that the certificate CN (Common Name) is
+             * the same as host name in the URL. If they are not, the web service client fails.
+             **/
+
+            HostnameVerifier allowEveryHost = new HostnameVerifier() {
+
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
+            urlConnection.setRequestProperty("token", user.getToken());
+            urlConnection.setRequestProperty("Content-Type" , "application/json");
+            urlConnection.setConnectTimeout(3000);
+            urlConnection.setSSLSocketFactory(context.getSocketFactory());
+            urlConnection.setHostnameVerifier(allowEveryHost);
+            urlConnection.setRequestMethod("POST");
+            DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
+            printout.writeBytes(new JSONObject().put("travelId", idTravel).put("routeId" , idRoute).toString());
+            printout.flush();
+            printout.close();
+            InputStream in = urlConnection.getInputStream();
+            String jsonToString = inputToString(in);
+            in.close();
+            return new JSONObject(jsonToString);
+        } catch (SocketTimeoutException e) {
+            System.err.println(e);
+            error.put("result", "CONN_TIMEDOUT").put("type", "delete_route");
+            return error;
+        } catch (ConnectException e) {
+            System.err.println(e);
+            error.put("result", "CONN_REFUSED").put("type", "delete_route");
+            return error;
+        } catch (MalformedURLException e) {
+            System.err.println(e);
+            error.put("result", "CONN_BAD_URL").put("type", "delete_route");
+            return error;
+        } catch (IOException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_IO_ERROR").put("type", "delete_route");
+            return error;
+        } catch (IllegalArgumentException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "delete_route");
+            return error;
+        } catch (Exception e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type", "delete_route");
             return error;
         }
     }

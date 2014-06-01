@@ -59,7 +59,7 @@ public class RoutesFragment extends Fragment {
     public static boolean isTabViolet = false;
     public MeetingPoint selected;
 
-    private enum ResponseMSG {OK, ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, UNKNOWN_ERROR, INVALID_REQUEST, DATABASE_ERROR, AUTH_FAILED, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
+    private enum ResponseMSG {OK, ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, ROUTE_NOT_FOUND, UNKNOWN_ERROR, INVALID_REQUEST, DATABASE_ERROR, AUTH_FAILED, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
 
     /**
@@ -115,7 +115,7 @@ public class RoutesFragment extends Fragment {
         visualizeAllRoutes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(RoutesContent.isEmpty()){
+                if (RoutesContent.isEmpty()) {
                     Toast.makeText(thisActivity, getString(R.string.route_empty_list), Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -161,8 +161,8 @@ public class RoutesFragment extends Fragment {
             RoutesContent.cleanList();
             for (String current : routesList.keySet()) {
                 MeetingPoint currentMP = routesList.get(current);
-                User creator = (currentMP.getIdUser() == TravelActivity.travel.getAdmin().getId() ? TravelActivity.travel.getAdmin()
-                        : TravelActivity.travel.getPeople().get(String.valueOf(currentMP.getIdUser())));
+                User creator = currentMP.getIdUser() == TravelActivity.travel.getAdmin().getId() ? TravelActivity.travel.getAdmin()
+                        : TravelActivity.travel.getPeople().get(String.valueOf(currentMP.getIdUser()));
                 RoutesContent.RoutesItem item = new RoutesContent.RoutesItem(String.valueOf(currentMP.getId()),
                         currentMP.getAddress(), creator.getName(), String.valueOf(currentMP.getLatitude()), String.valueOf(currentMP.getLongitude()));
                 RoutesContent.addItem(item);
@@ -197,16 +197,19 @@ public class RoutesFragment extends Fragment {
             }
             TravelActivity.travel.setRoutes(newMap);
             fillListFromModel();
-            if (addRouteDialog != null && addRouteDialog.isShowing()) {
-                addRouteDialog.dismiss();
-            }
-            if (TravelActivity.mViewPager != null) {
-                if (TravelActivity.mViewPager.getCurrentItem() != 1) {
-                    changeTabChatState();
-                }
-            }
-            updateRoutesList();
+        }else if(length == 0){
+            TravelActivity.travel.getRoutes().clear();
+            RoutesContent.cleanList();
         }
+        if (addRouteDialog != null && addRouteDialog.isShowing()) {
+            addRouteDialog.dismiss();
+        }
+        if (TravelActivity.mViewPager != null) {
+            if (TravelActivity.mViewPager.getCurrentItem() != 1) {
+                changeTabChatState();
+            }
+        }
+        updateRoutesList();
     }
 
     private void createMenuDialog() {
@@ -220,7 +223,25 @@ public class RoutesFragment extends Fragment {
             deleteRoute.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(thisActivity);
+                    alertDialogBuilder.setMessage(getString(R.string.delete_route)+":\n\n"+ selected.getAddress()+"\n\n"+getString(R.string.delete_travel_dialog_message))
+                            .setTitle(getString(R.string.delete_route))
+                            .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    RoutesHandler deleteRequest = new RoutesHandler(thisActivity, TravelActivity.route, String.valueOf(TravelActivity.travel.getId()), String.valueOf(selected.getId()), TravelActivity.user);
+                                    deleteRequest.execute("deleteRoute");
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    AlertDialog alert = alertDialogBuilder.create();
+                    alert.show();
                 }
             });
             visualizeRouteOnMap.setOnClickListener(new View.OnClickListener() {
@@ -486,6 +507,48 @@ public class RoutesFragment extends Fragment {
                     startActivityForResult(intent, thisActivity.RESULT_OK);
                     thisActivity.finish();
                 case OK: //response do not bring array with new routes added because socket.io will provide to broadcast them to all users connected
+                    return;
+            }
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+    }
+
+    public void routeDeletedResponse(JSONObject response) {
+        if (menuDialog.isShowing())
+            menuDialog.dismiss();
+        try {
+            String resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case ROUTE_NOT_FOUND:
+                    Toast.makeText(thisActivity, getString(R.string.delete_route_not_found), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_REFUSED:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(thisActivity, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case AUTH_FAILED:
+                    TravelActivity.chat.socketClient.disconnect();
+                    TravelActivity.closeEverything();
+                    final Intent intent = new Intent(thisActivity, LoginActivity.class);
+                    startActivityForResult(intent, thisActivity.RESULT_OK);
+                    thisActivity.finish();
+                case OK:
                     return;
             }
         } catch (JSONException e) {

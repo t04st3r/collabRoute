@@ -132,6 +132,7 @@
     <string name="new_route_data_missing">City or country missing</string>
     <string name="new_route_zip_not_numeric">Only numeric values allowed for ZIP code</string>
     <string name="new_route_unknown_country">Unknown Country</string>
+    <string name="delete_route_not_found">Route not found on the database\nprobably somebody already delete it</string>
     <string name="geocode_dialog_title">Search Result:</string>
     <string name="geocode_dialog_positive">We have found the following address:\n\n%1$s\n\nis it correct?</string>
     <string name="geocode_dialog_negative">Something went wrong.. \nno address found</string>
