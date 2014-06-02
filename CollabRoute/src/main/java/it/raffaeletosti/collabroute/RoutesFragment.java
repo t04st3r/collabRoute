@@ -27,7 +27,9 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.RoutesHandler;
@@ -465,7 +467,7 @@ public class RoutesFragment extends Fragment {
         }
     }
 
-    private void geocodeHandle(JSONObject response) throws JSONException {
+    private void geocodeHandle(final JSONObject response) throws JSONException {
         if (!response.getString("status").equals("OK")) {
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(thisActivity);
             alertDialogBuilder.setTitle(getString(R.string.geocode_dialog_title));
@@ -505,9 +507,60 @@ public class RoutesFragment extends Fragment {
             alertDialogBuilder.setMessage(String.format(getString(R.string.geocode_dialog_positive), address + "\nLAT: "
                     + String.valueOf(lat) + "\nLNG: " + String.valueOf(lng)));
             alertDialogBuilder.show();
-        } else {
-            System.err.println(response.toString());
-            //TODO build a dialog with a list view showing all the addresses found
+        } else { //if geocode response find more than one route, show them all on multiple choice alertDialog
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(thisActivity);
+            alertDialogBuilder.setTitle(getString(R.string.geocode_dialog_title));
+            alertDialogBuilder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            List<CharSequence> addressesList = new ArrayList<CharSequence>();
+            int length = response.getJSONArray("results").length();
+            for (int i = 0; i < length; i++) {
+                JSONObject currentItem = response.getJSONArray("results").getJSONObject(i);
+                final String address = currentItem.getString("formatted_address");
+                final double lat = currentItem.getJSONObject("geometry").getJSONObject("location").getDouble("lat");
+                final double lng = currentItem.getJSONObject("geometry").getJSONObject("location").getDouble("lng");
+                CharSequence itemCharSequence = address + "\n(LAT: " + String.valueOf(lat) + " LNG: " + String.valueOf(lng) + ")";
+                addressesList.add(itemCharSequence);
+            }
+            final List<Integer> mSelectedItems = new ArrayList<Integer>();
+            alertDialogBuilder.setMultiChoiceItems(addressesList.toArray(new CharSequence[addressesList.size()]),
+                    null, new DialogInterface.OnMultiChoiceClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                            if (isChecked) {
+                                mSelectedItems.add(which);
+                            } else if (mSelectedItems.contains(which)) {
+                                mSelectedItems.remove(Integer.valueOf(which));
+                            }
+                        }
+                    }
+            );
+            alertDialogBuilder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    JSONArray arrayToSend = new JSONArray();
+                    for (int i = 0; i < mSelectedItems.size(); i++) {
+                        try {
+                            JSONObject currentItem = response.getJSONArray("results").getJSONObject(mSelectedItems.get(i));
+                            JSONObject itemToSend = new JSONObject().put("latitude" , currentItem.getJSONObject("geometry").getJSONObject("location").getDouble("lat"));
+                            itemToSend.put("longitude" , currentItem.getJSONObject("geometry").getJSONObject("location").getDouble("lng"));
+                            itemToSend.put("address", currentItem.getString("formatted_address"));
+                            arrayToSend.put(itemToSend);
+                        } catch (JSONException e) {
+                            System.err.println(e);
+                        }
+                    }
+                    RoutesHandler sendRoutes = new RoutesHandler(thisActivity, TravelActivity.user,
+                            String.valueOf(TravelActivity.travel.getId()), RoutesFragment.this, arrayToSend);
+                    sendRoutes.execute("addRoute");
+                }
+            });
+            alertDialogBuilder.show();
         }
 
     }

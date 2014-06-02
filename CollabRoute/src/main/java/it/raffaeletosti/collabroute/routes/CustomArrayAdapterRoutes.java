@@ -46,7 +46,7 @@ public class CustomArrayAdapterRoutes extends ArrayAdapter<RoutesContent.RoutesI
         RoutesContent.RoutesItem item = getItem(position);
         viewHolder.address.setText(item.address);
         viewHolder.creator.setText("Created by: "+item.creator);
-        viewHolder.latLng.setText("(LAT: "+item.latitude+" LNG: "+item.longitude+")");
+        viewHolder.latLng.setText("(LAT: "+ item.latitude.substring(0,9)+" LNG: "+item.longitude.substring(0,9)+")");
         return convertView;
     }
 
