@@ -197,7 +197,7 @@ public class RoutesFragment extends Fragment {
             }
             TravelActivity.travel.setRoutes(newMap);
             fillListFromModel();
-        }else if(length == 0){
+        } else if (length == 0) {
             TravelActivity.travel.getRoutes().clear();
             RoutesContent.cleanList();
         }
@@ -224,7 +224,7 @@ public class RoutesFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(thisActivity);
-                    alertDialogBuilder.setMessage(getString(R.string.delete_route)+":\n\n"+ selected.getAddress()+"\n\n"+getString(R.string.delete_travel_dialog_message))
+                    alertDialogBuilder.setMessage(getString(R.string.delete_route) + ":\n\n" + selected.getAddress() + "\n\n" + getString(R.string.delete_travel_dialog_message))
                             .setTitle(getString(R.string.delete_route))
                             .setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                                 @Override
@@ -238,6 +238,9 @@ public class RoutesFragment extends Fragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
+                                    if (menuDialog != null && menuDialog.isShowing()) {
+                                        menuDialog.dismiss();
+                                    }
                                 }
                             });
                     AlertDialog alert = alertDialogBuilder.create();
@@ -294,6 +297,48 @@ public class RoutesFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     sendAddress();
+                }
+            });
+
+            currentLocation.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int mySelfId = TravelActivity.user.getId();
+                    final User mySelf = mySelfId == TravelActivity.travel.getAdmin().getId() ?
+                            TravelActivity.travel.getAdmin() : TravelActivity.travel.getPeople().get(String.valueOf(mySelfId));
+                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(thisActivity);
+                    alertBuilder.setTitle(R.string.new_route_title);
+                    alertBuilder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            if (addRouteDialog != null && addRouteDialog.isShowing()) {
+                                addRouteDialog.dismiss();
+                            }
+                        }
+                    });
+                    if (mySelf.getLatitude() == 0.0d && mySelf.getLongitude() == 0.0d) {
+                        alertBuilder.setMessage(R.string.geocode_dialog_negative);
+                    } else {
+                        String address = mySelf.getAddress() + "\nLAT: " +
+                                String.valueOf(mySelf.getLatitude()) + "\nLNG: " + String.valueOf(mySelf.getLongitude());
+                        alertBuilder.setMessage(String.format(getString(R.string.geocode_dialog_positive), address));
+                        alertBuilder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    JSONArray toSend = prepareRequest(mySelf.getLatitude(), mySelf.getLongitude(), mySelf.getAddress());
+                                    RoutesHandler sendRoutes = new RoutesHandler(thisActivity, TravelActivity.user,
+                                            String.valueOf(TravelActivity.travel.getId()), RoutesFragment.this, toSend);
+                                    sendRoutes.execute("addRoute");
+                                } catch (JSONException e) {
+                                    System.err.println(e);
+                                }
+                            }
+                        });
+                    }
+                    AlertDialog alert = alertBuilder.create();
+                    alert.show();
                 }
             });
         }

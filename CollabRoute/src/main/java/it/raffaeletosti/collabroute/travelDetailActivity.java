@@ -24,6 +24,7 @@ import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.TravelListHandler;
 import it.raffaeletosti.collabroute.model.MeetingPoint;
 import it.raffaeletosti.collabroute.model.Travel;
+import it.raffaeletosti.collabroute.model.User;
 import it.raffaeletosti.collabroute.travels.TravelContent;
 
 
@@ -79,9 +80,15 @@ public class travelDetailActivity extends FragmentActivity {
             leaveDeleteTravel.setText(R.string.travel_leave_button);
         }
         travelAdministrator.setText(adminString);
-        String users;
-        if ((users = travel.getUsersName()) != null) {
-            travelUsers.setText(getString(R.string.travel_list_user_you) + " " + users);
+        if ((travel.getPeople().size()) != 0) {
+            String users = isAdministrator ? "" :  getString(R.string.travel_list_user_you)+" ";
+           for(String current : travel.getPeople().keySet()){
+               User currentUser = travel.getPeople().get(current);
+               if(currentUser.getId() != travelListActivity.user.getId()){
+                  users += currentUser.getName()+" ";
+               }
+            }
+            travelUsers.setText(users);
         } else {
             travelUsers.setText(getString(R.string.travel_users_emptyArray));
         }

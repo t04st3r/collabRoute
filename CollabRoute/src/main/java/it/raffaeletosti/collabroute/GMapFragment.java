@@ -412,6 +412,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         if ((lat1 == 0.0d && long1 == 0.0d) || calculateDistance(lat1, long1, lat2, long2) > MAX_DISTANCE) {
             CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this, String.valueOf(TravelActivity.travel.getId()));
             handler.execute(String.valueOf(long2), String.valueOf(lat2));
+            System.err.println("UPDATE COORDINATES");
         }
     }
 

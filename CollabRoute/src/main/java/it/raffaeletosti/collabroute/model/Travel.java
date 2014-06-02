@@ -84,27 +84,12 @@ public class Travel {
         }
         return toReturn;
     }
-
-
-
-    public String getUsersName() {
-        if (people != null) {
-            String users = "";
-            for (String current : people.keySet()) {
-                users += people.get(current).getName() + " ";
-            }
-            return users;
-        }
-        return null;
-    }
-
     public void insertRoute(MeetingPoint route) {
         if (routes == null) {
             routes = new HashMap<String, MeetingPoint>();
         }
         routes.put(String.valueOf(route.getId()), route);
     }
-
 
     public String toJsonString() {
         JSONObject travel = new JSONObject();

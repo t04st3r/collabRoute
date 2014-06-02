@@ -116,7 +116,7 @@
     <string name="gps_enable_button">Enable GPS</string>
     <string name="gps_alert_title">GPS Warning</string>
     <string name="user_offline_alert">User selected is actually offline..</string>
-    <string name="empty_route_message">It seems that nobody added a route yet..\nclick on Add route and be the first!</string>
+    <string name="empty_route_message">It seems that nobody added a route yet..\nclick on Add new route and be the first!</string>
     <string name="route_visualize_single_route">Visualize route</string>
     <string name="route_visualize_all_routes">Visualize all routes</string>
     <string name="route_empty_list">There\'s no route to show</string>
@@ -132,6 +132,7 @@
     <string name="new_route_data_missing">City or country missing</string>
     <string name="new_route_zip_not_numeric">Only numeric values allowed for ZIP code</string>
     <string name="new_route_unknown_country">Unknown Country</string>
+    <string name="new_route_address_display">A new route will be created using the following address:</string>
     <string name="delete_route_not_found">Route not found on the database\nprobably somebody already delete it</string>
     <string name="geocode_dialog_title">Search Result:</string>
     <string name="geocode_dialog_positive">We have found the following address:\n\n%1$s\n\nis it correct?</string>
