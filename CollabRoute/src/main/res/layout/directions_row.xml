@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="status"
+        android:src="@android:drawable/ic_menu_directions"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dp" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp"
+        android:weightSum="1">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Waypoint "
+            android:id="@+id/waypoint_id"
+            android:textColor="#ffcc0eff" />
+
+        <WebView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/instructionsWebView" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Approximate duration: "
+            android:id="@+id/directionDuration"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:textColor="#ffcc0eff" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Travel mode: "
+            android:id="@+id/directionTravelMode"
+            android:gravity="center_vertical|top"
+            android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Distance: "
+            android:id="@+id/directionDistance"
+            android:gravity="center_vertical|top"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1.65" />
+
+    </LinearLayout>
+</LinearLayout>

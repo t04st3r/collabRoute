@@ -5,11 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
-import java.util.Comparator;
 import java.util.List;
 
 import it.raffaeletosti.collabroute.R;
@@ -45,8 +42,10 @@ public class CustomArrayAdapterRoutes extends ArrayAdapter<RoutesContent.RoutesI
         }
         RoutesContent.RoutesItem item = getItem(position);
         viewHolder.address.setText(item.address);
-        viewHolder.creator.setText("Created by: "+item.creator);
-        viewHolder.latLng.setText("(LAT: "+ item.latitude.substring(0,9)+" LNG: "+item.longitude.substring(0,9)+")");
+        viewHolder.creator.setText("Created by: " + item.creator);
+        item.latitude = item.latitude.length() > 9 ? item.latitude.substring(0, 9) : item.latitude;
+        item.longitude = item.longitude.length() > 9 ? item.longitude.substring(0, 9) : item.longitude;
+        viewHolder.latLng.setText("(LAT: " + item.latitude + " LNG: " + item.longitude + ")");
         return convertView;
     }
 

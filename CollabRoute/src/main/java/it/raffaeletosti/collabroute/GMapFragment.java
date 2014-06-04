@@ -458,7 +458,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
  * (http://en.wikipedia.org/wiki/Haversine_formula)
  * */
 
-    private double calculateDistance(double lat1, double long1, double lat2, double long2) {
+    public double calculateDistance(double lat1, double long1, double lat2, double long2) {
         final double EARTH_RADIUS = 6372795.477598; //meters
         double dLat = Math.toRadians(lat2 - lat1);
         double dLong = Math.toRadians(long2 - long1);

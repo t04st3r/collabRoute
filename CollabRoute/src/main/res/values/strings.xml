@@ -137,5 +137,15 @@
     <string name="geocode_dialog_title">Search Result:</string>
     <string name="geocode_dialog_positive">We have found the following address:\n\n%1$s\n\nis it correct?</string>
     <string name="geocode_dialog_negative">Something went wrong.. \nno address found</string>
-
+    <string name="directions_error_too_near">You are too near to destination to get directions</string>
+    <string name="directions_to_yourself">You can\'t get directions to yourself!</string>
+    <string name="directions_dialog_tolls">Tolls</string>
+    <string name="directions_dialog_highways">Highways</string>
+    <string name="directions_dialog_ferries">Ferries</string>
+    <string name="directions_dialog_get_directions">Get directions</string>
+    <string-array name="directions_dialog_spinner_array">
+        <item>driving</item>
+        <item>walking</item>
+        <item>bicycling</item>
+    </string-array>
 </resources>

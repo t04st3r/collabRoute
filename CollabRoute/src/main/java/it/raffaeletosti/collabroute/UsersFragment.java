@@ -35,7 +35,7 @@ public class UsersFragment extends Fragment {
     private Button visualizeOnTheMap;
     private Button getDirections;
     private Button visualizeAllUsers;
-
+    private static double MIN_DISTANCE = 200; //meters
     public static UsersFragment newInstance() {
         UsersFragment fragment = new UsersFragment();
         Bundle args = new Bundle();
@@ -83,6 +83,8 @@ public class UsersFragment extends Fragment {
                     showNobodySelectedMessage();
                     return;
                 }
+                getDirectionsToSelectedUser();
+
             }//TODO get directions using google Directions API and find a way to shows them on the map of course in a separate method as well!! :P
         });
 
@@ -98,7 +100,7 @@ public class UsersFragment extends Fragment {
     private void showUserOnMap() {
         String id = UsersListContent.getSelected();
         if (UsersListContent.isOnLine(id)) {
-            User selected = id != String.valueOf(TravelActivity.travel.getAdmin().getId()) ?
+            User selected = !id.equals(String.valueOf(TravelActivity.travel.getAdmin().getId())) ?
                     TravelActivity.travel.getPeople().get(id) : TravelActivity.travel.getAdmin();
             TravelActivity.map.updateCameraSingleUser(selected);
             TravelActivity.mViewPager.setCurrentItem(0);
@@ -107,6 +109,36 @@ public class UsersFragment extends Fragment {
         }
     }
 
+
+    private void getDirectionsToSelectedUser() {
+        String idSelected = UsersListContent.getSelected();
+        String idMyself = String.valueOf(TravelActivity.user.getId());
+        if (!UsersListContent.isOnLine(idSelected)) {
+            Toast.makeText(thisActivity, getString(R.string.user_offline_alert), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(idSelected.equals(String.valueOf(TravelActivity.user.getId()))){
+            Toast.makeText(thisActivity, getString(R.string.directions_to_yourself), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        User selected = !idSelected.equals(String.valueOf(TravelActivity.travel.getAdmin().getId())) ?
+                TravelActivity.travel.getPeople().get(idSelected) : TravelActivity.travel.getAdmin();
+        User mySelf = !idMyself.equals(String.valueOf(TravelActivity.travel.getAdmin().getId())) ?
+                TravelActivity.travel.getPeople().get(idMyself) : TravelActivity.travel.getAdmin();
+        double lat1 = selected.getLatitude();
+        double lng1 = selected.getLongitude();
+        double lat2 = mySelf.getLatitude();
+        double lng2 = mySelf.getLongitude();
+        double distance;
+        if((distance = TravelActivity.map.calculateDistance(lat1,lng1,lat2,lng2)) < MIN_DISTANCE ){
+            Toast.makeText(thisActivity, getString(R.string.directions_error_too_near), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        System.err.println(lat1+" "+lng1+" "+lat2+" "+lng2+" "+distance+" meters User1:"+selected.getName()+" User2: "+mySelf.getName());
+        TravelActivity.directions.createDirectionsDialog(mySelf, selected);
+        TravelActivity.directions.directionsDialog.show();
+
+    }
 
     protected static void fillUsersStatus(JSONArray usersListArray) {
         try {
