@@ -134,7 +134,6 @@ public class UsersFragment extends Fragment {
             Toast.makeText(thisActivity, getString(R.string.directions_error_too_near), Toast.LENGTH_SHORT).show();
             return;
         }
-        System.err.println(lat1+" "+lng1+" "+lat2+" "+lng2+" "+distance+" meters User1:"+selected.getName()+" User2: "+mySelf.getName());
         TravelActivity.directions.createDirectionsDialog(mySelf, selected);
         TravelActivity.directions.directionsDialog.show();
 

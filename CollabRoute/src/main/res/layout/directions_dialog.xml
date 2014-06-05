@@ -16,7 +16,6 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/directionsDialogFrom"
-        android:layout_marginBottom="30dp"
         android:textColor="#ffcc0eff" />
 
     <TextView
