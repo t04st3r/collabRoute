@@ -166,7 +166,8 @@ public class RoutesHandler extends ConnectionHandler {
             urlConnection.setHostnameVerifier(allowEveryHost);
             urlConnection.setRequestMethod("POST");
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
-            printout.writeBytes(new JSONObject().put("travelId", idTravel).put("routes" , routes).toString());
+            byte[] outputBytes = new JSONObject().put("travelId", idTravel).put("routes" , routes).toString().getBytes("UTF-8");
+            printout.write(outputBytes);
             printout.flush();
             printout.close();
             InputStream in = urlConnection.getInputStream();

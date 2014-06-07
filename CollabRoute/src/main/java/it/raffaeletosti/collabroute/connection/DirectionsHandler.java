@@ -1,7 +1,6 @@
 package it.raffaeletosti.collabroute.connection;
 
 import android.app.Activity;
-import android.support.v4.app.Fragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,7 +15,6 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 import it.raffaeletosti.collabroute.DirectionsFragment;
-import it.raffaeletosti.collabroute.TravelActivity;
 
 public class DirectionsHandler extends ConnectionHandler{
     

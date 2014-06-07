@@ -69,9 +69,11 @@
     <ToggleButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Toggle visibility"
         android:id="@+id/toggleVisibility"
-        android:layout_weight="6" />
+        android:layout_weight="6"
+        android:textOff="Show Directions"
+        android:textOn="Hide Directions"
+        android:checked="true" />
 
     </LinearLayout>
 
