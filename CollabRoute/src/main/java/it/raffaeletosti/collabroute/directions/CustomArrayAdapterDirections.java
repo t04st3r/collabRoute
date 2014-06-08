@@ -20,7 +20,7 @@ import it.raffaeletosti.collabroute.routes.RoutesContent;
  */
 public class CustomArrayAdapterDirections extends ArrayAdapter<DirectionsContent.DirectionsItem>{
 
-    private static int counter = 0;
+    public static int counter = 1;
 
     public CustomArrayAdapterDirections(Context context, int textViewResourceId, List<DirectionsContent.DirectionsItem> objects) {
         super(context, textViewResourceId, objects);
@@ -40,36 +40,21 @@ public class CustomArrayAdapterDirections extends ArrayAdapter<DirectionsContent
             viewHolder = new ViewHolder();
             viewHolder.wayPointId = (TextView) convertView.findViewById(R.id.waypoint_id);
             viewHolder.instructions = (WebView) convertView.findViewById(R.id.instructionsWebView);
-            viewHolder.durations = (TextView) convertView.findViewById(R.id.durationTextView);
+            viewHolder.durations = (TextView) convertView.findViewById(R.id.directionDuration);
             viewHolder.travelMode = (TextView) convertView.findViewById(R.id.directionTravelMode);
-            viewHolder.distance = (TextView) convertView.findViewById(R.id.distanceTextView);
+            viewHolder.distance = (TextView) convertView.findViewById(R.id.directionDistance);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         DirectionsContent.DirectionsItem item = getItem(position);
-        viewHolder.wayPointId.setText(viewHolder.wayPointId.getText()+item.id);
-        String html = encodeHTML(item.HTMLInstructions);
-        if(html != null) {
-            viewHolder.instructions.loadData(html, "text/html", null);
-        }
-        viewHolder.durations.setText(viewHolder.durations.getText()+item.duration);
-        viewHolder.travelMode.setText(viewHolder.travelMode.getText()+item.travelMode);
-        viewHolder.distance.setText(viewHolder.distance.getText()+item.distance);
+        viewHolder.wayPointId.setText("Waypoint "+item.id);
+        String html = "<html><body style='background-color:black;color:white;'>"+item.HTMLInstructions+"</body></html>";
+        viewHolder.instructions.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
+        viewHolder.durations.setText("Approximate duration: "+item.duration);
+        viewHolder.travelMode.setText("Travel mode: "+item.travelMode);
+        viewHolder.distance.setText("Distance: "+item.distance);
         return convertView;
-    }
-
-    String encodeHTML(String toEncode){
-        try{
-            byte[] utf8 = toEncode.getBytes("UTF-8");
-            String bodyEncoded = new String(utf8, "UTF-8");
-            String toReturn = "<html><head></head><body>"+bodyEncoded+"</body></html>";
-            System.err.println(toReturn);
-            return toReturn;
-        }catch(UnsupportedEncodingException e){
-            System.err.println(e);
-        }
-    return null;
     }
 
     private class ViewHolder {

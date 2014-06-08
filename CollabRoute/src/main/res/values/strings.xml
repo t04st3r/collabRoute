@@ -148,4 +148,5 @@
         <item>walking</item>
         <item>bicycling</item>
     </string-array>
+    <string name="directions_dialog_negative">Something went wrong.. \nno directions found</string>
 </resources>

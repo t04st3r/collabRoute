@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import it.raffaeletosti.collabroute.directions.DirectionsContent;
 import it.raffaeletosti.collabroute.model.Travel;
 import it.raffaeletosti.collabroute.model.UserHandler;
 import it.raffaeletosti.collabroute.routes.RoutesContent;
@@ -262,5 +263,7 @@ public class TravelActivity extends FragmentActivity {
         map = null;
         route = null;
         chat = null;
+        DirectionsContent.cleanList();
+        directions = null;
     }
 }

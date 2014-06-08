@@ -129,8 +129,7 @@ public class UsersFragment extends Fragment {
         double lng1 = selected.getLongitude();
         double lat2 = mySelf.getLatitude();
         double lng2 = mySelf.getLongitude();
-        double distance;
-        if((distance = TravelActivity.map.calculateDistance(lat1,lng1,lat2,lng2)) < MIN_DISTANCE ){
+        if((TravelActivity.map.calculateDistance(lat1,lng1,lat2,lng2)) < MIN_DISTANCE ){
             Toast.makeText(thisActivity, getString(R.string.directions_error_too_near), Toast.LENGTH_SHORT).show();
             return;
         }

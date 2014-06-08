@@ -61,7 +61,7 @@ public class DirectionsHandler extends ConnectionHandler{
     private JSONObject directionsRequest(String queryString) throws JSONException {
         try {
             String urlString = "https://maps.googleapis.com/maps/api/directions/json?"+queryString+"&key="+googleApiKey;
-            //System.err.println(urlString);
+            System.err.println(urlString);
             URL url = new URL(urlString);
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             InputStream in = urlConnection.getInputStream();
