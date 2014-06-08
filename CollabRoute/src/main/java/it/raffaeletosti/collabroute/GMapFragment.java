@@ -4,6 +4,7 @@ package it.raffaeletosti.collabroute;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -33,16 +34,21 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.CoordinatesHandler;
+import it.raffaeletosti.collabroute.directions.DirectionsContent;
 import it.raffaeletosti.collabroute.model.MeetingPoint;
 import it.raffaeletosti.collabroute.model.User;
 
@@ -58,9 +64,11 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     protected View view;
     public HashMap<String, Marker> markers;
     public HashMap<String, Marker> routeMarkers;
+    public HashMap<String, Marker> directionsMarker;
     public Handler MarkerHandlerThread;
     public Runnable run;
     private GoogleMap.InfoWindowAdapter windowAdapter;
+    public Polyline directionsPolyLine;
 
 
     private final static int UPDATE_TIME_RANGE = 5000; //millisecond
@@ -106,6 +114,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_TIME_RANGE, 0, this);
         client = new LocationClient(activity, mConnectionCallbacks, mConnectionFailedListener);
         routeMarkers = new HashMap<String, Marker>();
+        directionsMarker = new HashMap<String, Marker>();
         MarkerHandlerThread = new Handler(Looper.getMainLooper());
         run = new Runnable() {
 
@@ -162,13 +171,17 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             };
             map.setInfoWindowAdapter(windowAdapter);
             map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            map.setMyLocationEnabled(true);
         }
     }
 
     void createMarkers() {
         HashMap<String, User> users = TravelActivity.travel.getPeople();
+        int mySelfId = TravelActivity.user.getId();
+        User mySelf;
         markers = new HashMap<String, Marker>();
         User admin = TravelActivity.travel.getAdmin();
+        mySelf = mySelfId == admin.getId() ? admin : users.get(String.valueOf(mySelfId));
         setSingleMarker(admin);
         for (String current : users.keySet()) {
             User currentUser = users.get(current);
@@ -179,7 +192,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             MeetingPoint currentMP = routes.get(current);
             setSingleMarker(currentMP);
         }
-        updateCameraMapUsers();
+        updateCameraSingleUser(mySelf);
 
     }
 
@@ -267,7 +280,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                     Marker marker = routeMarkers.get(current);
                     marker.showInfoWindow();
                     singleRouteLatLng = marker.getPosition();
-                }else {
+                } else {
                     routeMarkers.get(current).hideInfoWindow();
                     builder.include(routeMarkers.get(current).getPosition());
                 }
@@ -297,11 +310,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             }
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for (String current : markers.keySet()) {
-                if (current.equals(String.valueOf(TravelActivity.user.getId()))) {
-                    markers.get(current).showInfoWindow();
-                } else {
-                    markers.get(current).hideInfoWindow();
-                }
+                markers.get(current).hideInfoWindow();
                 if (markers.get(current).isVisible())
                     builder.include(markers.get(current).getPosition());
             }
@@ -316,6 +325,15 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
             map.animateCamera(cu);
         }
+    }
+
+    public void updateCameraTwoBounds(LatLng bounds1, LatLng bounds2) {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder()
+                .include(bounds1).include(bounds2);
+        LatLngBounds bounds = builder.build();
+        int padding = 200;
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        map.animateCamera(cu);
     }
 
     private String onlyOneMarkerVisible(HashMap<String, Marker> markerHashMap) {
@@ -352,6 +370,49 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         currentMarker.showInfoWindow();
         CameraUpdate updateCameraView = CameraUpdateFactory.newLatLngZoom(routeLatLng, 15);
         map.animateCamera(updateCameraView);
+    }
+
+    void setDirectionsMarkers(LatLng bound1, LatLng bound2, String wayPointIdString) {
+        if (!directionsMarker.isEmpty()) {
+            for (String current : directionsMarker.keySet()) {
+                Marker currentMarker = directionsMarker.get(current);
+                currentMarker.remove();
+            }
+            directionsMarker.clear();
+        }
+        int lastWayPointId = DirectionsContent.ITEMS.size();
+        int wayPointId = Integer.parseInt(wayPointIdString);
+        if (wayPointId != 1) {
+            MarkerOptions option = new MarkerOptions();
+            option.position(bound1);
+            option.title("Waypoint " + wayPointId);
+            option.snippet("[ " + String.valueOf(bound1.latitude) + "," + String.valueOf(bound1.longitude) + " ]");
+            option.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            option.visible(true);
+            Marker currentMarker = map.addMarker(option);
+            directionsMarker.put(String.valueOf(wayPointId), currentMarker);
+        }
+        if ((++wayPointId) != lastWayPointId) {
+            MarkerOptions option2 = new MarkerOptions();
+            option2.position(bound2);
+            option2.title("Waypoint " + wayPointId);
+            option2.snippet("[ " + String.valueOf(bound2.latitude) + "," + String.valueOf(bound2.longitude) + " ]");
+            option2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            option2.visible(true);
+            Marker currentMarker2 = map.addMarker(option2);
+            directionsMarker.put(String.valueOf(wayPointId), currentMarker2);
+        }
+        updateCameraTwoBounds(bound1, bound2);
+    }
+
+
+    public void setInvisibleDirectionsMarkers() {
+        if (!directionsMarker.isEmpty()) {
+            for (String current : directionsMarker.keySet()) {
+                Marker currentMarker = directionsMarker.get(current);
+                currentMarker.setVisible(false);
+            }
+        }
     }
 
     @Override
@@ -514,5 +575,44 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         } catch (JSONException e) {
             System.err.println(e);
         }
+    }
+
+    public void drawPolyLineDirections(List<List<HashMap<String, String>>> result) {
+        ArrayList<LatLng> points = null;
+        PolylineOptions lineOptions = null;
+
+        // Traversing through all the routes
+        for (int i = 0; i < result.size(); i++) {
+            points = new ArrayList<LatLng>();
+            lineOptions = new PolylineOptions();
+
+            // Fetching i-th route
+            List<HashMap<String, String>> path = result.get(i);
+
+            // Fetching all the points in i-th route
+            for (int j = 0; j < path.size(); j++) {
+                HashMap<String, String> point = path.get(j);
+
+                double lat = Double.parseDouble(point.get("lat"));
+                double lng = Double.parseDouble(point.get("lng"));
+                LatLng position = new LatLng(lat, lng);
+
+                points.add(position);
+            }
+
+            // Adding all the points in the route to LineOptions
+            lineOptions.addAll(points);
+            lineOptions.width(10);
+            lineOptions.color(Color.RED);
+        }
+
+        // Drawing polyline in the Google Map for the i-th route
+        if (directionsPolyLine != null) {
+            directionsPolyLine.remove();
+            directionsPolyLine = null;
+        }
+        directionsPolyLine = map.addPolyline(lineOptions);
+        directionsPolyLine.setVisible(TravelActivity.directions.hideShowDirections.isChecked());
+
     }
 }

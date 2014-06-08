@@ -101,7 +101,6 @@ public class RoutesFragment extends Fragment {
                 selected = TravelActivity.travel.getRoutes().get(item.id);
                 createMenuDialog();
                 menuDialog.show();
-                //TODO use the item for the actions on the route menu dialog
             }
         });
         addRoute = (Button) thisActivity.findViewById(R.id.add_route_button);

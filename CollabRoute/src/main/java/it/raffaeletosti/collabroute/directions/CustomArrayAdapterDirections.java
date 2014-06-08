@@ -40,6 +40,9 @@ public class CustomArrayAdapterDirections extends ArrayAdapter<DirectionsContent
             viewHolder = new ViewHolder();
             viewHolder.wayPointId = (TextView) convertView.findViewById(R.id.waypoint_id);
             viewHolder.instructions = (WebView) convertView.findViewById(R.id.instructionsWebView);
+            //webViews make conflict with OnItemClickListeners method on the ArrayAdapter without these two following commands
+            viewHolder.instructions.setClickable(false);
+            viewHolder.instructions.setFocusable(false);
             viewHolder.durations = (TextView) convertView.findViewById(R.id.directionDuration);
             viewHolder.travelMode = (TextView) convertView.findViewById(R.id.directionTravelMode);
             viewHolder.distance = (TextView) convertView.findViewById(R.id.directionDistance);

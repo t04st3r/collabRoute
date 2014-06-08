@@ -130,7 +130,8 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:id="@+id/directionsListView"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:choiceMode="singleChoice" />
 
     <LinearLayout
         android:orientation="horizontal"

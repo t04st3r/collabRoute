@@ -149,4 +149,6 @@
         <item>bicycling</item>
     </string-array>
     <string name="directions_dialog_negative">Something went wrong.. \nno directions found</string>
+    <string name="directions_empty_list">No waypoints to visualize on the map</string>
+    <string name="directions_toggle_visibility_first">Toggle Show Directions button first \nor you won\'t see nothing on the map</string>
 </resources>
