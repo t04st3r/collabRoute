@@ -296,6 +296,17 @@ public class RoutesFragment extends Fragment {
             if (adapter != null)
                 country.setAdapter(adapter);
 
+            getLocationFromMap.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addRouteDialog.dismiss();
+                    TravelActivity.mViewPager.setCurrentItem(0);
+                    Toast.makeText(thisActivity, getString(R.string.new_route_from_map), Toast.LENGTH_LONG).show();
+                    TravelActivity.map.updateCameraMapUsers();
+                    TravelActivity.map.isMapClickable = true;
+                }
+            });
+
             cancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

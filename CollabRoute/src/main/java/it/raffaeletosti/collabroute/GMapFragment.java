@@ -48,6 +48,7 @@ import java.util.List;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.CoordinatesHandler;
+import it.raffaeletosti.collabroute.connection.RoutesHandler;
 import it.raffaeletosti.collabroute.directions.DirectionsContent;
 import it.raffaeletosti.collabroute.model.MeetingPoint;
 import it.raffaeletosti.collabroute.model.User;
@@ -69,6 +70,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     public Runnable run;
     private GoogleMap.InfoWindowAdapter windowAdapter;
     public Polyline directionsPolyLine;
+    public boolean isMapClickable = false;
 
 
     private final static int UPDATE_TIME_RANGE = 5000; //millisecond
@@ -172,6 +174,18 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             map.setInfoWindowAdapter(windowAdapter);
             map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
             map.setMyLocationEnabled(true);
+            map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+                    if(isMapClickable){
+                        RoutesHandler reverseGeocodeHandler = new RoutesHandler(getActivity(), TravelActivity.route);
+                        String queryString = "latlng="+String.valueOf(latLng.latitude)+","+String.valueOf(latLng.longitude);
+                        TravelActivity.mViewPager.setCurrentItem(1);
+                        reverseGeocodeHandler.execute("geocoding" , queryString);
+                        isMapClickable = false;
+                    }
+                }
+            });
         }
     }
 

@@ -129,6 +129,7 @@
     <string name="new_route_country_edit_text">Country</string>
     <string name="new_route_send_button">Search</string>
     <string name="new_route_title">Add new route</string>
+    <string name="new_route_from_map">Tap on the map where you \nwant to create a new route</string>
     <string name="new_route_data_missing">City or country missing</string>
     <string name="new_route_zip_not_numeric">Only numeric values allowed for ZIP code</string>
     <string name="new_route_unknown_country">Unknown Country</string>
