@@ -34,6 +34,7 @@ import java.util.List;
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.RoutesHandler;
 import it.raffaeletosti.collabroute.model.MeetingPoint;
+import it.raffaeletosti.collabroute.model.Travel;
 import it.raffaeletosti.collabroute.model.User;
 import it.raffaeletosti.collabroute.routes.CustomArrayAdapterRoutes;
 import it.raffaeletosti.collabroute.routes.RoutesContent;
@@ -260,7 +261,15 @@ public class RoutesFragment extends Fragment {
             getDirections.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    if(menuDialog.isShowing()){
+                        menuDialog.dismiss();
+                    }
+                    MeetingPoint destination = selected;
+                    String idMySelf = String.valueOf(TravelActivity.user.getId());
+                    User mySelf = idMySelf.equals(String.valueOf(TravelActivity.travel.getAdmin().getId())) ?
+                            TravelActivity.travel.getAdmin() : TravelActivity.travel.getPeople().get(idMySelf);
+                    TravelActivity.directions.createDirectionsDialog(mySelf, destination);
+                    TravelActivity.directions.directionsDialog.show();
                 }
             });
         }

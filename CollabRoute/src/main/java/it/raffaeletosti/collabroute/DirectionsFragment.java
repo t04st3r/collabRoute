@@ -132,7 +132,7 @@ public class DirectionsFragment extends Fragment {
                 LatLng origin = points.get(0);
                 LatLng destination = points.get(points.size()-1);
                 TravelActivity.mViewPager.setCurrentItem(0);
-                TravelActivity.map.updateCameraTwoBounds(origin, destination);
+                TravelActivity.map.updateCameraTwoBounds(origin, destination, true);
             }
         });
         hideShowDirections.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

@@ -327,7 +327,20 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         }
     }
 
-    public void updateCameraTwoBounds(LatLng bounds1, LatLng bounds2) {
+    private void setDirectionsMarkersInvisible(){
+        if(directionsMarker != null && !directionsMarker.isEmpty()){
+            for(String current: directionsMarker.keySet()){
+                Marker currentMarker = directionsMarker.get(current);
+                currentMarker.setVisible(false);
+            }
+        }
+    }
+
+
+    public void updateCameraTwoBounds(LatLng bounds1, LatLng bounds2, boolean isWholeHorney) {
+        if(isWholeHorney){
+            setDirectionsMarkersInvisible();
+        }
         LatLngBounds.Builder builder = new LatLngBounds.Builder()
                 .include(bounds1).include(bounds2);
         LatLngBounds bounds = builder.build();
@@ -402,7 +415,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             Marker currentMarker2 = map.addMarker(option2);
             directionsMarker.put(String.valueOf(wayPointId), currentMarker2);
         }
-        updateCameraTwoBounds(bound1, bound2);
+        updateCameraTwoBounds(bound1, bound2, false);
     }
 
 
