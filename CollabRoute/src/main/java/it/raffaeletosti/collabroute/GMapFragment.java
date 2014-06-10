@@ -17,6 +17,7 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +42,7 @@ import com.google.android.gms.maps.model.VisibleRegion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -163,7 +165,8 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                     TextView address = (TextView) markerWindow.findViewById(R.id.address_text_view);
                     String snippetText = marker.getSnippet();
                     ImageView logo = (ImageView) markerWindow.findViewById(R.id.markerLogo);
-                    if (snippetText.contains("Created by:"))
+                    WebView snippetWebView = (WebView) markerWindow.findViewById(R.id.snippetWebView);
+                    if (snippetText != null && snippetText.contains("Created by:"))
                         logo.setImageResource(android.R.drawable.ic_menu_mylocation);
                     else
                         logo.setImageResource(android.R.drawable.ic_menu_myplaces);
@@ -351,8 +354,8 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     }
 
 
-    public void updateCameraTwoBounds(LatLng bounds1, LatLng bounds2, boolean isWholeHorney) {
-        if(isWholeHorney){
+    public void updateCameraTwoBounds(LatLng bounds1, LatLng bounds2, boolean isWholeJourney) {
+        if(isWholeJourney){
             setDirectionsMarkersInvisible();
         }
         LatLngBounds.Builder builder = new LatLngBounds.Builder()
@@ -399,7 +402,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         map.animateCamera(updateCameraView);
     }
 
-    void setDirectionsMarkers(LatLng bound1, LatLng bound2, String wayPointIdString) {
+    void setDirectionsMarkers(LatLng bound1, LatLng bound2, String wayPointIdString, String htmlSnip1, String htmlSnip2) {
         if (!directionsMarker.isEmpty()) {
             for (String current : directionsMarker.keySet()) {
                 Marker currentMarker = directionsMarker.get(current);
@@ -413,19 +416,20 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             MarkerOptions option = new MarkerOptions();
             option.position(bound1);
             option.title("Waypoint " + wayPointId);
-            option.snippet("[ " + String.valueOf(bound1.latitude) + "," + String.valueOf(bound1.longitude) + " ]");
             option.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             option.visible(true);
+            option.snippet(Jsoup.parse(htmlSnip1).text());
             Marker currentMarker = map.addMarker(option);
             directionsMarker.put(String.valueOf(wayPointId), currentMarker);
+
         }
         if ((++wayPointId) != lastWayPointId) {
             MarkerOptions option2 = new MarkerOptions();
             option2.position(bound2);
             option2.title("Waypoint " + wayPointId);
-            option2.snippet("[ " + String.valueOf(bound2.latitude) + "," + String.valueOf(bound2.longitude) + " ]");
             option2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             option2.visible(true);
+            option2.snippet(Jsoup.parse(htmlSnip2).text());
             Marker currentMarker2 = map.addMarker(option2);
             directionsMarker.put(String.valueOf(wayPointId), currentMarker2);
         }

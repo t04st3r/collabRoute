@@ -108,29 +108,36 @@ public class DirectionsFragment extends Fragment {
         directionListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(!hideShowDirections.isChecked()){
+                if (!hideShowDirections.isChecked()) {
                     Toast.makeText(thisActivity, getString(R.string.directions_toggle_visibility_first), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 DirectionsContent.DirectionsItem item = (DirectionsContent.DirectionsItem) directionsArrayAdapter.getItem(position);
-                TravelActivity.map.setDirectionsMarkers(item.startLocation, item.endLocation, String.valueOf(++position));
+                DirectionsContent.DirectionsItem item2;
+                String htmlSnip2 = "";
+                if (DirectionsContent.ITEMS.size() > 1) {
+                    item2 = (DirectionsContent.DirectionsItem) directionsArrayAdapter.getItem(++position);
+                    --position;
+                    htmlSnip2 = item2.HTMLInstructions;
+                }
+                TravelActivity.map.setDirectionsMarkers(item.startLocation, item.endLocation, String.valueOf(++position), item.HTMLInstructions, htmlSnip2);
                 TravelActivity.mViewPager.setCurrentItem(0);
             }
         });
         visualizeWaypoints.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(DirectionsContent.isEmpty()){
+                if (DirectionsContent.isEmpty()) {
                     Toast.makeText(thisActivity, getString(R.string.directions_empty_list), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(!hideShowDirections.isChecked()){
+                if (!hideShowDirections.isChecked()) {
                     Toast.makeText(thisActivity, getString(R.string.directions_toggle_visibility_first), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 List<LatLng> points = TravelActivity.map.directionsPolyLine.getPoints();
                 LatLng origin = points.get(0);
-                LatLng destination = points.get(points.size()-1);
+                LatLng destination = points.get(points.size() - 1);
                 TravelActivity.mViewPager.setCurrentItem(0);
                 TravelActivity.map.updateCameraTwoBounds(origin, destination, true);
             }
@@ -138,12 +145,12 @@ public class DirectionsFragment extends Fragment {
         hideShowDirections.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    if(TravelActivity.map.directionsPolyLine != null && !TravelActivity.map.directionsPolyLine.isVisible()){
+                if (isChecked) {
+                    if (TravelActivity.map.directionsPolyLine != null && !TravelActivity.map.directionsPolyLine.isVisible()) {
                         TravelActivity.map.directionsPolyLine.setVisible(true);
                     }
-                }else{
-                    if(TravelActivity.map.directionsPolyLine != null && TravelActivity.map.directionsPolyLine.isVisible()){
+                } else {
+                    if (TravelActivity.map.directionsPolyLine != null && TravelActivity.map.directionsPolyLine.isVisible()) {
                         TravelActivity.map.directionsPolyLine.setVisible(false);
                         TravelActivity.map.setInvisibleDirectionsMarkers();
                     }
@@ -348,7 +355,7 @@ public class DirectionsFragment extends Fragment {
         });
     }
 
-    private  void buildPolyLineFromJSON(JSONObject routes){
+    private void buildPolyLineFromJSON(JSONObject routes) {
         PolylineDirectionsJSONParser parser = new PolylineDirectionsJSONParser();
         List<List<HashMap<String, String>>> routesList = parser.parse(routes);
         TravelActivity.map.drawPolyLineDirections(routesList);

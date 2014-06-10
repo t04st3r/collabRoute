@@ -29,4 +29,10 @@
         android:id="@+id/address_text_view"
         android:layout_gravity="center"
         android:textColor="#ff000000" />
+
+    <WebView
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/snippetWebView"/>
+
 </LinearLayout>
