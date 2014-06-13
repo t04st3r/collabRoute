@@ -1,6 +1,8 @@
 package it.raffaeletosti.collabroute.connection;
 
 
+import android.content.DialogInterface;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,12 +29,28 @@ public class UserLoginHandler extends ConnectionHandler {
 
 
     public static UserHandler user;
-
+    private String eMail;
+    private String password;
     private JSONObject error;
+    private int code;
 
     public UserLoginHandler(LoginActivity activity, UserHandler user) {
         super(activity);
         UserLoginHandler.user = user;
+        error = new JSONObject();
+    }
+
+    public UserLoginHandler(LoginActivity activity, String eMail){
+        super(activity);
+        this.eMail = eMail;
+        error = new JSONObject();
+    }
+
+    public UserLoginHandler(LoginActivity activity, int code, String password, String eMail){
+        super(activity);
+        this.code = code;
+        this.password = password;
+        this.eMail = eMail;
         error = new JSONObject();
     }
 
@@ -55,6 +73,14 @@ public class UserLoginHandler extends ConnectionHandler {
                 ((LoginActivity)activity).checkCredentials(jsonResult);
                 return;
             }
+            if(responseType.equals("recovery_request")){
+                ((LoginActivity)activity).handleResponseRecoveryRequest(jsonResult);
+                return;
+            }
+            if(responseType.equals("password_recovery")){
+                ((LoginActivity)activity).handleRecoveryPasswordResponse(jsonResult);
+                return;
+            }
             ((LoginActivity)activity).confirmationResponse(jsonResult);
         } catch (JSONException e) {
             System.err.println(e);
@@ -65,6 +91,10 @@ public class UserLoginHandler extends ConnectionHandler {
         try {
             if (params[0].equals("login"))
                 return doLoginData();
+            if(params[0].equals("recovery"))
+                return sendPasswordRecoveryRequest();
+            if(params[0].equals("sendPass"))
+                return sendNewPassAndCode();
             return confirmUser();
         } catch (JSONException e) {
             System.err.println(e);
@@ -189,4 +219,125 @@ public class UserLoginHandler extends ConnectionHandler {
             return error;
         }
     }
+
+    JSONObject sendPasswordRecoveryRequest() throws JSONException {
+        try {
+
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/auth/recovery/" + eMail;
+            URL url = new URL(urlString);
+
+            /** Create all-trusting host name verifier
+             * to avoid the following :
+             * java.security.cert.CertificateException: No name matching
+             * This is because Java by default verifies that the certificate CN (Common Name) is
+             * the same as host name in the URL. If they are not, the web service client fails.
+             **/
+
+            HostnameVerifier allowEveryHost = new HostnameVerifier() {
+
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
+
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setConnectTimeout(3000);
+            urlConnection.setSSLSocketFactory(context.getSocketFactory());
+            urlConnection.setHostnameVerifier(allowEveryHost);
+            urlConnection.setRequestMethod("POST");
+            InputStream in = urlConnection.getInputStream();
+            //System.err.println(inputToString(in)); debug
+            String jsonToString = inputToString(in);
+            in.close();
+            return new JSONObject(jsonToString);
+        } catch (SocketTimeoutException e) {
+            System.err.println(e);
+            error.put("result", "CONN_TIMEDOUT").put("type" , "recovery_request");
+            return error;
+        } catch (ConnectException e) {
+            System.err.println(e);
+            error.put("result", "CONN_REFUSED").put("type" , "recovery_request");
+            return error;
+        } catch (MalformedURLException e) {
+            System.err.println(e);
+            error.put("result", "CONN_BAD_URL").put("type" , "recovery_request");
+            return error;
+        } catch (IOException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_IO_ERROR").put("type" , "recovery_request");
+            return error;
+        } catch (IllegalArgumentException e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type" , "recovery_request");
+            return error;
+        } catch (Exception e) {
+            System.err.println(e);
+            error.put("result", "CONN_GENERIC_ERROR").put("type" , "recovery_request");
+            return error;
+        }
+    }
+
+    protected JSONObject sendNewPassAndCode() throws JSONException{
+    try {
+        String urlString = "https://" + serverUrl + ":" + serverPort + "/auth/update";
+        URL url = new URL(urlString);
+
+        /** Create all-trusting host name verifier
+         * to avoid the following :
+         * java.security.cert.CertificateException: No name matching
+         * This is because Java by default verifies that the certificate CN (Common Name) is
+         * the same as host name in the URL. If they are not, the web service client fails.
+         **/
+
+        HostnameVerifier allowEveryHost = new HostnameVerifier() {
+
+            @Override
+                public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+
+        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+        urlConnection.setConnectTimeout(3000);
+        urlConnection.setSSLSocketFactory(context.getSocketFactory());
+        urlConnection.setHostnameVerifier(allowEveryHost);
+        urlConnection.setRequestMethod("POST");
+        urlConnection.setRequestProperty("Content-Type" , "application/json");
+        DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
+        String request = new JSONObject().put("pass" , password).put("code", String.valueOf(code)).put("mail" , eMail).toString();
+        //System.err.println(request);
+        printout.writeBytes(request);
+        printout.flush();
+        printout.close();
+        InputStream in = urlConnection.getInputStream();
+        String jsonToString = inputToString(in);
+        in.close();
+        return new JSONObject(jsonToString);
+    } catch (SocketTimeoutException e) {
+        System.err.println(e);
+        error.put("type", "password_recovery").put("result", "CONN_TIMEDOUT");
+        return error;
+    } catch (ConnectException e) {
+        System.err.println(e);
+        error.put("type", "password_recovery").put("result", "CONN_REFUSED");
+        return error;
+    } catch (MalformedURLException e) {
+        System.err.println(e);
+        error.put("type", "password_recovery").put("result", "CONN_BAD_URL");
+            return error;
+    } catch (IOException e) {
+        System.err.println(e);
+        error.put("type", "password_recovery").put("result", "CONN_GENERIC_IO_ERROR");
+        return error;
+    } catch (IllegalArgumentException e) {
+        System.err.println(e);
+        error.put("type", "password_recovery").put("result", "CONN_GENERIC_ERROR");
+        return error;
+    } catch (Exception e) {
+        System.err.println(e);
+        error.put("type", "password_recovery").put("result", "CONN_GENERIC_ERROR");
+        return error;
+    }
+}
 }

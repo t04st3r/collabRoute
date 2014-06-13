@@ -30,14 +30,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.VisibleRegion;
 
 
 import org.json.JSONException;
@@ -165,8 +163,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                     TextView address = (TextView) markerWindow.findViewById(R.id.address_text_view);
                     String snippetText = marker.getSnippet();
                     ImageView logo = (ImageView) markerWindow.findViewById(R.id.markerLogo);
-                    WebView snippetWebView = (WebView) markerWindow.findViewById(R.id.snippetWebView);
-                    if (snippetText != null && snippetText.contains("Created by:"))
+                    if (snippetText.contains("Created by:"))
                         logo.setImageResource(android.R.drawable.ic_menu_mylocation);
                     else
                         logo.setImageResource(android.R.drawable.ic_menu_myplaces);

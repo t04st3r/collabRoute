@@ -21,7 +21,12 @@
     <string name="signIn_button">SIGN IN</string>
     <string name="recovery_button">RECOVER</string>
     <string name="recovery_text">Forgot your Password?</string>
+    <string name="recovery_alert_title">Change password</string>
     <string name="title_activity_registration">RegistrationActivity</string>
+    <string name="recovery_alert_message">Insert your email address</string>
+    <string name="recovery_alert_wrong_email">Wrong email typed</string>
+    <string name="recovery_email_send_error">Error on send email, please try again later</string>
+    <string name="recovery_alert_dialog_code_title">Password recovery</string>
     <string name="registration_username">Pick an Username:</string>
     <string name="registration_email">Insert your Email Address:</string>
     <string name="registration_passwd">Choose a Password:</string>
@@ -30,6 +35,10 @@
                                             the verification code, copy and paste the code
                                             in the verification code field to complete your
                                             registration</string>
+    <string name="recovery_email_sent">An email has been sent to: \n\n <b>%1$s</b> \n\ncontaining
+                                            the verification code, copy and paste the code
+                                            in the verification code field and insert your new password to complete
+                                            your password recovery</string>
     <string name="registration_checkmail">CHECK EMAIL</string>
     <string name="registration_button">REGISTER</string>
     <string name="registration_user_mail_name_error">Email, Username or Password missing or incorrect</string>
@@ -49,7 +58,7 @@
     <string name="error_connectionError">Generic error</string>
     <string name="error_mailForward">Error on sending email \nplease try again later</string>
     <string name="error_mailNotFound">Email address not found</string>
-    <string name="error_mailExists">Email address already in use \npplease use another one</string>
+    <string name="error_mailExists">Email address already in use \nplease use another one</string>
     <string name="error_databaseError">Database error</string>
     <string name="error_wrongCoordinates">Bad Coordinates</string>
     <string name="error_geocodeAPIError">Error on Google Server connection</string>
@@ -152,4 +161,8 @@
     <string name="directions_dialog_negative">Something went wrong.. \nno directions found</string>
     <string name="directions_empty_list">No waypoints to visualize on the map</string>
     <string name="directions_toggle_visibility_first">Toggle Show Directions button first \nor you won\'t see nothing on the map</string>
+    <string name="recovery_dialog_send_passwd">Update password</string>
+    <string name="recovery_dialog_empty_pass_or_code">Password or code missing</string>
+    <string name="recovery_dialog_wrong_code">Wrong code</string>
+    <string name="recovery_dialog_password_changed">Password successfully changed!\nyou can now log in using it</string>
 </resources>

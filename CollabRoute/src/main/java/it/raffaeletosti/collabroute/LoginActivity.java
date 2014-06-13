@@ -2,13 +2,13 @@ package it.raffaeletosti.collabroute;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,8 +17,6 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.EmailValidator;
@@ -31,14 +29,18 @@ public class LoginActivity extends Activity {
     private static UserHandler User = null;
     public final static String PARCELABLE_KEY = "it.raffaeletosti.collabroute.parcelable";
 
-    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_NOT_FOUND, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
+    private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_SEND_ERROR, EMAIL_NOT_FOUND, WRONG_CODE, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
     EditText mailField;
     EditText passField;
     Dialog confirmDialog;
     Dialog exitDialog;
     EditText codeField;
+    EditText newPasswd;
     String code;
+    AlertDialog recoveryDialog;
+    Dialog codeRecoveryDialog;
+    String eMailAddress;
 
 
     @Override
@@ -51,6 +53,7 @@ public class LoginActivity extends Activity {
 
         final Button loginButton = (Button) findViewById(R.id.buttonLogin);
         final Button registrationButton = (Button) findViewById(R.id.buttonSignIn);
+        final Button recovery = (Button) findViewById(R.id.buttonRecovery);
 
         mailField.setText("dummy@dummy.dummy");
         passField.setText("dummy");
@@ -68,23 +71,54 @@ public class LoginActivity extends Activity {
                 goToRegistration();
             }
         });
+
+        recovery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createRecoveryDialog();
+            }
+        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    private void createRecoveryDialog() {
+        if (recoveryDialog == null) {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle(getString(R.string.recovery_alert_title));
+            alertDialogBuilder.setMessage(getString(R.string.recovery_alert_message));
+            final EditText mailField = new EditText(this);
+            alertDialogBuilder.setView(mailField);
+            alertDialogBuilder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    String mailFromTextView = mailField.getText().toString();
+                    mailField.setText("");
+                    if (!EmailValidator.validate(mailFromTextView)) {
+                        showToastWrongEmail();
+                    } else {
+                        sendRecoveryRequest(mailFromTextView);
+                    }
+                }
+            });
+            alertDialogBuilder.setNegativeButton(getString(R.string.cancel_button), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    recoveryDialog.dismiss();
+                }
+            });
+            recoveryDialog = alertDialogBuilder.create();
+        }
+        recoveryDialog.show();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        return id == R.id.action_settings || super.onOptionsItemSelected(item);
+    private void showToastWrongEmail() {
+        Toast.makeText(this, getString(R.string.recovery_alert_wrong_email), Toast.LENGTH_SHORT).show();
+    }
+
+    private void sendRecoveryRequest(String mail) {
+        eMailAddress = mail;
+        UserLoginHandler recoveryRequest = new UserLoginHandler(this, mail);
+        recoveryRequest.execute("recovery");
+        recoveryDialog.dismiss();
     }
 
     public void doLogin() {
@@ -279,6 +313,123 @@ public class LoginActivity extends Activity {
             }
         } catch (JSONException e) {
             System.err.println(e);
+        }
+    }
+
+    public void handleResponseRecoveryRequest(JSONObject response) {
+        String resultString = null;
+        try {
+            resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case CONN_REFUSED:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case EMAIL_NOT_FOUND:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(UserLoginHandler.EMAIL_NOT_FOUND), Toast.LENGTH_SHORT).show();
+                    return;
+                case EMAIL_SEND_ERROR:
+                    Toast.makeText(LoginActivity.this, getString(R.string.recovery_email_send_error), Toast.LENGTH_SHORT).show();
+                    return;
+                case OK:
+                    createCodeVerificationRecoveryDialog();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void createCodeVerificationRecoveryDialog() {
+        if (codeRecoveryDialog == null) {
+            codeRecoveryDialog = new Dialog(this);
+            codeRecoveryDialog.setContentView(R.layout.change_passwd_dialog);
+            codeRecoveryDialog.setTitle(getString(R.string.recovery_alert_dialog_code_title));
+            TextView message = (TextView) codeRecoveryDialog.findViewById(R.id.recovery_dialog_message);
+            codeField = (EditText) codeRecoveryDialog.findViewById(R.id.recovery_dialog_code);
+            newPasswd = (EditText) codeRecoveryDialog.findViewById(R.id.recovery_dialog_passwd);
+            Button updatePass = (Button) codeRecoveryDialog.findViewById(R.id.send_new_password);
+            Button checkMail = (Button) codeRecoveryDialog.findViewById(R.id.check_mail);
+            message.setText(String.format(getString(R.string.recovery_email_sent), eMailAddress));
+            checkMail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    checkMail();
+                }
+            });
+            updatePass.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String passFromTextView = (newPasswd.getText()).toString();
+                    String codeFromTextView = (codeField.getText()).toString();
+                    if(passFromTextView.equals("") || codeFromTextView.equals("")){
+                        Toast.makeText(LoginActivity.this, getString(R.string.recovery_dialog_empty_pass_or_code), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    newPasswd.setText("");
+                    codeField.setText("");
+                    int code = Integer.parseInt(codeFromTextView);
+                    UserHandler user = new UserHandler();
+                    user.setPassword(passFromTextView);
+                    String md5Pass = user.getPassword();
+                    UserLoginHandler sendPassAndCode = new UserLoginHandler(LoginActivity.this, code, md5Pass, eMailAddress);
+                    sendPassAndCode.execute("sendPass");
+                }
+            });
+        }
+        codeRecoveryDialog.show();
+    }
+
+    public void handleRecoveryPasswordResponse(JSONObject response) {
+        String resultString = null;
+        try {
+            resultString = response.getString("result");
+            ResponseMSG responseEnum = ResponseMSG.valueOf(resultString);
+            switch (responseEnum) {
+                case CONN_REFUSED:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_BAD_URL:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_IO_ERROR:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_IO_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_GENERIC_ERROR:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case CONN_TIMEDOUT:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
+                    return;
+                case DATABASE_ERROR:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(ConnectionHandler.DB_ERROR), Toast.LENGTH_SHORT).show();
+                    return;
+                case EMAIL_NOT_FOUND:
+                    Toast.makeText(LoginActivity.this, ConnectionHandler.errors.get(UserLoginHandler.EMAIL_NOT_FOUND), Toast.LENGTH_SHORT).show();
+                    return;
+                case WRONG_CODE:
+                    Toast.makeText(LoginActivity.this, getString(R.string.recovery_dialog_wrong_code), Toast.LENGTH_SHORT).show();
+                    return;
+                case OK:
+                    codeRecoveryDialog.dismiss();
+                    Toast.makeText(LoginActivity.this, getString(R.string.recovery_dialog_password_changed), Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }
