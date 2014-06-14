@@ -183,7 +183,7 @@ public class UserLoginHandler extends ConnectionHandler {
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
-            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestMethod("PUT");
             String urlParam = "mail=" + user.getEMail();
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
             printout.writeBytes(urlParam);
@@ -223,7 +223,7 @@ public class UserLoginHandler extends ConnectionHandler {
     JSONObject sendPasswordRecoveryRequest() throws JSONException {
         try {
 
-            String urlString = "https://" + serverUrl + ":" + serverPort + "/auth/recovery/" + eMail;
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/recovery/" + eMail;
             URL url = new URL(urlString);
 
             /** Create all-trusting host name verifier
@@ -245,7 +245,7 @@ public class UserLoginHandler extends ConnectionHandler {
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
-            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestMethod("GET");
             InputStream in = urlConnection.getInputStream();
             //System.err.println(inputToString(in)); debug
             String jsonToString = inputToString(in);
@@ -280,7 +280,7 @@ public class UserLoginHandler extends ConnectionHandler {
 
     protected JSONObject sendNewPassAndCode() throws JSONException{
     try {
-        String urlString = "https://" + serverUrl + ":" + serverPort + "/auth/update";
+        String urlString = "https://" + serverUrl + ":" + serverPort + "/recovery/update";
         URL url = new URL(urlString);
 
         /** Create all-trusting host name verifier
@@ -302,7 +302,7 @@ public class UserLoginHandler extends ConnectionHandler {
         urlConnection.setConnectTimeout(3000);
         urlConnection.setSSLSocketFactory(context.getSocketFactory());
         urlConnection.setHostnameVerifier(allowEveryHost);
-        urlConnection.setRequestMethod("POST");
+        urlConnection.setRequestMethod("PUT");
         urlConnection.setRequestProperty("Content-Type" , "application/json");
         DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
         String request = new JSONObject().put("pass" , password).put("code", String.valueOf(code)).put("mail" , eMail).toString();

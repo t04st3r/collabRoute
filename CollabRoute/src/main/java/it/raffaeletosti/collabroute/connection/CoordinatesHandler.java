@@ -82,7 +82,7 @@ public class CoordinatesHandler extends ConnectionHandler{
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
-            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestMethod("PUT");
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
             printout.writeBytes(new JSONObject().put("longitude", longitude).put("latitude", latitude).put("travelId" , travelId).toString());
             printout.flush();

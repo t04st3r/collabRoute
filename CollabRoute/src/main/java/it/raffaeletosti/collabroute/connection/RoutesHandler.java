@@ -204,7 +204,7 @@ public class RoutesHandler extends ConnectionHandler {
     private JSONObject deleteRoute() throws JSONException {
         try {
 
-            String urlString = "https://" + serverUrl + ":" + serverPort + "/delete/routes/";
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/delete/routes/"+idRoute+"/"+idTravel;
             URL url = new URL(urlString);
 
             /** Create all-trusting host name verifier
@@ -224,15 +224,11 @@ public class RoutesHandler extends ConnectionHandler {
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
             urlConnection.setRequestProperty("token", user.getToken());
-            urlConnection.setRequestProperty("Content-Type" , "application/json");
+            urlConnection.setRequestMethod("DELETE");
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
-            urlConnection.setRequestMethod("POST");
-            DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
-            printout.writeBytes(new JSONObject().put("travelId", idTravel).put("routeId" , idRoute).toString());
-            printout.flush();
-            printout.close();
+            System.err.println(urlConnection.getResponseCode());
             InputStream in = urlConnection.getInputStream();
             String jsonToString = inputToString(in);
             in.close();

@@ -90,7 +90,7 @@ public class TravelListHandler extends ConnectionHandler {
     private JSONObject deleteTravel() throws JSONException {
         try {
 
-            String urlString = "https://" + serverUrl + ":" + serverPort + "/delete/travel/";
+            String urlString = "https://" + serverUrl + ":" + serverPort + "/delete/travel/"+travel.getId();
             URL url = new URL(urlString);
 
             /** Create all-trusting host name verifier
@@ -110,15 +110,10 @@ public class TravelListHandler extends ConnectionHandler {
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setRequestProperty("id", String.valueOf(user.getId()));
             urlConnection.setRequestProperty("token", user.getToken());
-            urlConnection.setRequestProperty("Content-Type" , "application/json");
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
-            urlConnection.setRequestMethod("POST");
-            DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
-            printout.writeBytes(new JSONObject().put("travelId", String.valueOf(travel.getId())).toString());
-            printout.flush();
-            printout.close();
+            urlConnection.setRequestMethod("DELETE");
             InputStream in = urlConnection.getInputStream();
             String jsonToString = inputToString(in);
             in.close();

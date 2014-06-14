@@ -163,7 +163,7 @@ public class UserRegistrationHandler extends ConnectionHandler {
             urlConnection.setConnectTimeout(3000);
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(allowEveryHost);
-            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestMethod("PUT");
             String urlParam = "mail=" + newbie.getEMail();
             DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
             printout.writeBytes(urlParam);

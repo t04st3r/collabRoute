@@ -204,7 +204,6 @@ public class RegistrationActivity extends Activity {
             Toast.makeText(RegistrationActivity.this, successText, Toast.LENGTH_LONG).show();
             String codeString = ((JSONObject) result).getString("code");
             int code = Integer.parseInt(codeString);
-            System.err.println("code: " + code);
             regCode = code;
             enableButtons();
 
