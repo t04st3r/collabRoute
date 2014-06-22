@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.TravelListHandler;
-import it.raffaeletosti.collabroute.model.MeetingPoint;
+import it.raffaeletosti.collabroute.model.Route;
 import it.raffaeletosti.collabroute.model.Travel;
 import it.raffaeletosti.collabroute.model.User;
 import it.raffaeletosti.collabroute.travels.TravelContent;
@@ -274,7 +274,7 @@ public class travelDetailActivity extends FragmentActivity {
             if ((len = response.length()) > 0) {
                 for (int i = 0; i < len; i++) {
                     JSONObject route = response.getJSONObject(i);
-                    MeetingPoint mp = new MeetingPoint();
+                    Route mp = new Route();
                     mp.setId(route.getInt("id"));
                     mp.setAddress(route.getString("address"));
                     addresses += mp.getAddress() + "\n";

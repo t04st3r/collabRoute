@@ -111,6 +111,8 @@
     <string name="travel_tab_4">Users</string>
     <string name="travel_tab_2">Directions</string>
     <string name="google_play_error_message">Disconnected from Google Play Service</string>
+    <string name="gmap_intent_error">Intent deleted while solving Google Map error</string>
+    <string name="gmap_connection_error">Error while loading Google Map \n%1$s</string>
     <string name="socket_io_wrong_auth">Wrong user or travel</string>
     <string name="users_visualize_map">Visualize single user</string>
     <string name="users_visualize_them_all">Visualize all users</string>

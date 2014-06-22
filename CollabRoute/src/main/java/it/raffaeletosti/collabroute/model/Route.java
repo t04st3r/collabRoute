@@ -3,7 +3,7 @@ package it.raffaeletosti.collabroute.model;
 /**
  * Created by raffaele on 28/03/14.
  */
-public class MeetingPoint {
+public class Route {
 
     private int id;
     private String address;

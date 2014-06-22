@@ -16,7 +16,7 @@ public class Travel {
     private User admin;
     private String description;
     private HashMap<String, User> people;
-    private HashMap<String, MeetingPoint> routes;
+    private HashMap<String, Route> routes;
 
 
     public Travel() {
@@ -50,11 +50,11 @@ public class Travel {
         this.people = people;
     }
 
-    public HashMap<String, MeetingPoint> getRoutes() {
+    public HashMap<String, Route> getRoutes() {
         return routes;
     }
 
-    public void setRoutes(HashMap<String, MeetingPoint> routes) {
+    public void setRoutes(HashMap<String, Route> routes) {
         this.routes = routes;
     }
 
@@ -84,9 +84,9 @@ public class Travel {
         }
         return toReturn;
     }
-    public void insertRoute(MeetingPoint route) {
+    public void insertRoute(Route route) {
         if (routes == null) {
-            routes = new HashMap<String, MeetingPoint>();
+            routes = new HashMap<String, Route>();
         }
         routes.put(String.valueOf(route.getId()), route);
     }
@@ -156,13 +156,13 @@ public class Travel {
                     newUser.setEMail(userObj.getString("eMail"));
                     people.put(String.valueOf(newUser.getId()), newUser);
                 }
-                routes = new HashMap<String, MeetingPoint>();
+                routes = new HashMap<String, Route>();
                 if(object.has("routes")){
                     JSONArray routesArray = object.getJSONArray("routes");
                     length = routesArray.length();
                     for(int i = 0; i < length; i++){
                         JSONObject currentRoute = routesArray.getJSONObject(i);
-                        MeetingPoint current = new MeetingPoint();
+                        Route current = new Route();
                         current.setId(currentRoute.getInt("id"));
                         current.setAddress(currentRoute.getString("address"));
                         current.setLatitude(currentRoute.getDouble("latitude"));

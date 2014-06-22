@@ -34,7 +34,7 @@ import it.raffaeletosti.collabroute.connection.DirectionsHandler;
 import it.raffaeletosti.collabroute.directions.CustomArrayAdapterDirections;
 import it.raffaeletosti.collabroute.directions.DirectionsContent;
 import it.raffaeletosti.collabroute.directions.PolylineDirectionsJSONParser;
-import it.raffaeletosti.collabroute.model.MeetingPoint;
+import it.raffaeletosti.collabroute.model.Route;
 import it.raffaeletosti.collabroute.model.User;
 
 /**
@@ -173,9 +173,9 @@ public class DirectionsFragment extends Fragment {
             lat2 = ((User) destination).getLatitude();
             lng2 = ((User) destination).getLongitude();
         } else {
-            destinationAddress = ((MeetingPoint) destination).getAddress();
-            lat2 = ((MeetingPoint) destination).getLatitude();
-            lng2 = ((MeetingPoint) destination).getLongitude();
+            destinationAddress = ((Route) destination).getAddress();
+            lat2 = ((Route) destination).getLatitude();
+            lng2 = ((Route) destination).getLongitude();
         }
         originLatLng = new LatLng(lat1, lng1);
         destinationLatLng = new LatLng(lat2, lng2);

@@ -17,7 +17,6 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,7 +49,7 @@ import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.CoordinatesHandler;
 import it.raffaeletosti.collabroute.connection.RoutesHandler;
 import it.raffaeletosti.collabroute.directions.DirectionsContent;
-import it.raffaeletosti.collabroute.model.MeetingPoint;
+import it.raffaeletosti.collabroute.model.Route;
 import it.raffaeletosti.collabroute.model.User;
 
 
@@ -99,10 +98,12 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                         try {
                             connectionResult.startResolutionForResult(activity, CONNECTION_FAILURE_RESOLUTION_REQUEST);
                         } catch (IntentSender.SendIntentException e) {
-                            System.err.println(e);
+                            Toast.makeText(activity, getString(R.string.gmap_intent_error), Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        System.err.println("CAN'T CONNECT: " + connectionResult.getErrorCode());
+                        Toast.makeText(activity, String.format(
+                                getString(R.string.gmap_connection_error),connectionResult.getErrorCode()),
+                                    Toast.LENGTH_SHORT).show();
                     }
                 }
             };
@@ -189,6 +190,96 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        client.connect();
+    }
+
+    @Override
+    public void onStop() {
+        client.disconnect();
+        super.onStop();
+    }
+
+    public static GMapFragment newInstance() {
+        GMapFragment fragment = new GMapFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        if (view != null) {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if (parent != null) {
+                parent.removeView(view);
+            }
+
+        } else
+            try {
+                view = inflater.inflate(R.layout.fragment_gmap, container, false);
+            } catch (InflateException e) {
+                System.err.println(e);
+            }
+        return view;
+    }
+
+    public GMapFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) { //useful for updating location on client location changes
+
+        double lat2 = location.getLatitude();
+        double long2 = location.getLongitude();
+        double lat1 = TravelActivity.user.getLatitude();
+        double long1 = TravelActivity.user.getLongitude();
+
+        //if distance are bigger that maxDistance or coordinates from model object are not initialized, send it to the server
+        if ((lat1 == 0.0d && long1 == 0.0d) || calculateDistance(lat1, long1, lat2, long2) > MAX_DISTANCE) {
+            CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this, String.valueOf(TravelActivity.travel.getId()));
+            handler.execute(String.valueOf(long2), String.valueOf(lat2));
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.err.println("GPS UPDATE SERVICE STOPPED");
+        if (locationManager != null) {
+            locationManager.removeUpdates(this);
+        }
+        if (client != null && client.isConnected()) {
+            client.disconnect();
+        }
+    }
+
+    //markers handler methods
+
     void createMarkers() {
         HashMap<String, User> users = TravelActivity.travel.getPeople();
         int mySelfId = TravelActivity.user.getId();
@@ -201,9 +292,9 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             User currentUser = users.get(current);
             setSingleMarker(currentUser);
         }
-        HashMap<String, MeetingPoint> routes = TravelActivity.travel.getRoutes();
+        HashMap<String, Route> routes = TravelActivity.travel.getRoutes();
         for (String current : routes.keySet()) {
-            MeetingPoint currentMP = routes.get(current);
+            Route currentMP = routes.get(current);
             setSingleMarker(currentMP);
         }
         updateCameraSingleUser(mySelf);
@@ -228,7 +319,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
 
     }
 
-    void setSingleMarker(MeetingPoint mp) {
+    void setSingleMarker(Route mp) {
         double lat = mp.getLatitude();
         double lng = mp.getLongitude();
         MarkerOptions option = new MarkerOptions();
@@ -391,7 +482,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         map.animateCamera(updateCameraView);
     }
 
-    void updateCameraSingleRoute(MeetingPoint mp) {
+    void updateCameraSingleRoute(Route mp) {
         LatLng routeLatLng = new LatLng(mp.getLatitude(), mp.getLongitude());
         Marker currentMarker = routeMarkers.get(String.valueOf(mp.getId()));
         currentMarker.showInfoWindow();
@@ -443,96 +534,10 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        client.connect();
-    }
 
-    @Override
-    public void onStop() {
-        client.disconnect();
-        super.onStop();
-    }
 
-    public static GMapFragment newInstance() {
-        GMapFragment fragment = new GMapFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        if (view != null) {
-            ViewGroup parent = (ViewGroup) view.getParent();
-            if (parent != null) {
-                parent.removeView(view);
-            }
-
-        } else
-            try {
-                view = inflater.inflate(R.layout.fragment_gmap, container, false);
-            } catch (InflateException e) {
-                System.err.println(e);
-            }
-        return view;
-    }
-
-    public GMapFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) { //useful for updating location on client location changes
-
-        double lat2 = location.getLatitude();
-        double long2 = location.getLongitude();
-        double lat1 = TravelActivity.user.getLatitude();
-        double long1 = TravelActivity.user.getLongitude();
-
-        //if distance are bigger that maxDistance or coordinates from model object are not initialized, send it to the server
-        if ((lat1 == 0.0d && long1 == 0.0d) || calculateDistance(lat1, long1, lat2, long2) > MAX_DISTANCE) {
-            CoordinatesHandler handler = new CoordinatesHandler(activity, TravelActivity.user, this, String.valueOf(TravelActivity.travel.getId()));
-            handler.execute(String.valueOf(long2), String.valueOf(lat2));
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        System.err.println("GPS UPDATE SERVICE STOPPED");
-        if (locationManager != null) {
-            locationManager.removeUpdates(this);
-        }
-        if (client != null && client.isConnected()) {
-            client.disconnect();
-        }
-    }
-
-    /* this function return true if distance between previous coordinates values
- * (lat1, long1) and the current values (lat2, long2) is bigger than MAX_DISTANCE (in meter) according to the
+    /* this function calculate distance between previous coordinates values
+ * (lat1, long1) and the current values (lat2, long2) according to the
  *
  * Haversine formula: (d = distance, R = earth radius)
  *
@@ -556,7 +561,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         double a = Math.pow(sinDLat, 2) + Math.pow(sinDLong, 2) * Math.cos(Math.toRadians(lat1)) *
                 Math.cos(Math.toRadians(lat2));
         double d = Math.asin(Math.sqrt(a)) * 2 * EARTH_RADIUS;
-        //System.err.println("Distance: "+d);
         return d;
     }
 
@@ -567,7 +571,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
             switch (responseEnum) {
                 case CONN_REFUSED:
                     Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_REFUSED), Toast.LENGTH_SHORT).show();
-                    System.err.println("CONNECTION REFUSED");
                     return;
                 case CONN_BAD_URL:
                     Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_BAD_URL), Toast.LENGTH_SHORT).show();
@@ -579,7 +582,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                     Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_GENERIC_ERROR), Toast.LENGTH_SHORT).show();
                     return;
                 case CONN_TIMEDOUT:
-                    System.err.println("CONNECTION REFUSED");
                     Toast.makeText(activity, ConnectionHandler.errors.get(ConnectionHandler.CONN_TIMEDOUT), Toast.LENGTH_SHORT).show();
                     return;
                 case DATABASE_ERROR:
@@ -598,7 +600,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
                     TravelActivity.user.setLatitude(latitude);
                     TravelActivity.user.setLongitude(longitude);
                     TravelActivity.user.setAddress(address);
-                    //System.err.println("update coordinates LONG: " + String.valueOf(longitude) + " LAT: " + String.valueOf(latitude) + " ADDR: "+address);
             }
         } catch (JSONException e) {
             System.err.println(e);

@@ -7,7 +7,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -55,8 +54,6 @@ public class LoginActivity extends Activity {
         final Button registrationButton = (Button) findViewById(R.id.buttonSignIn);
         final Button recovery = (Button) findViewById(R.id.buttonRecovery);
 
-        mailField.setText("dummy@dummy.dummy");
-        passField.setText("dummy");
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,12 +120,10 @@ public class LoginActivity extends Activity {
 
     public void doLogin() {
 
-        final Editable mailEdit = mailField.getText();
-        final Editable passEdit = passField.getText();
-        String mail = mailEdit.toString();
-        String passwd = passEdit.toString();
+        String mail = mailField.getText().toString();
+        String passwd = passField.getText().toString();
 
-        if (TextUtils.isEmpty(mailEdit) || TextUtils.isEmpty(passEdit) || !EmailValidator.validate(mail)) {
+        if (TextUtils.isEmpty(mailField.getText()) || TextUtils.isEmpty(passField.getText()) || !EmailValidator.validate(mail)) {
             Toast.makeText(LoginActivity.this, "Email or Password missing or incorrect", Toast.LENGTH_SHORT).show();
             return;
         }

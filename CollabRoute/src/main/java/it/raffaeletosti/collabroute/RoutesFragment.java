@@ -33,8 +33,7 @@ import java.util.List;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.RoutesHandler;
-import it.raffaeletosti.collabroute.model.MeetingPoint;
-import it.raffaeletosti.collabroute.model.Travel;
+import it.raffaeletosti.collabroute.model.Route;
 import it.raffaeletosti.collabroute.model.User;
 import it.raffaeletosti.collabroute.routes.CustomArrayAdapterRoutes;
 import it.raffaeletosti.collabroute.routes.RoutesContent;
@@ -60,7 +59,7 @@ public class RoutesFragment extends Fragment {
     private AutoCompleteTextView country;
     private HashMap<String, String> countryList;
     public static boolean isTabViolet = false;
-    public MeetingPoint selected;
+    public Route selected;
 
     private enum ResponseMSG {OK, ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, ROUTE_NOT_FOUND, UNKNOWN_ERROR, INVALID_REQUEST, DATABASE_ERROR, AUTH_FAILED, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
@@ -158,11 +157,11 @@ public class RoutesFragment extends Fragment {
 
 
     private void fillListFromModel() {
-        HashMap<String, MeetingPoint> routesList = TravelActivity.travel.getRoutes();
+        HashMap<String, Route> routesList = TravelActivity.travel.getRoutes();
         if (!routesList.isEmpty()) {
             RoutesContent.cleanList();
             for (String current : routesList.keySet()) {
-                MeetingPoint currentMP = routesList.get(current);
+                Route currentMP = routesList.get(current);
                 User creator = currentMP.getIdUser() == TravelActivity.travel.getAdmin().getId() ? TravelActivity.travel.getAdmin()
                         : TravelActivity.travel.getPeople().get(String.valueOf(currentMP.getIdUser()));
                 RoutesContent.RoutesItem item = new RoutesContent.RoutesItem(String.valueOf(currentMP.getId()),
@@ -181,7 +180,7 @@ public class RoutesFragment extends Fragment {
         JSONArray routeList = routeArray.getJSONObject(0).getJSONArray("list");
         int length = routeList.length();
         if (length > 0) {
-            HashMap<String, MeetingPoint> newMap = new HashMap<String, MeetingPoint>();
+            HashMap<String, Route> newMap = new HashMap<String, Route>();
             for (int i = 0; i < length; i++) {
                 JSONObject item = routeList.getJSONObject(i);
                 int id = item.getInt("id");
@@ -189,7 +188,7 @@ public class RoutesFragment extends Fragment {
                 Double longitude = item.getDouble("longitude");
                 int userId = item.getInt("idUser");
                 String address = item.getString("address");
-                MeetingPoint brandNew = new MeetingPoint();
+                Route brandNew = new Route();
                 brandNew.setId(id);
                 brandNew.setLatitude(latitude);
                 brandNew.setLongitude(longitude);
@@ -264,7 +263,7 @@ public class RoutesFragment extends Fragment {
                     if(menuDialog.isShowing()){
                         menuDialog.dismiss();
                     }
-                    MeetingPoint destination = selected;
+                    Route destination = selected;
                     String idMySelf = String.valueOf(TravelActivity.user.getId());
                     User mySelf = idMySelf.equals(String.valueOf(TravelActivity.travel.getAdmin().getId())) ?
                             TravelActivity.travel.getAdmin() : TravelActivity.travel.getPeople().get(idMySelf);
