@@ -152,7 +152,7 @@ public class DirectionsFragment extends Fragment {
                 } else {
                     if (TravelActivity.map.directionsPolyLine != null && TravelActivity.map.directionsPolyLine.isVisible()) {
                         TravelActivity.map.directionsPolyLine.setVisible(false);
-                        TravelActivity.map.setInvisibleDirectionsMarkers();
+                        TravelActivity.map.setDirectionsMarkersInvisible();
                     }
                 }
             }

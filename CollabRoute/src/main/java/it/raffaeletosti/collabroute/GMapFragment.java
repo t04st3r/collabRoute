@@ -432,7 +432,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         }
     }
 
-    private void setDirectionsMarkersInvisible(){
+     void setDirectionsMarkersInvisible(){
         if(directionsMarker != null && !directionsMarker.isEmpty()){
             for(String current: directionsMarker.keySet()){
                 Marker currentMarker = directionsMarker.get(current);
@@ -523,17 +523,6 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         }
         updateCameraTwoBounds(bound1, bound2, false);
     }
-
-
-    public void setInvisibleDirectionsMarkers() {
-        if (!directionsMarker.isEmpty()) {
-            for (String current : directionsMarker.keySet()) {
-                Marker currentMarker = directionsMarker.get(current);
-                currentMarker.setVisible(false);
-            }
-        }
-    }
-
 
 
     /* this function calculate distance between previous coordinates values
