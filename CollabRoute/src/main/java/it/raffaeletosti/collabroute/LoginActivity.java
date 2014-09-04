@@ -1,6 +1,8 @@
 package it.raffaeletosti.collabroute;
 
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -8,7 +10,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,6 +22,8 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.regex.Pattern;
 
 import it.raffaeletosti.collabroute.connection.ConnectionHandler;
 import it.raffaeletosti.collabroute.connection.EmailValidator;
@@ -30,7 +38,7 @@ public class LoginActivity extends Activity {
 
     private enum ResponseMSG {OK, AUTH_FAILED, USER_NOT_CONFIRMED, EMAIL_SEND_ERROR, EMAIL_NOT_FOUND, WRONG_CODE, CONFIRM_MAIL_ERROR, DATABASE_ERROR, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
-    EditText mailField;
+    AutoCompleteTextView mailField;
     EditText passField;
     Dialog confirmDialog;
     Dialog exitDialog;
@@ -40,6 +48,7 @@ public class LoginActivity extends Activity {
     AlertDialog recoveryDialog;
     Dialog codeRecoveryDialog;
     String eMailAddress;
+    static String[] accountMailAddresses;
 
 
     @Override
@@ -47,7 +56,36 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mailField = (EditText) findViewById(R.id.emailLogin);
+        //retrieve the email addresses found on the AccountManager and store them in an array
+        //useful for the AutoCompleteTextView mailField
+        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
+        Account[] accounts = AccountManager.get(this).getAccounts();
+        if (accounts.length > 0) {
+            int index = 0;
+            for (Account account : accounts) {
+                if (emailPattern.matcher(account.name).matches())
+                    index++;
+            }
+            if (index > 0) {
+                accountMailAddresses = new String[index];
+                index = 0;
+                for (Account account : accounts) {
+                    if (emailPattern.matcher(account.name).matches())
+                        accountMailAddresses[index++] = account.name;
+                }
+            }
+        }
+
+        //remove focus on EditText
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        mailField = (AutoCompleteTextView) findViewById(R.id.emailLogin);
+        if (accountMailAddresses != null) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                    (this, android.R.layout.simple_dropdown_item_1line, accountMailAddresses);
+            mailField.setAdapter(adapter);
+            mailField.setThreshold(1);
+        }
         passField = (EditText) findViewById(R.id.passwordLogin);
 
         final Button loginButton = (Button) findViewById(R.id.buttonLogin);
@@ -371,7 +409,7 @@ public class LoginActivity extends Activity {
                 public void onClick(View v) {
                     String passFromTextView = (newPasswd.getText()).toString();
                     String codeFromTextView = (codeField.getText()).toString();
-                    if(passFromTextView.equals("") || codeFromTextView.equals("")){
+                    if (passFromTextView.equals("") || codeFromTextView.equals("")) {
                         Toast.makeText(LoginActivity.this, getString(R.string.recovery_dialog_empty_pass_or_code), Toast.LENGTH_SHORT).show();
                         return;
                     }

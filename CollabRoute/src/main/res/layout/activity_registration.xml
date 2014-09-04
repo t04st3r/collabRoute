@@ -70,7 +70,7 @@
         android:textIsSelectable="false"
         android:layout_marginLeft="10dp" />
 
-    <EditText
+    <AutoCompleteTextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"

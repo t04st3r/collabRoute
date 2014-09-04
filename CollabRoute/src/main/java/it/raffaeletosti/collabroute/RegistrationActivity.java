@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -25,7 +28,7 @@ public class RegistrationActivity extends Activity {
     protected UserRegistrationHandler connection;
 
     private int regCode;
-    private EditText mailText;
+    private AutoCompleteTextView mailText;
     private EditText passText;
     private EditText userText;
     private EditText codeText;
@@ -41,8 +44,11 @@ public class RegistrationActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        //remove focus on EditText
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
         //initialize Registration Activity components
-        mailText = (EditText) findViewById(R.id.emailReg);
+        mailText = (AutoCompleteTextView) findViewById(R.id.emailReg);
         passText = (EditText) findViewById(R.id.passReg);
         userText = (EditText) findViewById(R.id.userReg);
         codeText = (EditText) findViewById(R.id.veriCode);
@@ -50,6 +56,13 @@ public class RegistrationActivity extends Activity {
         signIn = (Button) findViewById(R.id.buttonReg);
         mailCheck = (Button) findViewById(R.id.buttonCheckMail);
         completeReg = (Button) findViewById(R.id.buttonCompleteReg);
+
+        if(LoginActivity.accountMailAddresses != null){
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                    (this, android.R.layout.simple_dropdown_item_1line, LoginActivity.accountMailAddresses);
+            mailText.setAdapter(adapter);
+            mailText.setThreshold(1);
+        }
 
         signIn.setOnClickListener(new View.OnClickListener() {
 
