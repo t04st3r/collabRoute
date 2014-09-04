@@ -42,12 +42,14 @@ public class TravelActivity extends FragmentActivity {
     private Dialog exitTravel;
     public static ActionBar.Tab chatTab;
     public static ActionBar.Tab routeTab;
+    public static boolean gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travel);
         String travelString = getIntent().getExtras().getString("travel");
+        gps = getIntent().getExtras().getBoolean("gps");
         travel = new Travel();
         travel.createFromJSONString(travelString);
         setTitle(travel.getName());

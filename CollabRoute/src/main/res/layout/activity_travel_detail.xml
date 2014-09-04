@@ -92,5 +92,37 @@
         android:layout_weight="1"
         android:id="@+id/leaveOrDeleteTravel" />
     </LinearLayout>
-    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/geolocation_settings"
+        android:textColor="#aa429a"
+        android:layout_gravity="left|top"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp"/>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gps_radiobutton"
+        android:id="@+id/gpsRadioButton"
+        android:checked="true"/>
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/network_radiobutton"
+        android:id="@+id/networkRadioButton" />
+
+    </RadioGroup>
+</LinearLayout>
 

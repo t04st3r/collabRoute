@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
 import android.graphics.Color;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -71,7 +70,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     private GoogleMap.InfoWindowAdapter windowAdapter;
     public Polyline directionsPolyLine;
     public boolean isMapClickable = false;
-    private String provider;
+    String geoType;
 
 
     private final static int UPDATE_TIME_RANGE = 5000; //millisecond
@@ -116,11 +115,10 @@ public class GMapFragment extends Fragment implements android.location.LocationL
         super.onCreate(savedInstance);
         activity = getActivity();
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        //Define Criteria for chosen the best location provider (we will set a medium power consumption)
-        Criteria criteria = new Criteria();
-        criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
-        provider = locationManager.getBestProvider(criteria, false);
-        locationManager.requestLocationUpdates(provider, UPDATE_TIME_RANGE, 0, this);
+        //Set Geolocation method (gps or network) based on radio buttons choice
+
+        geoType = TravelActivity.gps ? LocationManager.GPS_PROVIDER : LocationManager.NETWORK_PROVIDER;
+        locationManager.requestLocationUpdates(geoType, UPDATE_TIME_RANGE, 0, this);
         client = new LocationClient(activity, mConnectionCallbacks, mConnectionFailedListener);
         routeMarkers = new HashMap<String, Marker>();
         directionsMarker = new HashMap<String, Marker>();
@@ -289,7 +287,7 @@ public class GMapFragment extends Fragment implements android.location.LocationL
     @Override
     public void onResume() {
         super.onResume();
-        locationManager.requestLocationUpdates(provider, UPDATE_TIME_RANGE, 0, this);
+        locationManager.requestLocationUpdates(geoType, UPDATE_TIME_RANGE, 0, this);
     }
 
     @Override

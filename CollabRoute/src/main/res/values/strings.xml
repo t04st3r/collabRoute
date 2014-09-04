@@ -126,6 +126,9 @@
     <string name="gps_disable_message">it seems that Geolocation is disabled..\nwould you like to enable it?</string>
     <string name="gps_enable_button">Enable Geolocation</string>
     <string name="gps_alert_title">Geolocation Warning</string>
+    <string name="geolocation_settings">Geolocation Settings:</string>
+    <string name="gps_radiobutton">GPS (High Power Consumption)</string>
+    <string name="network_radiobutton">WIFI and Cell Tower (Less Accuracy)</string>
     <string name="user_offline_alert">User selected is actually offline..</string>
     <string name="empty_route_message">It seems that nobody added a route yet..\nclick on Add new route and be the first!</string>
     <string name="route_visualize_single_route">Visualize route</string>

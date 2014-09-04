@@ -13,6 +13,7 @@ import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,7 @@ public class travelDetailActivity extends FragmentActivity {
     TextView travelMP;
     Travel travel;
     String id;
+    RadioButton gps;
     boolean isAdministrator;
     Dialog deleteTravelDialog;
 
@@ -61,6 +63,7 @@ public class travelDetailActivity extends FragmentActivity {
         travelAdministrator = (TextView) findViewById(R.id.travelDetailActAdmin);
         travelUsers = (TextView) findViewById(R.id.travelDetailActUser);
         travelMP = (TextView) findViewById(R.id.travelDetailActRoutes);
+        gps = (RadioButton) findViewById(R.id.gpsRadioButton);
         final Button startTravel = (Button) findViewById(R.id.startTravel);
         final Button leaveDeleteTravel = (Button) findViewById(R.id.leaveOrDeleteTravel);
         travel = travelListActivity.travels.get(id);
@@ -199,6 +202,7 @@ public class travelDetailActivity extends FragmentActivity {
             bundle.putParcelable("user", travelListActivity.user);
             travelIntent.putExtras(bundle);
             travelIntent.putExtra("travel", travel.toJsonString());
+            travelIntent.putExtra("gps" , gps.isChecked());
             startActivity(travelIntent);
             finish();
         }
