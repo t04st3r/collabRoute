@@ -29,7 +29,15 @@
         android:inputType="textPassword"
         android:ems="10"
         android:id="@+id/recovery_dialog_passwd"
-        android:hint="insert new password"
+        android:hint="insert new password" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/recovery_dialog_passwd_retype"
+        android:hint="retype your password"
         android:layout_marginBottom="20dp" />
 
     <LinearLayout

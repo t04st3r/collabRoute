@@ -1,6 +1,8 @@
 package it.raffaeletosti.collabroute;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -36,6 +38,7 @@ public class RegistrationActivity extends Activity {
     private Button mailCheck;
     private Button completeReg;
     private UserHandler newbie;
+    private AlertDialog mailLauncherDialog;
 
     private enum ResponseMSG {OK, EMAIL_SEND_ERROR, DATABASE_ERROR, EMAIL_EXISTS_ERROR, EMAIL_NOT_FOUND, CONN_TIMEDOUT, CONN_REFUSED, CONN_BAD_URL, CONN_GENERIC_IO_ERROR, CONN_GENERIC_ERROR}
 
@@ -226,12 +229,42 @@ public class RegistrationActivity extends Activity {
         startActivityForResult(intent, RESULT_OK);
         finish();
     }
+
     public void checkMail() {
-        final Intent intent = getPackageManager().getLaunchIntentForPackage("com.android.email");
-        if(intent != null) {
-            startActivity(intent);
-        }else{
-            Toast.makeText(RegistrationActivity.this, this.getString(R.string.registration_mail_not_configured), Toast.LENGTH_SHORT).show();
+        openMailDialog();
+    }
+
+    public void openMailDialog(){
+        if (mailLauncherDialog == null) {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle(getString(R.string.dialog_button_checkMail));
+            alertDialogBuilder.setMessage(getString(R.string.dialog_mail_launcher_msg));
+            alertDialogBuilder.setPositiveButton(getString(R.string.dialog_mail_launcher_mail), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    final Intent intent = getPackageManager().getLaunchIntentForPackage("com.android.email");
+                    if(intent != null) {
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(RegistrationActivity.this, RegistrationActivity.this.getString(R.string.error_mailAppNotPresent), Toast.LENGTH_SHORT).show();
+                    }
+                    mailLauncherDialog.dismiss();
+                }
+            });
+            alertDialogBuilder.setNegativeButton(getString(R.string.dialog_mail_launcher_gmail), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    final Intent intent = getPackageManager().getLaunchIntentForPackage("com.google.android.gm");
+                    if(intent != null) {
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(RegistrationActivity.this, RegistrationActivity.this.getString(R.string.error_mailAppNotPresent), Toast.LENGTH_SHORT).show();
+                    }
+                    mailLauncherDialog.dismiss();
+                }
+            });
+            mailLauncherDialog = alertDialogBuilder.create();
         }
+        mailLauncherDialog.show();
     }
 }

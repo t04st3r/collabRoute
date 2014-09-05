@@ -44,11 +44,13 @@ public class LoginActivity extends Activity {
     Dialog exitDialog;
     EditText codeField;
     EditText newPasswd;
+    EditText newPasswdRetyped;
     String code;
     AlertDialog recoveryDialog;
     Dialog codeRecoveryDialog;
     String eMailAddress;
     static String[] accountMailAddresses;
+    private AlertDialog mailLauncherDialog;
 
 
     @Override
@@ -310,12 +312,41 @@ public class LoginActivity extends Activity {
     }
 
     public void checkMail() {
-        final Intent intent = getPackageManager().getLaunchIntentForPackage("com.android.email");
-        if (intent != null) {
-            startActivity(intent);
-        } else {
-            Toast.makeText(LoginActivity.this, this.getString(R.string.registration_mail_not_configured), Toast.LENGTH_SHORT).show();
+        openMailDialog();
+    }
+
+    public void openMailDialog(){
+        if (mailLauncherDialog == null) {
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle(getString(R.string.dialog_button_checkMail));
+            alertDialogBuilder.setMessage(getString(R.string.dialog_mail_launcher_msg));
+            alertDialogBuilder.setPositiveButton(getString(R.string.dialog_mail_launcher_mail), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    final Intent intent = getPackageManager().getLaunchIntentForPackage("com.android.email");
+                    if(intent != null) {
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(LoginActivity.this, LoginActivity.this.getString(R.string.error_mailAppNotPresent), Toast.LENGTH_SHORT).show();
+                    }
+                    mailLauncherDialog.dismiss();
+                }
+            });
+            alertDialogBuilder.setNegativeButton(getString(R.string.dialog_mail_launcher_gmail), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    final Intent intent = getPackageManager().getLaunchIntentForPackage("com.google.android.gm");
+                    if(intent != null) {
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(LoginActivity.this, LoginActivity.this.getString(R.string.error_mailAppNotPresent), Toast.LENGTH_SHORT).show();
+                    }
+                    mailLauncherDialog.dismiss();
+                }
+            });
+            mailLauncherDialog = alertDialogBuilder.create();
         }
+        mailLauncherDialog.show();
     }
 
     public void confirmationResponse(JSONObject response) {
@@ -402,6 +433,7 @@ public class LoginActivity extends Activity {
             TextView message = (TextView) codeRecoveryDialog.findViewById(R.id.recovery_dialog_message);
             codeField = (EditText) codeRecoveryDialog.findViewById(R.id.recovery_dialog_code);
             newPasswd = (EditText) codeRecoveryDialog.findViewById(R.id.recovery_dialog_passwd);
+            newPasswdRetyped = (EditText) codeRecoveryDialog.findViewById(R.id.recovery_dialog_passwd_retype);
             Button updatePass = (Button) codeRecoveryDialog.findViewById(R.id.send_new_password);
             Button checkMail = (Button) codeRecoveryDialog.findViewById(R.id.check_mail);
             message.setText(String.format(getString(R.string.recovery_email_sent), eMailAddress));
@@ -416,12 +448,18 @@ public class LoginActivity extends Activity {
                 public void onClick(View v) {
                     String passFromTextView = (newPasswd.getText()).toString();
                     String codeFromTextView = (codeField.getText()).toString();
+                    String passRetyped = (newPasswdRetyped.getText()).toString();
                     if (passFromTextView.equals("") || codeFromTextView.equals("")) {
                         Toast.makeText(LoginActivity.this, getString(R.string.recovery_dialog_empty_pass_or_code), Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    if(!passFromTextView.equals(passRetyped)){
+                        Toast.makeText(LoginActivity.this, getString(R.string.recovery_dialog_password_missMatch), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     newPasswd.setText("");
                     codeField.setText("");
+                    newPasswdRetyped.setText("");
                     int code = Integer.parseInt(codeFromTextView);
                     UserHandler user = new UserHandler();
                     user.setPassword(passFromTextView);

@@ -44,13 +44,16 @@
     <string name="registration_user_mail_name_error">Email, Username or Password missing or incorrect</string>
     <string name="registration_wrong_code">Wrong Verification Code</string>
     <string name="numeric_exception">Only numeric values allowed</string>
-    <string name="registration_mail_not_configured">Your email application seems to be not configured</string>
+    <string name="registration_mail_not_configured"></string>
     <string name="dialog_confirm_title">User not confirmed yet</string>
     <string name="dialog_confirm_account">Your account seems to be not verified</string>
     <string name="dialog_button_confirm">Send</string>
     <string name="dialog_button_checkMail">Check Email</string>
     <string name="dialog_button_cancel">Cancel</string>
     <string name="codeHint">Type your code here</string>
+    <string name="dialog_mail_launcher_msg">Complete action using</string>
+    <string name="dialog_mail_launcher_gmail">Gmail</string>
+    <string name="dialog_mail_launcher_mail">Email</string>
     <string name="error_connectionTimedOut">Connection timed out</string>
     <string name="error_connectionRefused">Connection refused</string>
     <string name="error_connectionBadUrl">Bad url address</string>
@@ -59,6 +62,7 @@
     <string name="error_mailForward">Error on sending email \nplease try again later</string>
     <string name="error_mailNotFound">Email address not found</string>
     <string name="error_mailExists">Email address already in use \nplease use another one</string>
+    <string name="error_mailAppNotPresent">App not installed</string>
     <string name="error_databaseError">Database error</string>
     <string name="error_wrongCoordinates">Bad Coordinates</string>
     <string name="error_geocodeAPIError">Error on Google Server connection</string>
@@ -169,5 +173,6 @@
     <string name="recovery_dialog_send_passwd">Update password</string>
     <string name="recovery_dialog_empty_pass_or_code">Password or code missing</string>
     <string name="recovery_dialog_wrong_code">Wrong code</string>
+    <string name="recovery_dialog_password_missMatch">Password don\'t match\nplease check it</string>
     <string name="recovery_dialog_password_changed">Password successfully changed!\nyou can now log in using it</string>
 </resources>
