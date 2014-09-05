@@ -120,13 +120,20 @@ public class LoginActivity extends Activity {
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
             alertDialogBuilder.setTitle(getString(R.string.recovery_alert_title));
             alertDialogBuilder.setMessage(getString(R.string.recovery_alert_message));
-            final EditText mailField = new EditText(this);
-            alertDialogBuilder.setView(mailField);
+            final AutoCompleteTextView mailRecoveryField = new AutoCompleteTextView(this);
+            if (accountMailAddresses != null) {
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                        (this, android.R.layout.simple_dropdown_item_1line, accountMailAddresses);
+                mailRecoveryField.setAdapter(adapter);
+                mailRecoveryField.setThreshold(1);
+            }
+
+            alertDialogBuilder.setView(mailRecoveryField);
             alertDialogBuilder.setPositiveButton(getString(R.string.ok_button), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    String mailFromTextView = mailField.getText().toString();
-                    mailField.setText("");
+                    String mailFromTextView = mailRecoveryField.getText().toString();
+                    mailRecoveryField.setText("");
                     if (!EmailValidator.validate(mailFromTextView)) {
                         showToastWrongEmail();
                     } else {
